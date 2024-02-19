@@ -1,125 +1,125 @@
-## 目录
+## Table of Contents
 
-- [1. 项目结构](#1-项目结构)
-- [2. 调用层次](#2-调用层次)
-- [3. 代码逻辑](#3-代码逻辑)
-- [4. 待开发项](#4-待开发项)
-- [5. 命名规范](#5-命名规范)
-- [6. 提交规范](#6-提交规范)
+- [1. Project Structure](#1-project-structure)
+- [2. Call Hierarchy](#2-call-hierarchy)
+- [3. Code Logic](#3-code-logic)
+- [4. To-Do Items](#4-to-do-items)
+- [5. Naming Conventions](#5-naming-conventions)
+- [6. Commit Guidelines](#6-commit-guidelines)
 
 
-## 1. 项目结构
+## 1. Project Structure
 
-项目的文件和目录结构如下：
+The file and directory structure of the project is as follows:
 
-- src：源代码
-  - common：通用代码
-  - video_api：视频API
-  - ws_api：Websocket API
-  - http_api：HTTP API
-  - http_server：HTTP服务
-  - log：日志
-  - index.js：启动程序
-- test：测试代码
-- lib：依赖的库文件
-- doc：文档
-- config：配置文件
-- scripts：脚本文件
-- release：发布版本
-- README.md：项目简介
-- package.json：项目配置
+- src: Source code
+  - common: Common code
+  - video_api: Video API
+  - ws_api: Websocket API
+  - http_api: HTTP API
+  - http_server: HTTP server
+  - log: Log
+  - index.js: Startup program
+- test: Test code
+- lib: Dependency libraries
+- doc: Documentation
+- config: Configuration files
+- scripts: Script files
+- release: Release versions
+- README.md: Project overview
+- package.json: Project configuration
 
-## 2. 调用层次
+## 2. Call Hierarchy
 
-将调用层次分为六层，上层可以调用下层，下层不能调用上层。
+The call hierarchy is divided into six layers, where upper layers can call lower layers, but lower layers cannot call upper layers.
 
-| 层次 | 内容 |
+| Layer | Contents |
 |---------|---------|
 | 1 | index.js |
 | 2 | http_server |
-| 3 | http_api、ws_api、video_api |
+| 3 | http_api, ws_api, video_api |
 | 4 | log |
 | 5 | common |
-| 6 | lib、config |
+| 6 | lib, config |
 
-## 3. 代码逻辑
+## 3. Code Logic
 
-（1）核心代码有五个对象组成，这五个对象为：HTTP服务对象、HTTP-API对象、WebSocket-API对象、视频流-API对象、日志对象。
+(1) The core code consists of five objects: HTTP server object, HTTP API object, WebSocket API object, video stream API object, and log object.
 
-（2）这五个对象全部使用单例设计模式实现，保证对象的唯一性。
+(2) All five objects are implemented using the singleton design pattern to ensure uniqueness.
 
-（3）HTTP服务对象和日志对象在KVM开机时便启动。
+(3) The HTTP server object and log object start when the KVM is powered on.
 
-（4）HTTP-API对象、WebSocket-API对象、视频流-API对象在启动服务时才启动。
+(4) The HTTP API object, WebSocket API object, and video stream API object start only when the service is started.
 
-（5）所有的API都有三部分内容组成：密钥、一次性密码、具体的请求内容
+(5) All APIs consist of three parts: key, one-time password, and specific request content.
 
-## 4. 待开发项
+## 4. To-Do Items
 
-以下是项目的未完成部分，以及未来的开发计划：
+The following are the unfinished parts of the project and future development plans:
 
-- [ ] 自启动方案
-- [ ] 开机生成设备编码和密钥
-- [ ] 请求API时校验密钥和一次性密码
-- [ ] 启动服务API，返回一次性密码
-- [ ] 关闭服务API，一次性密码失效
-- [ ] 键盘API
-- [ ] 鼠标API
-- [ ] 视频API
-- [ ] 远程开关机API
-- [ ] 调整图像分辨率比例
-- [ ] 打包
+- [ ] Auto-startup solution
+- [ ] Generate device code and key on startup
+- [ ] Validate key and one-time password when requesting API
+- [ ] Start service API and return one-time password
+- [ ] Close service API and invalidate one-time password
+- [ ] Keyboard API
+- [ ] Mouse API
+- [ ] Video API
+- [ ] Remote power on/off API
+- [ ] Adjust image resolution ratio
+- [ ] Packaging
 
-## 5. 命名规范
+## 5. Naming Conventions
 
-在编程中，常见的命名规则有以下几种：
+In programming, there are several common naming conventions:
 
-驼峰命名法：第一个单词以小写字母开始，后续单词的首字母大写。例如：firstName。
+Camel Case: The first word starts with a lowercase letter, and the first letter of each subsequent word is capitalized. Example: firstName.
 
-帕斯卡命名法：所有单词的首字母都大写。例如：FirstName。
+Pascal Case: The first letter of each word is capitalized. Example: FirstName.
 
-下划线命名法：单词之间使用下划线（_）连接，所有字母都小写。例如：first_name。
+Snake Case: Words are connected with underscores (_), and all letters are lowercase. Example: first_name.
 
-短划线命名法：单词之间使用短划线（-）连接，所有字母都小写。例如：first-name。
+Kebab Case: Words are connected with hyphens (-), and all letters are lowercase. Example: first-name.
 
-常量命名法：所有字母都大写，单词之间使用下划线（_）连接。例如：FIRST_NAME。
+Constant Case: All letters are capitalized, and words are connected with underscores (_). Example: FIRST_NAME.
 
-|命名内容|命名约定|举例|
+| Naming Content | Naming Convention | Example |
 |--|--|--|
-|枚举类型|帕斯卡命名法|Direction|
-|枚举值|常量命名法|UP_LEFT|
-|常量|常量命名法|MATH_VALUE|
-|类|帕斯卡命名法|HttpServer|
-|类的属性|驼峰命名法，加下划线前缀|_value|
-|类的取存值函数|驼峰命名法|value|
-|类的私有方法|驼峰命名法，加下划线前缀|_test()|
-|类的公共方法|驼峰命名法|test()|
-|类的私有静态属性|驼峰命名法，加下划线前缀|_value|
-|类的公共静态属性|驼峰命名法|value|
-|类的私有静态方法|驼峰命名法，加下划线前缀|_test()|
-|类的公共静态方法|驼峰命名法|test()|
-|全局变量|驼峰命名法|value|
-|局部变量|驼峰命名法|value|
-|函数名|驼峰命令法|runServer()|
-|文件名|下划线命名法|http_server.js|
+| Enum Type | Pascal Case | Direction |
+| Enum Value | Constant Case | UP_LEFT |
+| Constant | Constant Case | MATH_VALUE |
+| Class | Pascal Case | HttpServer |
+| Class Property | Camel Case with underscore prefix | _value |
+| Class Getter/Setter | Camel Case | value |
+| Class Private Method | Camel Case with underscore prefix | _test() |
+| Class Public Method | Camel Case | test() |
+| Class Private Static Property | Camel Case with underscore prefix | _value |
+| Class Public Static Property | Camel Case | value |
+| Class Private Static Method | Camel Case with underscore prefix | _test() |
+| Class Public Static Method | Camel Case | test() |
+| Global Variable | Camel Case | value |
+| Local Variable | Camel Case | value |
+| Function Name | Camel Case | runServer() |
+| File Name | Snake Case | http_server.js |
 
-## 6. 提交规范
+## 6. Commit Guidelines
 
-推荐格式如下：
+The recommended format is as follows:
 ```
 <type>: <subject>
 ```
-`type` 是改动类别，有以下选项：
+`type` is the change category, with the following options:
 
-- `feature` 或 `feat`: 新功能
-- `fix`: 修复 bug
-- `docs`: 文档改动
-- `style`: 格式（不影响代码运行的变动）
-- `refactor`: 重构（即不是新增功能，也不是修改 bug 的代码变动）
-- `test`: 增加测试
-- `merge`: 代码合并
-- `revert`: 回滚到某次提交
-- `build`: 用于更新构建配置、开发工具等
-- `chore`: 杂项，其它与功能无关的更改
+- `feature` or `feat`: new function
+- `fix`: fix bug
+- `docs`: Documentation changes
+- `style`: format (changes that do not affect code operation)
+- `refactor`: Refactoring (that is, code changes that are not new features or bug fixes)
+- `test`: add test
+- `merge`: code merge
+- `revert`: roll back to a certain commit
+- `build`: used to update build configurations, development tools, etc.
+- `chore`: Miscellaneous, other non-functional changes
 
-`subject` 就是 commit 的简短描述，建议不超过 50 个字符。
+`subject` is a short description of the commit, which is recommended to be no more than 50 characters.
