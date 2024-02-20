@@ -1,0 +1,16 @@
+{
+    "log": {
+        "console": {
+            "isPrint": true,
+            "level": "info"
+        },
+        "file": {
+            "isPrint": true,
+            "level": "trace",
+            "fileName": "./temp/logs/app.log",
+            "flags": "a",
+            "maxLogSize": 30,
+            "backups": 3
+        }
+    }
+}

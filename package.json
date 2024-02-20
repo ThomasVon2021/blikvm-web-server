@@ -1,0 +1,16 @@
+{
+  "name": "blikvm",
+  "version": "1.0.0",
+  "description": "This is the server-side implementation of blikvm",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "log4js": "^6.9.1"
+  }
+}
