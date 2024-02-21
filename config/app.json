@@ -12,5 +12,11 @@
             "maxLogSize": 30,
             "backups": 3
         }
+    },
+    "other":{
+        "secretFile":"./config/secret.json"
+    },
+    "httpServer": {
+        "port": 10001
     }
 }
