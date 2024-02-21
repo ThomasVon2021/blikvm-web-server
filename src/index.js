@@ -30,10 +30,5 @@ function createSecretFile() {
         };
         fs.writeFileSync(other.secretFile,JSON.stringify(data));
         logger.info(`Secret file created at ${other.secretFile}`);
-    }else{
-        const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-        data.key = generateSecret(keyLength);
-        fs.writeFileSync(other.secretFile,JSON.stringify(data));
-        logger.info(`Secret file updated at ${other.secretFile}`);
     }
 }
