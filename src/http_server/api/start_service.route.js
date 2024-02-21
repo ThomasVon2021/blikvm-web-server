@@ -2,7 +2,13 @@ import HttpApi from '../../http_api/http_api.js';
 import WebSocketApi from '../../ws_api/ws_api.js';
 import VideoApi from '../../video_api/video_api.js';
 
-export default function (req, res) {
+/**
+ * Handles the API request to start the service.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ */
+function apiFunc (req, res) {
     try {
         const httpApi = new HttpApi();
         const webSocketApi = new WebSocketApi();
@@ -16,3 +22,5 @@ export default function (req, res) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
+export default apiFunc;
