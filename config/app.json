@@ -18,5 +18,10 @@
     },
     "httpServer": {
         "port": 10001
+    },
+    "videoApi":{
+        "port": 10002,
+        "shell":"./scripts/kvmd-video.sh",
+        "bin":"./lib/ustreamer.bin"
     }
 }

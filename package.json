@@ -1,5 +1,5 @@
 {
-  "name": "blikvm",
+  "name": "blikvm-server",
   "version": "1.0.0",
   "description": "This is the server-side implementation of blikvm",
   "type": "module",
