@@ -58,17 +58,17 @@ The call hierarchy is divided into six layers, where upper layers can call lower
 
 The following are the unfinished parts of the project and future development plans:
 
-- [ ] Auto-startup solution
-- [ ] Generate device code and key on startup
-- [ ] Validate key and one-time password when requesting API
-- [ ] Start service API and return one-time password
-- [ ] Close service API and invalidate one-time password
-- [ ] Keyboard API
-- [ ] Mouse API
-- [ ] Video API
-- [ ] Remote power on/off API
-- [ ] Adjust image resolution ratio
-- [ ] Packaging
+- Auto-startup solution
+- ~~Generate device code and key on startup~~
+- Validate key and one-time password when requesting API
+- Start service API and return one-time password
+- Close service API and invalidate one-time password
+- Keyboard API
+- Mouse API
+- ~~Video API~~
+- Remote power on/off API
+- Adjust image resolution ratio
+- Packaging
 
 ## 5. Naming Conventions
 

@@ -2,15 +2,15 @@ import Logger from "./log/logger.js";
 import { existFile, createFile, generateUniqueCode, generateSecret } from "./common/tool.js"
 import fs from 'fs';
 import HttpServer from "./http_server/http_server.js";
-import VideoApi from "./video_api/video_api.js";
+import HttpApi from "./http_api/http_api.js";
 
 const logger = new Logger();
  
 createSecretFile(); 
 
-const videoApi = new VideoApi();
-videoApi.startService().then((result) => {
-    logger.info(`Video API started at ${result.name}`);
+const httpApi = new HttpApi();
+httpApi.startService().then((result) => {
+    logger.info(`Http API started at ${result.name}`);
 }).catch((error) => {
     throw error;
 });
@@ -20,10 +20,10 @@ setInterval(() => {
     console.log(++interval);
 }, 1000);
 setTimeout(() => {
-    videoApi.closeService().then((result) => {
-        logger.info(`Video API stopped at ${result.name}`);
+    httpApi.closeService().then((result) => {
+        logger.info(`Http API stopped at ${result.name}`);
     });
-}, 20000);
+}, 5000);
 
 // const httpServer = new HttpServer();
 
