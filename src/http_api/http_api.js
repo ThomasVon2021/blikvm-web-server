@@ -10,7 +10,12 @@ const logger = new Logger();
 
 const HttpApiState = {
     RUNNING: 'RUNNING',
-    STOPPED: 'STOPPED',
+  STOPPED: 'STOPPED',
+  STARTING: 'STARTING',
+  STOPPING: 'STOPPING',
+  PAUSED: 'PAUSED',
+  ERROR: 'ERROR',
+  UNKNOWN: 'UNKNOWN'
 };
 
 class HttpApi {
@@ -19,8 +24,8 @@ class HttpApi {
 
     _name = "http_api";
     _server=null;
-    _listenPort=0;
-    _state=HttpApi.STOPPED;
+    _option=null;
+    _state=HttpApiState.STOPPED;
 
     constructor() {
         if (!HttpApi._instance) {
@@ -31,27 +36,38 @@ class HttpApi {
         return HttpApi._instance;
     }
 
+    get state() {
+        return this._state;
+    }
+
+    set state(value) {
+        this._state = value;
+    }
+
     startService() {
         return new Promise((resolve, reject) => {
-            this._server.listen(this._listenPort, () => {
-                this._state=HttpApi.RUNNING;
-                resolve({ name: this._name });
+            this._state=HttpApiState.STARTING;
+            this._server.listen(this._option.port, () => {
+                this._state=HttpApiState.RUNNING;
+                logger.info(`Http Api started at ${this._option.port}, state: ${this._state}`);
+                resolve({ name: this._name,port:this._option.port });
             });
         });
     }
 
     closeService() {
         return new Promise((resolve, reject) => {
+            this._state=HttpApiState.STOPPING;
             this._server.close(() => {
-                this._state=HttpApi.STOPPED;
-                resolve({ name: this._name });
+                this._state=HttpApiState.STOPPED;
+                resolve({ name: this._name,port:this._option.port });
             });
         });
     }
 
     _init() {
         const { httpApi } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-        this._listenPort = httpApi.port;
+        this._option = httpApi;
 
         const app = express();
 
@@ -72,15 +88,36 @@ class HttpApi {
     }
 
     _requestRecorder(req, res, next) {
-        const requestType = req.method;
-        const requestUrl = req.url;
-
-        logger.info(`request ${requestType} ${requestUrl}`);
-        next();
+        try {
+            const requestType = req.method;
+            const requestUrl = req.url;
+            logger.info(`http api request ${requestType} ${requestUrl}`);
+            next();
+        } catch (err) {
+            logger.error(`Error recording HTTP request: ${err.message}`);
+            res.status(500).json({ msg: 'Internal Server Error' });
+        }
     }
 
     _check(req, res, next) {
-        next();
+        try {
+            const key = req.body.key;
+            const otp=req.body.otp;
+            const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+            const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+            if (key&&key === data.key) {
+                next();
+            }
+            else if(otp&&otp === data.otp){
+                next();
+            }
+            else {
+                res.status(400).json({ msg: 'Key or OTP is missing or wrong' });
+            }
+        } catch (err) {
+            logger.error(`Error checking key: ${err.message}`);
+            res.status(500).json({ msg: 'Internal Server Error' });
+        }
     }
 }
 

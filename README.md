@@ -60,9 +60,9 @@ The following are the unfinished parts of the project and future development pla
 
 - Auto-startup solution
 - ~~Generate device code and key on startup~~
-- Validate key and one-time password when requesting API
-- Start service API and return one-time password
-- Close service API and invalidate one-time password
+- ~~Validate key and one-time password when requesting API~~
+- ~~Start service API and return one-time password~~
+- ~~Close service API and invalidate one-time password~~
 - Keyboard API
 - Mouse API
 - ~~Video API~~

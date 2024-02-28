@@ -19,7 +19,7 @@ function apiFunc (req, res) {
             res.json({ msg: `Service failed to close, reason: ${error.message}` });
         });
     } catch (err) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ msg: 'Internal Server Error' });
     }
 }
 

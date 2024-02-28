@@ -88,10 +88,6 @@ function generateSecret(length) {
     return password;
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export {
     existDir,
     existFile,
@@ -99,6 +95,5 @@ export {
     createFile,
     generateUniqueCode,
     generateSecret,
-    sleep
 };
   

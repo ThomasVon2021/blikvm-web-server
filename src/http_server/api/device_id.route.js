@@ -9,9 +9,9 @@ function apiFunc (req, res) {
     try {
         const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
         const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-        res.json({ id: data.id });
+        res.json({ id: data.id,msg: 'Device ID retrieved'});
     } catch (err) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ msg: 'Internal Server Error' });
     }
 }
 

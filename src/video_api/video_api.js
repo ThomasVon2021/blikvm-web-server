@@ -7,7 +7,11 @@ const logger = new Logger();
 const VideoApiState = {
   RUNNING: 'RUNNING',
   STOPPED: 'STOPPED',
-  ERROR: 'ERROR'
+  STARTING: 'STARTING',
+  STOPPING: 'STOPPING',
+  PAUSED: 'PAUSED',
+  ERROR: 'ERROR',
+  UNKNOWN: 'UNKNOWN'
 }
 
 
@@ -28,6 +32,14 @@ class ViedoApi {
     return ViedoApi._instance;
   }
 
+  get state() {
+    return this._state;
+}
+
+set state(value) {
+  this._state = value;
+}
+
   startService () {
     return new Promise((resolve, reject) => {
 
@@ -37,11 +49,11 @@ class ViedoApi {
       this._videoServer = spawn(shell, [bin, port]);
 
       this._videoServer.stdout.on('data', data => {
-        // logger.info(`video stdout: ${data}`);
+        logger.debug(`video stdout: ${data}`);
       });
 
       this._videoServer.stderr.on('data', data => {
-        // logger.info(`video stderr: ${data}`);
+        logger.debug(`video stderr: ${data}`);
       });
 
       this._videoServer.on('error',err=>{
@@ -57,7 +69,7 @@ class ViedoApi {
       });
 
       this._state=VideoApiState.RUNNING;
-      resolve({ name: this._name });
+      resolve({ name: this._name,port:this._option.port });
     })
   }
 
@@ -67,7 +79,7 @@ class ViedoApi {
   
       const checkState = () => {
         if (this._state === VideoApiState.STOPPED) {
-          resolve({ name: this._name });
+          resolve({ name: this._name,port:this._option.port });
         } else {
           setTimeout(checkState, 200);
         }

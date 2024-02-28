@@ -1,7 +1,7 @@
-import greet from './greet.route.js'
+import test from './test.route.js'
 
 const routes = [
-    { path: '/greet', handler: greet, method: 'get' }
+    { path: '/test', handler: test, method: 'post' }
 ]
 
 export default routes;

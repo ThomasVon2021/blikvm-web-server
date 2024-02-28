@@ -8,30 +8,21 @@ const logger = new Logger();
  
 createSecretFile(); 
 
-const httpApi = new HttpApi();
-httpApi.startService().then((result) => {
-    logger.info(`Http API started at ${result.name}`);
+const httpServer = new HttpServer();
+
+httpServer.startService().then((result) => {
+    logger.info(`Http Server started at ${result.port}`);
 }).catch((error) => {
     throw error;
 });
 
-let interval = 0;
-setInterval(() => {
-    console.log(++interval);
-}, 1000);
 setTimeout(() => {
-    httpApi.closeService().then((result) => {
-        logger.info(`Http API stopped at ${result.name}`);
+    httpServer.closeService().then((result) => {
+        logger.info(`Http Server closed at ${result.port}`);
+    }).catch((error)=>{
+        throw error;
     });
-}, 5000);
-
-// const httpServer = new HttpServer();
-
-// httpServer.startService().then((result) => {
-//     logger.info(`Http Server started at ${result.port}`);
-// }).catch((error) => {
-//     throw error;
-// });
+}, 20000);
 
 /**
  * Creates or updates a secret file with a unique code, secret key, and empty OTP.
