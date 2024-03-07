@@ -11,15 +11,12 @@ function apiFunc (req, res) {
         const httpServer=new HttpServer();
         const videoApi = new VideoApi();
         const httpApi = new HttpApi();
-        // const WebSocketApi = new WebSocketApi();
-        // logger.info(`Http Api ${HttpApi}`);
-        // logger.info(`Http Api ${httpApi}`);
-        // logger.info(`Http Api state: ${httpApi.state}`);
+        const webSocketApi = new WebSocketApi();
         res.json({
             httpServer: httpServer.state,
             videoApi: videoApi.state,
             httpApi: httpApi.state,
-            // WebSocketApi: WebSocketApi.state
+            webSocketApi: webSocketApi.state
         });
     } catch (err) {
         logger.error(`Error retrieving state: ${err.message}`);

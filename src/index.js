@@ -16,13 +16,13 @@ httpServer.startService().then((result) => {
     throw error;
 });
 
-setTimeout(() => {
-    httpServer.closeService().then((result) => {
-        logger.info(`Http Server closed at ${result.port}`);
-    }).catch((error)=>{
-        throw error;
-    });
-}, 20000);
+// setTimeout(() => {
+//     httpServer.closeService().then((result) => {
+//         logger.info(`Http Server closed at ${result.port}`);
+//     }).catch((error)=>{
+//         throw error;
+//     });
+// }, 20000);
 
 /**
  * Creates or updates a secret file with a unique code, secret key, and empty OTP.
