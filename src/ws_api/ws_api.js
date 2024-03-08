@@ -59,12 +59,13 @@ class WebSocketApi {
                 // }, 2000);
 
                 ws.on('message', (message) => {
-                    logger.info(`Received message => ${message}`);
+                    // logger.info(`Received message => ${message}`);
                     const obj = JSON.parse(message);
                     const keys = Object.keys(obj);
                     if (keys.includes("m")) {
                         handleMouse(obj['m'])
                     } else if (keys.includes("k")) {
+                        logger.info(`Received message => ${message}`);
                         handleKeyboard(obj['k'])
                     }
                 });
