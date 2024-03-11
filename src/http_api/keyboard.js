@@ -1,14 +1,14 @@
 import fs from 'fs';
-import Logger from '../../log/logger.js';
+import Logger from '../log/logger.js';
 
-const logger=new Logger();
+const logger = new Logger();
 
-function handleKeyboard(event){
+function handleKeyboard(event) {
     let keyboard_data = packData(event);
     fs.writeFile('/dev/hidg0', keyboard_data, (error) => {
-      if (error) {
-        logger.info(`Error writing to /dev/hidg0: ${error.message}`);
-      }
+        if (error) {
+            logger.info(`Error writing to /dev/hidg0: ${error.message}`);
+        }
     });
 }
 
@@ -37,14 +37,14 @@ function packData(data) {
 }
 
 function addSpecialKey(current, add) {
-    const shift = 0x02;   // 16
-    const ctrl = 0x01;    // 17
-    const alt = 0x04;     // 18
-    const cmd = 0x08;     // 91 or 93
-    const rctrl = 0x10;   // rightctrl 16
-    const rshift = 0x20;  // rshift 32
-    const ralt = 0x40;    // ralt 64
-    const rcmd = 0x80;    // rcmd 128 (not used, no right GUI key on most keyboards)
+    const shift = 0x02; // 16
+    const ctrl = 0x01; // 17
+    const alt = 0x04; // 18
+    const cmd = 0x08; // 91 or 93
+    const rctrl = 0x10; // rightctrl 16
+    const rshift = 0x20; // rshift 32
+    const ralt = 0x40; // ralt 64
+    const rcmd = 0x80; // rcmd 128 (not used, no right GUI key on most keyboards)
 
     if (add === 'ShiftLeft')
         current |= shift;
@@ -62,7 +62,7 @@ function addSpecialKey(current, add) {
         current |= ralt;
     if (add === 'MetaRight')
         current |= rcmd;
-    
+
     return current;
 }
 

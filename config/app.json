@@ -21,13 +21,10 @@
     },
     "videoApi":{
         "port": 10002,
-        "shell":"./scripts/kvmd-video.sh",
+        "shell":"./lib/kvmd-video.sh",
         "bin":"./lib/ustreamer.bin"
     },
     "httpApi":{
         "port":10003
-    },
-    "wsApi":{
-        "port":10004
     }
 }

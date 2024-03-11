@@ -10,28 +10,22 @@
 |       |        |        |  startService    | Start Service |
 |       |        |        |  closeService    | Close Service |
 
-## 3. http_api,ws_api,video_api
+## 3. http_api,video_api
 
 ### 3.1 http_api
 
 | http_api.js| | | | |
 |---------|---------|---------|---------|---------|
+| class | HttpApi | properties|  state | Service State |
 | class | HttpApi | methods|  construct| Constructor |
 |       |        |        |  startService    | Start Service |
 |       |        |        |  closeService    | Close Service |
 
-### 3.2 ws_api
-
-| ws_api.js| | | | |
-|---------|---------|---------|---------|---------|
-| class | WebSocketApi | methods|  construct| Constructor |
-|       |        |        |  startService    | Start Service |
-|       |        |        |  closeService    | Close Service |
-
-### 3.3 video_api
+### 3.2 video_api
 
 | video_api.js| | | | |
 |---------|---------|---------|---------|---------|
+| class | VideoApi | properties|  state | Service State |
 | class | VideoApi | methods|  construct| Constructor |
 |       |        |        |  startService    | Start Service |
 |       |        |        |  closeService    | Close Service |

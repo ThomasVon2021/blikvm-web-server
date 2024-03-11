@@ -6,6 +6,7 @@
 - [4. To-Do Items](#4-to-do-items)
 - [5. Naming Conventions](#5-naming-conventions)
 - [6. Commit Guidelines](#6-commit-guidelines)
+- [7. API Request Convention](#7-api-request-convention)
 
 
 ## 1. Project Structure
@@ -15,13 +16,12 @@ The file and directory structure of the project is as follows:
 - src: Source code
   - common: Common code
   - video_api: Video API
-  - ws_api: Websocket API
-  - http_api: HTTP API
+  - http_api: HTTP API and WebSocket API
   - http_server: HTTP server
   - log: Log
   - index.js: Startup program
 - test: Test code
-- lib: Dependency libraries
+- lib: Dependency libraries and Dependency scripts
 - doc: Documentation
 - config: Configuration files
 - scripts: Script files
@@ -37,22 +37,20 @@ The call hierarchy is divided into six layers, where upper layers can call lower
 |---------|---------|
 | 1 | index.js |
 | 2 | http_server |
-| 3 | http_api, ws_api, video_api |
+| 3 | http_api, video_api |
 | 4 | log |
 | 5 | common |
 | 6 | lib, config |
 
 ## 3. Code Logic
 
-(1) The core code consists of five objects: HTTP server object, HTTP API object, WebSocket API object, video stream API object, and log object.
+(1) The core code consists of four objects: HTTP server object, HTTP API object, video stream API object, and log object.
 
-(2) All five objects are implemented using the singleton design pattern to ensure uniqueness.
+(2) All four objects are implemented using the singleton design pattern to ensure uniqueness.
 
 (3) The HTTP server object and log object start when the KVM is powered on.
 
-(4) The HTTP API object, WebSocket API object, and video stream API object start only when the service is started.
-
-(5) All APIs consist of three parts: key, one-time password, and specific request content.
+(4) The HTTP API object, and video stream API object start only when the service is started.
 
 ## 4. To-Do Items
 
@@ -63,12 +61,13 @@ The following are the unfinished parts of the project and future development pla
 - ~~Validate key and one-time password when requesting API~~
 - ~~Start service API and return one-time password~~
 - ~~Close service API and invalidate one-time password~~
-- Keyboard API
-- Mouse API
+- ~~Keyboard API~~
+- ~~Mouse API~~
 - ~~Video API~~
 - Remote power on/off API
 - Adjust image resolution ratio
 - Packaging
+- Configuration file validation
 
 ## 5. Naming Conventions
 
@@ -123,3 +122,15 @@ The recommended format is as follows:
 - `chore`: Miscellaneous, other non-functional changes
 
 `subject` is a short description of the commit, which is recommended to be no more than 50 characters.
+
+## 7. API Request Convention
+
+All API requests consist of three parts: key, one-time password, and specific request content, in the following format:
+
+```json
+{
+  key:'',
+  opt:'',
+  ...
+}
+```

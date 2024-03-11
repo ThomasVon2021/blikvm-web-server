@@ -1,10 +1,16 @@
-import Logger from "../../log/logger.js";
+import Logger from '../log/logger.js';
 import fs from 'fs';
 
-const logger=new Logger();
+const logger = new Logger();
 
 function handleMouse(event) {
-    const { buttons, relativeX, relativeY, verticalWheelDelta, horizontalWheelDelta } = event;
+    const {
+        buttons,
+        relativeX,
+        relativeY,
+        verticalWheelDelta,
+        horizontalWheelDelta
+    } = event;
     const data = prepareMouseEvent(buttons, relativeX, relativeY, verticalWheelDelta, horizontalWheelDelta);
     fs.writeFile('/dev/hidg1', data, (error) => {
         if (error) {
