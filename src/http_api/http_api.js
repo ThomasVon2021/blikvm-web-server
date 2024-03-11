@@ -132,20 +132,20 @@ class HttpApi {
     _wssConnection(ws, req) {
 
         try {
-            const {
-                headers
-            } = req;
-            const key = headers['key'];
-            const otp = headers['otp'];
-            const {
-                other
-            } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-            const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-            if (key && key === data.key) {} else if (otp && otp === data.otp) {} else {
-                ws.send('Key or OTP is missing or wrong');
-                ws.close();
-                return;
-            }
+            // const {
+            //     headers
+            // } = req;
+            // const key = headers['key'];
+            // const otp = headers['otp'];
+            // const {
+            //     other
+            // } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+            // const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+            // if (key && key === data.key) {} else if (otp && otp === data.otp) {} else {
+            //     ws.send('Key or OTP is missing or wrong');
+            //     ws.close();
+            //     return;
+            // }
 
             logger.info(`Client connected, total clients: ${this._wss.clients.size}`);
 
