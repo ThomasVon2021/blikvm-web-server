@@ -3,6 +3,10 @@ import Logger from '../log/logger.js';
 
 const logger = new Logger();
 
+/**
+ * Handles the keyboard event and writes the keyboard data to /dev/hidg0.
+ * @param {Event} event - The keyboard event.
+ */
 function handleKeyboard(event) {
     let keyboard_data = packData(event);
     fs.writeFile('/dev/hidg0', keyboard_data, (error) => {
@@ -12,6 +16,12 @@ function handleKeyboard(event) {
     });
 }
 
+/**
+ * Packs the given data into a binary format.
+ *
+ * @param {string[]} data - The array of keycodes to be packed.
+ * @returns {Uint8Array} - The packed binary data.
+ */
 function packData(data) {
     const special = ['ShiftLeft', 'ControlLeft', 'AltLeft', 'MetaLeft', 'MetaRight', 'ShiftRight', 'ControlRight', 'AltRight'];
     let d1 = 0;
@@ -36,15 +46,22 @@ function packData(data) {
     return bin_data;
 }
 
+/**
+ * Adds a special key to the current key value.
+ * 
+ * @param {number} current - The current key value.
+ * @param {string} add - The special key to add.
+ * @returns {number} - The updated key value.
+ */
 function addSpecialKey(current, add) {
-    const shift = 0x02; // 16
-    const ctrl = 0x01; // 17
-    const alt = 0x04; // 18
-    const cmd = 0x08; // 91 or 93
-    const rctrl = 0x10; // rightctrl 16
-    const rshift = 0x20; // rshift 32
-    const ralt = 0x40; // ralt 64
-    const rcmd = 0x80; // rcmd 128 (not used, no right GUI key on most keyboards)
+    const shift = 0x02;
+    const ctrl = 0x01;
+    const alt = 0x04;
+    const cmd = 0x08;
+    const rctrl = 0x10;
+    const rshift = 0x20;
+    const ralt = 0x40;
+    const rcmd = 0x80;
 
     if (add === 'ShiftLeft')
         current |= shift;
@@ -66,18 +83,24 @@ function addSpecialKey(current, add) {
     return current;
 }
 
+/**
+ * Adds a normal key to the current array.
+ * 
+ * @param {Array} current - The current array of keys.
+ * @param {string} add - The key to be added.
+ */
 function addNormalKey(current, add) {
-    //总共 8byte，前面2个固定保留，实际最多按 6个按钮，多了直接忽略
     if (current.length > 6)
         return;
     let keycode = keyCodeMapping(add);
     current.push(keycode);
 }
 
+
 /**
- * 浏览器的keycode到物理键盘的映射
- * @param b_code
- * @return int
+ * Maps a keyboard code to a corresponding value.
+ * @param {string} b_code - The keyboard code to be mapped.
+ * @returns {number|string} - The mapped value for the keyboard code.
  */
 function keyCodeMapping(b_code) {
     const mapping = {

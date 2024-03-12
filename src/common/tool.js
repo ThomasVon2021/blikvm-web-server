@@ -1,7 +1,8 @@
-import exp from 'constants';
 import fs from 'fs';
 import path from 'path';
-import { v4 } from 'uuid';
+import {
+    v4
+} from 'uuid';
 
 /**
  * Checks if a directory exists at the specified path.
@@ -10,7 +11,7 @@ import { v4 } from 'uuid';
  * @returns {boolean} - Returns true if the directory exists, false otherwise.
  */
 function existDir(path) {
-  return fs.existsSync(path) && fs.lstatSync(path).isDirectory();
+    return fs.existsSync(path) && fs.lstatSync(path).isDirectory();
 }
 
 /**
@@ -20,7 +21,7 @@ function existDir(path) {
  * @returns {boolean} - Returns true if the file exists and is a regular file, otherwise returns false.
  */
 function existFile(path) {
-  return fs.existsSync(path) && fs.lstatSync(path).isFile();
+    return fs.existsSync(path) && fs.lstatSync(path).isFile();
 }
 
 /**
@@ -96,4 +97,3 @@ export {
     generateUniqueCode,
     generateSecret,
 };
-  

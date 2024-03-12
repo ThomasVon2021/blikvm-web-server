@@ -98,18 +98,25 @@ class Logger {
    */
   _init() {
 
-    const { log } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const {
+      log
+    } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
 
-    if(!log.console.isPrint && !log.file.isPrint){
+    if (!log.console.isPrint && !log.file.isPrint) {
       return;
     }
 
     const config = {
       appenders: {
-        console: { type: "console" },
+        console: {
+          type: "console"
+        },
       },
       categories: {
-        default: { appenders: ['console'], level: "trace" }
+        default: {
+          appenders: ['console'],
+          level: "trace"
+        }
       }
     };
 
@@ -122,24 +129,24 @@ class Logger {
 
     if (log.file.isPrint) {
       config.appenders.file = {
-        type: "file", 
-        filename: log.file.fileName, 
-        flags: log.file.flags, 
-        maxLogSize: log.file.maxLogSize * 1024 * 1024, 
+        type: "file",
+        filename: log.file.fileName,
+        flags: log.file.flags,
+        maxLogSize: log.file.maxLogSize * 1024 * 1024,
         backups: log.file.backups
       };
       config.categories.file = {
-        appenders: ["file"], 
+        appenders: ["file"],
         level: log.file.level
       };
     }
 
     log4js.configure(config);
 
-    if(log.console.isPrint) {
+    if (log.console.isPrint) {
       this._loggers.push(log4js.getLogger("console"));
     }
-    if(log.file.isPrint) {
+    if (log.file.isPrint) {
       this._loggers.push(log4js.getLogger("file"));
     }
 

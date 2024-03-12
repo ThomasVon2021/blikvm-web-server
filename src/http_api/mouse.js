@@ -3,6 +3,11 @@ import fs from 'fs';
 
 const logger = new Logger();
 
+/**
+ * Handles the mouse event and writes the data to /dev/hidg1.
+ *
+ * @param {MouseEvent} event - The mouse event object.
+ */
 function handleMouse(event) {
     const {
         buttons,
@@ -19,6 +24,16 @@ function handleMouse(event) {
     });
 }
 
+/**
+ * Prepares a mouse event buffer based on the provided parameters.
+ *
+ * @param {number} buttons - The button state of the mouse.
+ * @param {number} relativeX - The relative X coordinate of the mouse.
+ * @param {number} relativeY - The relative Y coordinate of the mouse.
+ * @param {number} verticalWheelDelta - The vertical wheel delta of the mouse.
+ * @param {number} horizontalWheelDelta - The horizontal wheel delta of the mouse.
+ * @returns {Buffer} - The mouse event buffer.
+ */
 function prepareMouseEvent(buttons, relativeX, relativeY, verticalWheelDelta, horizontalWheelDelta) {
     const [x, y] = scaleMouseCoordinates(relativeX, relativeY);
     const buf = [0, 0, 0, 0, 0, 0, 0];
@@ -32,6 +47,13 @@ function prepareMouseEvent(buttons, relativeX, relativeY, verticalWheelDelta, ho
     return Buffer.from(buf);
 }
 
+/**
+ * Scales the mouse coordinates based on the given relative values.
+ *
+ * @param {number} relativeX - The relative X coordinate.
+ * @param {number} relativeY - The relative Y coordinate.
+ * @returns {number[]} The scaled mouse coordinates as an array [x, y].
+ */
 function scaleMouseCoordinates(relativeX, relativeY) {
     const maxHidValue = 0x7fff;
     const x = parseInt(relativeX * maxHidValue);
@@ -40,6 +62,12 @@ function scaleMouseCoordinates(relativeX, relativeY) {
     return [x, y];
 }
 
+/**
+ * Translates the vertical wheel delta value.
+ *
+ * @param {number} value - The vertical wheel delta value to be translated.
+ * @returns {number} The translated vertical wheel delta value.
+ */
 function translateVerticalWheelDelta(value) {
     return -value;
 }

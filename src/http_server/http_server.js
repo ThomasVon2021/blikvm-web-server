@@ -11,9 +11,6 @@ const logger = new Logger();
 /**
  * Represents the state of an HTTP server.
  * @enum {string}
- * @readonly
- * @property {string} RUNNING - The server is running.
- * @property {string} STOPPED - The server is stopped.
  */
 const HttpServerState = {
     STARTING: 'STARTING',
@@ -41,12 +38,19 @@ class HttpServer {
      * @type {null}
      */
     _server = null;
+
     /**
      * The name of the HTTP server.
      * @type {string}
      */
     _name = 'http_server';
+
+    /**
+     * Represents the options for the HTTP server.
+     * @type {?Object}
+     */
     _option = null;
+
     /**
      * Represents the state of the HTTP server.
      * @type {HttpServerState}
@@ -73,6 +77,7 @@ class HttpServer {
     get state() {
         return this._state;
     }
+
     /**
      * Represents the state of the HTTP server.
      * @type {HttpServerState}
@@ -146,6 +151,23 @@ class HttpServer {
 
         this._server = http.createServer(app);
 
+        this._handleServerError();
+    }
+
+    /**
+     * Handles server errors and throws appropriate errors based on the error code.
+     * @private
+     */
+    _handleServerError() {
+        this._server.on('error', (error) => {
+            switch (err.code) {
+                case 'EACCES':
+                    throw new Error('Permission denied to access port');
+                case 'EADDRINUSE':
+                    throw new Error('Port is already in use');
+            }
+            logger.error(`Http Api error: ${error.message}`);
+        });
     }
 
     /**
@@ -189,6 +211,14 @@ class HttpServer {
         }
     }
 
+    /**
+     * Handles HTTP errors and sends an error response with status code 500.
+     *
+     * @param {Error} err - The error object.
+     * @param {Object} req - The HTTP request object.
+     * @param {Object} res - The HTTP response object.
+     * @param {Function} next - The next middleware function.
+     */
     _httpError(err, req, res, next) {
         logger.error(`Error handling HTTP request: ${err.message}`);
         res.status(500).json({
