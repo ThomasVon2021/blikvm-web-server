@@ -7,10 +7,14 @@ import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { HardwareType } from './enums';
 =======
 import { HardwareType } from './enums.js';
 >>>>>>> a6b062e2 (add h616 ustreamer)
+=======
+import { HardwareType } from './enums.js';
+>>>>>>> add h616 ustreamer
 import { execSync } from 'child_process';
 
 var HardwareSysType = HardwareType.UNKNOW;
@@ -101,6 +105,10 @@ function generateSecret(length) {
   return password;
 }
 
+/**
+ * Retrieves the hardware type based on the device model.
+ * @returns {enmus} The hardware type, see HardwareType.
+ */
 function getHardwareType(){
   if(HardwareSysType == HardwareType.UNKNOW)
   {
