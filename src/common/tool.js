@@ -6,7 +6,11 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
+<<<<<<< HEAD
 import { HardwareType } from './enums';
+=======
+import { HardwareType } from './enums.js';
+>>>>>>> a6b062e2 (add h616 ustreamer)
 import { execSync } from 'child_process';
 
 var HardwareSysType = HardwareType.UNKNOW;
@@ -97,12 +101,23 @@ function generateSecret(length) {
   return password;
 }
 
-
 function getHardwareType(){
-  const pi4bSys = 'Raspberry Pi 4 Model B';
-  const mangoPiSys = 'MangoPi Mcore';
-  const piCM4Sys = 'Raspberry Pi Compute Module 4';
+  if(HardwareSysType == HardwareType.UNKNOW)
+  {
+    const modelOutput = execSync("cat /proc/device-tree/model").toString();
+    const pi4bSys = 'Raspberry Pi 4 Model B';
+    const mangoPiSys = 'MangoPi Mcore';
+    const piCM4Sys = 'Raspberry Pi Compute Module 4';
 
+    if (modelOutput.includes(pi4bSys)) {
+      HardwareSysType = HardwareType.PI4B;
+    } else if (modelOutput.includes(mangoPiSys)) {
+      HardwareSysType = HardwareType.MangoPi;
+    } else if (modelOutput.includes(piCM4Sys)) {
+      HardwareSysType = HardwareType.CM4;
+    }
+  }
+  return HardwareSysType;
 }
 
-export { existDir, existFile, createDir, createFile, generateUniqueCode, generateSecret };
+export { existDir, existFile, createDir, createFile, generateUniqueCode, generateSecret, getHardwareType };
