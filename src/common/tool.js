@@ -6,6 +6,11 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
+import { HardwareType } from './enums';
+import { execSync } from 'child_process';
+
+var HardwareSysType = HardwareType.UNKNOW;
+
 
 /**
  * Checks if a directory exists at the specified path.
@@ -90,6 +95,14 @@ function generateSecret(length) {
   }
 
   return password;
+}
+
+
+function getHardwareType(){
+  const pi4bSys = 'Raspberry Pi 4 Model B';
+  const mangoPiSys = 'MangoPi Mcore';
+  const piCM4Sys = 'Raspberry Pi Compute Module 4';
+
 }
 
 export { existDir, existFile, createDir, createFile, generateUniqueCode, generateSecret };
