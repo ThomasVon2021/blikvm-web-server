@@ -10,7 +10,9 @@
     "build-1": "babel src --out-dir temp/src",
     "build-2": "pkg . -o temp/bin/server_app",
     "build-3": "mkdir release && cp -r config lib temp/bin/server_app release/",
-    "build": "npm run build-1 && npm run build-2 && npm run build-3"
+    "build": "npm run build-1 && npm run build-2 && npm run build-3",
+    "lint": "eslint . --ext .js,.cjs, --fix --ignore-path .gitignore",
+    "format": "prettier --write src"
   },
   "bin": "temp/src/index.js",
   "pkg": {
@@ -35,6 +37,12 @@
   "devDependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/preset-env": "^7.24.0",
-    "pkg": "^5.8.1"
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "pkg": "^5.8.1",
+    "prettier": "^3.2.5"
   }
 }

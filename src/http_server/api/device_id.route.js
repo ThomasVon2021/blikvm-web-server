@@ -7,17 +7,15 @@ import fs from 'fs';
  * @param {Function} next - The next middleware function.
  */
 function apiFunc(req, res, next) {
-    try {
-        const {
-            other
-        } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-        const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-        res.json({
-            id: data.id
-        });
-    } catch (err) {
-        next(err);
-    }
+  try {
+    const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+    res.json({
+      id: data.id
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 export default apiFunc;

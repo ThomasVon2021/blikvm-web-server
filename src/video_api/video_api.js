@@ -1,8 +1,6 @@
 import fs from 'fs';
-import {
-  spawn
-} from 'child_process';
-import Logger from "../log/logger.js";
+import { spawn } from 'child_process';
+import Logger from '../log/logger.js';
 
 const logger = new Logger();
 
@@ -16,7 +14,7 @@ const VideoApiState = {
   STOPPING: 'STOPPING',
   STOPPED: 'STOPPED',
   ERROR: 'ERROR'
-}
+};
 
 /**
  * Represents the error codes used in the video API.
@@ -26,13 +24,12 @@ const ErrorCode = {
   OK: 'OK',
   RUN_FAILD: 'RUN_FAILD',
   CLOSE_TIMEOUT: 'CLOSE_TIMEOUT'
-}
+};
 
 /**
  * Represents the Video API.
  */
 class ViedoApi {
-
   /**
    * Represents the singleton instance of the VideoApi class.
    * @type {VideoApi|null}
@@ -122,10 +119,7 @@ class ViedoApi {
    */
   startService() {
     return new Promise((resolve, reject) => {
-      const {
-        checkResult,
-        checkMessage
-      } = this._startServiceStateCheck();
+      const { checkResult, checkMessage } = this._startServiceStateCheck();
 
       const result = {
         name: this._name,
@@ -148,15 +142,15 @@ class ViedoApi {
       const port = this._option.port;
       this._videoServer = spawn(shell, [bin, port]);
 
-      this._videoServer.stdout.on('data', data => {
+      this._videoServer.stdout.on('data', (data) => {
         logger.trace(`Video API stdout: ${data}`);
       });
 
-      this._videoServer.stderr.on('data', data => {
+      this._videoServer.stderr.on('data', (data) => {
         logger.trace(`Video API stderr: ${data}`);
       });
 
-      this._videoServer.on('error', err => {
+      this._videoServer.on('error', (err) => {
         this._state = VideoApiState.ERROR;
         this._error = ErrorCode.RUN_FAILD;
         this._errorMsg = err.message;
@@ -173,14 +167,15 @@ class ViedoApi {
 
       this._state = VideoApiState.STARTING;
       setTimeout(() => {
-        if(this._state===VideoApiState.ERROR){
+        if (this._state === VideoApiState.ERROR) {
           return;
         }
         this._state = VideoApiState.RUNNING;
-        logger.info(`Video API started at http://localhost:${this._option.port}/stream, state: ${this._state}`);
+        logger.info(
+          `Video API started at http://localhost:${this._option.port}/stream, state: ${this._state}`
+        );
         resolve(result);
       }, 200);
-
     });
   }
 
@@ -190,10 +185,7 @@ class ViedoApi {
    */
   closeService() {
     return new Promise((resolve, reject) => {
-      const {
-        checkResult,
-        checkMessage
-      } = this._closeServiceStateCheck();
+      const { checkResult, checkMessage } = this._closeServiceStateCheck();
       const result = {
         name: this._name,
         port: this._option.port,
@@ -223,7 +215,7 @@ class ViedoApi {
             this._error = ErrorCode.CLOSE_TIMEOUT;
             this._errorMsg = 'Video API close timeout';
             result.msg = 'Video API close timeout';
-            logger.error(`Video API error : close timeout`);
+            logger.error('Video API error : close timeout');
             reject(result);
           } else {
             setTimeout(checkState, 200);
@@ -243,7 +235,6 @@ class ViedoApi {
    * @property {string} checkMessage - The message describing the state of the Video API service.
    */
   _startServiceStateCheck() {
-
     let checkResult = false;
     let checkMessage = '';
 
@@ -282,9 +273,9 @@ class ViedoApi {
     }
 
     return {
-      checkResult: checkResult,
-      checkMessage: checkMessage
-    }
+      checkResult,
+      checkMessage
+    };
   }
 
   /**
@@ -294,7 +285,6 @@ class ViedoApi {
    * @returns {Object} - An object containing the check result and message.
    */
   _closeServiceStateCheck() {
-
     let checkResult = false;
     let checkMessage = '';
 
@@ -333,9 +323,9 @@ class ViedoApi {
     }
 
     return {
-      checkResult: checkResult,
-      checkMessage: checkMessage
-    }
+      checkResult,
+      checkMessage
+    };
   }
 
   /**
@@ -343,14 +333,10 @@ class ViedoApi {
    * @private
    */
   _init() {
-    const {
-      videoApi
-    } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { videoApi } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     this._option = videoApi;
   }
 }
 
 export default ViedoApi;
-export {
-  VideoApiState
-};
+export { VideoApiState };

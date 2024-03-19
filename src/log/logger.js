@@ -1,11 +1,10 @@
-import log4js from "log4js";
-import fs from "fs";
+import log4js from 'log4js';
+import fs from 'fs';
 
 /**
  * Represents a logger that logs messages to multiple loggers.
  */
 class Logger {
-
   /**
    * The singleton instance of the logger.
    * @type {Logger|null}
@@ -97,10 +96,7 @@ class Logger {
    * Reads the log configuration from the 'config/app.json' file and sets up the loggers accordingly.
    */
   _init() {
-
-    const {
-      log
-    } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { log } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
 
     if (!log.console.isPrint && !log.file.isPrint) {
       return;
@@ -109,34 +105,34 @@ class Logger {
     const config = {
       appenders: {
         console: {
-          type: "console"
-        },
+          type: 'console'
+        }
       },
       categories: {
         default: {
           appenders: ['console'],
-          level: "trace"
+          level: 'trace'
         }
       }
     };
 
     if (log.console.isPrint) {
       config.categories.console = {
-        appenders: ["console"],
+        appenders: ['console'],
         level: log.console.level
       };
     }
 
     if (log.file.isPrint) {
       config.appenders.file = {
-        type: "file",
+        type: 'file',
         filename: log.file.fileName,
         flags: log.file.flags,
         maxLogSize: log.file.maxLogSize * 1024 * 1024,
         backups: log.file.backups
       };
       config.categories.file = {
-        appenders: ["file"],
+        appenders: ['file'],
         level: log.file.level
       };
     }
@@ -144,12 +140,11 @@ class Logger {
     log4js.configure(config);
 
     if (log.console.isPrint) {
-      this._loggers.push(log4js.getLogger("console"));
+      this._loggers.push(log4js.getLogger('console'));
     }
     if (log.file.isPrint) {
-      this._loggers.push(log4js.getLogger("file"));
+      this._loggers.push(log4js.getLogger('file'));
     }
-
   }
 }
 

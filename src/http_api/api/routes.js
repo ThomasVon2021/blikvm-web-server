@@ -9,8 +9,8 @@ import error from './error.route.js';
  * @property {string} method - The HTTP method for the route.
  */
 const routes = [
-    { path: '/hello', handler: hello, method: 'post' },
-    { path: '/error', handler: error, method: 'post' }
+  { path: '/hello', handler: hello, method: 'post' },
+  { path: '/error', handler: error, method: 'post' }
 ];
 
 export default routes;

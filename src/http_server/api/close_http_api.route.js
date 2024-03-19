@@ -8,21 +8,24 @@ import HttpApi from '../../http_api/http_api.js';
  * @param {Function} next - The next middleware function.
  */
 function apiFunc(req, res, next) {
-    try {
-        const httpApi = new HttpApi();
+  try {
+    const httpApi = new HttpApi();
 
-        httpApi.closeService().then((result => {
-            res.json({
-                msg: 'successful'
-            })
-        })).catch((result) => {
-            res.json({
-                msg: `failed: ${result.msg}`
-            })
+    httpApi
+      .closeService()
+      .then((result) => {
+        res.json({
+          msg: 'successful'
         });
-    } catch (err) {
-        next(err);
-    }
+      })
+      .catch((result) => {
+        res.json({
+          msg: `failed: ${result.msg}`
+        });
+      });
+  } catch (err) {
+    next(err);
+  }
 }
 
 export default apiFunc;
