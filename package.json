@@ -6,7 +6,20 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "node src/index.js",
-    "clean": "rm -r temp"
+    "clean": "rm -r temp && rm -r release",
+    "build-1": "babel src --out-dir temp/src",
+    "build-2": "pkg . -o temp/bin/server_app",
+    "build-3": "mkdir release && cp -r config lib temp/bin/server_app release/",
+    "build": "npm run build-1 && npm run build-2 && npm run build-3"
+  },
+  "bin": "temp/src/index.js",
+  "pkg": {
+    "scripts": [
+      "temp/src/*.js"
+    ],
+    "targets": [
+      "node18-linux-arm64"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -18,5 +31,10 @@
     "log4js": "^6.9.1",
     "uuid": "^9.0.1",
     "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.9",
+    "@babel/preset-env": "^7.24.0",
+    "pkg": "^5.8.1"
   }
 }
