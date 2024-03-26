@@ -1,10 +1,16 @@
+/**
+ * This module defines the HTTP server class that starts and stops the HTTP server.
+ * @module api/http_server/http_server
+ */
+
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import Logger from '../log/logger.js';
+import Logger from '../../log/logger.js';
 import fs from 'fs';
 import routes from './api/routes.js';
+import { ApiErrorCode, createApiObj } from '../common/api.js';
 
 const logger = new Logger();
 
@@ -23,36 +29,41 @@ const HttpServerState = {
 /**
  * Represents an HTTP server.
  * @class
+ * @property {HttpServerState} state - The state of the HTTP server.
  */
 class HttpServer {
   /**
    * Represents the singleton instance of the HTTP server.
-   * @type {null}
+   * @type {HttpServer}
    * @private
    */
   static _instance = null;
 
   /**
    * Represents the HTTP server instance.
-   * @type {null}
+   * @type {Server<Request, Response>}
+   * @private
    */
   _server = null;
 
   /**
    * The name of the HTTP server.
    * @type {string}
+   * @private
    */
   _name = 'http_server';
 
   /**
    * Represents the options for the HTTP server.
-   * @type {?Object}
+   * @type {Object}
+   * @private
    */
   _option = null;
 
   /**
    * Represents the state of the HTTP server.
    * @type {HttpServerState}
+   * @private
    */
   _state = HttpServerState.STOPPED;
 
@@ -72,6 +83,7 @@ class HttpServer {
   /**
    * Gets the state of the HTTP server.
    * @returns {HttpServerState} The state of the HTTP server.
+   * @private
    */
   get state() {
     return this._state;
@@ -80,6 +92,7 @@ class HttpServer {
   /**
    * Represents the state of the HTTP server.
    * @type {HttpServerState}
+   * @private
    */
   set state(value) {
     this._state = value;
@@ -87,7 +100,10 @@ class HttpServer {
 
   /**
    * Starts the HTTP server.
-   * @returns {Promise<{ name: string, port: number }>} A promise that resolves with the server name and port.
+   * @returns {Promise<Object>} A promise that resolves with the server name, port, and message.
+   * @property {string} name - The name of the server.
+   * @property {number} port - The port of the server.
+   * @property {string} msg - The message of the server.
    */
   startService() {
     return new Promise((resolve, reject) => {
@@ -99,7 +115,8 @@ class HttpServer {
         );
         resolve({
           name: this.name,
-          port: this._option.port
+          port: this._option.port,
+          msg: ''
         });
       });
     });
@@ -107,7 +124,10 @@ class HttpServer {
 
   /**
    * Closes the HTTP server.
-   * @returns {Promise<{ name: string, port: number }>} A promise that resolves with the server name and port.
+   * @returns {Promise<Object>} A promise that resolves with the server name, port, and message.
+   * @property {string} name - The name of the server.
+   * @property {number} port - The port of the server.
+   * @property {string} msg - The message of the server.
    */
   closeService() {
     return new Promise((resolve, reject) => {
@@ -119,7 +139,8 @@ class HttpServer {
         );
         resolve({
           name: this.name,
-          port: this._option.port
+          port: this._option.port,
+          msg: ''
         });
       });
     });
@@ -137,8 +158,8 @@ class HttpServer {
 
     app.use(cors());
     app.use(bodyParser.json());
-    app.use(this._httpRecorder);
-    app.use(this._httpVerity);
+    app.use(this._httpRecorderMiddle);
+    app.use(this._httpVerifyMiddle);
 
     routes.forEach((route) => {
       if (route.method === 'get') {
@@ -148,18 +169,18 @@ class HttpServer {
       }
     });
 
-    app.use(this._httpError);
+    app.use(this._httpErrorMiddle);
 
     this._server = http.createServer(app);
 
-    this._handleServerError();
+    this._httpServerEvents();
   }
 
   /**
    * Handles server errors and throws appropriate errors based on the error code.
    * @private
    */
-  _handleServerError() {
+  _httpServerEvents() {
     this._server.on('error', (error) => {
       switch (error.code) {
         case 'EACCES':
@@ -178,7 +199,7 @@ class HttpServer {
    * @param {Function} next - The next middleware function.
    * @private
    */
-  _httpRecorder(req, res, next) {
+  _httpRecorderMiddle(req, res, next) {
     const requestType = req.method;
     const requestUrl = req.url;
     logger.info(`http server request ${requestType} ${requestUrl}`);
@@ -190,8 +211,10 @@ class HttpServer {
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    * @param {Function} next - The next middleware function.
+   * @private
    */
-  _httpVerity(req, res, next) {
+  _httpVerifyMiddle(req, res, next) {
+    const ret = createApiObj();
     const key = req.body.key;
     if (key) {
       const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
@@ -199,14 +222,14 @@ class HttpServer {
       if (key === data.key) {
         next();
       } else {
-        res.status(403).json({
-          msg: 'Key is invalid'
-        });
+        ret.code = ApiErrorCode.INVALID_KEY_OR_OTP;
+        ret.msg = 'Key is invalid';
+        res.status(403).json(ret);
       }
     } else {
-      res.status(400).json({
-        msg: 'Key is required'
-      });
+      ret.code = ApiErrorCode.INVALID_KEY_OR_OTP;
+      ret.msg = 'Key is absent';
+      res.status(400).json(ret);
     }
   }
 
@@ -217,12 +240,14 @@ class HttpServer {
    * @param {Object} req - The HTTP request object.
    * @param {Object} res - The HTTP response object.
    * @param {Function} next - The next middleware function.
+   * @private
    */
-  _httpError(err, req, res, next) {
+  _httpErrorMiddle(err, req, res, next) {
     logger.error(`Error handling HTTP request: ${err.message}`);
-    res.status(500).json({
-      msg: 'Internal Server Error'
-    });
+    const ret = createApiObj();
+    ret.code = ApiErrorCode.INTERVAL_SERVER_ERROR;
+    ret.msg = err.message;
+    res.status(500).json(ret);
   }
 }
 

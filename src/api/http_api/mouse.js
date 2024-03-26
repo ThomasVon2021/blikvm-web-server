@@ -1,11 +1,16 @@
-import Logger from '../log/logger.js';
+/**
+ * This module defines the mouse event handler.
+ * @module api/http_api/mouse
+ */
+
+import Logger from '../../log/logger.js';
 import fs from 'fs';
+import { existFile } from '../../common/tool.js';
 
 const logger = new Logger();
 
 /**
  * Handles the mouse event and writes the data to /dev/hidg1.
- *
  * @param {MouseEvent} event - The mouse event object.
  */
 function handleMouse(event) {
@@ -17,22 +22,27 @@ function handleMouse(event) {
     verticalWheelDelta,
     horizontalWheelDelta
   );
-  fs.writeFile('/dev/hidg1', data, (error) => {
-    if (error) {
-      logger.info(`Error writing to /dev/hidg1: ${error.message}`);
-    }
-  });
+  const fileName = '/dev/hidg1';
+  if (existFile(fileName)) {
+    fs.writeFile('/dev/hidg1', data, (error) => {
+      if (error) {
+        logger.info(`Error writing to /dev/hidg1: ${error.message}`);
+      }
+    });
+  } else {
+    logger.info('File /dev/hidg1 does not exist');
+  }
 }
 
 /**
  * Prepares a mouse event buffer based on the provided parameters.
- *
  * @param {number} buttons - The button state of the mouse.
  * @param {number} relativeX - The relative X coordinate of the mouse.
  * @param {number} relativeY - The relative Y coordinate of the mouse.
  * @param {number} verticalWheelDelta - The vertical wheel delta of the mouse.
  * @param {number} horizontalWheelDelta - The horizontal wheel delta of the mouse.
  * @returns {Buffer} - The mouse event buffer.
+ * @private
  */
 function prepareMouseEvent(
   buttons,
@@ -55,10 +65,10 @@ function prepareMouseEvent(
 
 /**
  * Scales the mouse coordinates based on the given relative values.
- *
  * @param {number} relativeX - The relative X coordinate.
  * @param {number} relativeY - The relative Y coordinate.
  * @returns {number[]} The scaled mouse coordinates as an array [x, y].
+ * @private
  */
 function scaleMouseCoordinates(relativeX, relativeY) {
   const maxHidValue = 0x7fff;
@@ -70,9 +80,9 @@ function scaleMouseCoordinates(relativeX, relativeY) {
 
 /**
  * Translates the vertical wheel delta value.
- *
  * @param {number} value - The vertical wheel delta value to be translated.
  * @returns {number} The translated vertical wheel delta value.
+ * @private
  */
 function translateVerticalWheelDelta(value) {
   return -value;

@@ -1,5 +1,4 @@
 import hello from './hello.route.js';
-import error from './error.route.js';
 
 /**
  * Array of route objects.
@@ -7,10 +6,8 @@ import error from './error.route.js';
  * @property {string} path - The route path.
  * @property {function} handler - The route handler function.
  * @property {string} method - The HTTP method for the route.
+ * @private
  */
-const routes = [
-  { path: '/hello', handler: hello, method: 'post' },
-  { path: '/error', handler: error, method: 'post' }
-];
+const routes = [{ path: '/hello', handler: hello, method: 'post' }];
 
 export default routes;

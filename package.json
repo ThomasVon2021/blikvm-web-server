@@ -6,22 +6,15 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "node src/index.js",
-    "clean": "rm -r temp && rm -r release",
+    "clean": "rm -r temp && rm -r release && rm -r doc/func",
     "build-1": "babel src --out-dir temp/src",
-    "build-2": "pkg . -o temp/bin/server_app",
+    "build-2": "pkg -c .pkg.json temp/src/index.js -o temp/bin/server_app",
     "build-3": "mkdir release && cp -r config lib temp/bin/server_app release/",
     "build": "npm run build-1 && npm run build-2 && npm run build-3",
     "lint": "eslint . --ext .js,.cjs, --fix --ignore-path .gitignore",
-    "format": "prettier --write src"
-  },
-  "bin": "temp/src/index.js",
-  "pkg": {
-    "scripts": [
-      "temp/src/*.js"
-    ],
-    "targets": [
-      "node18-linux-arm64"
-    ]
+    "format": "prettier --write src",
+    "docs": "jsdoc -c .jsdoc.json -R README.md",
+    "test": "jest test/"
   },
   "keywords": [],
   "author": "",
@@ -37,11 +30,14 @@
   "devDependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/preset-env": "^7.24.0",
+    "docdash": "^2.0.2",
     "eslint": "^8.57.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
+    "jest": "^29.7.0",
+    "jsdoc": "^4.0.2",
     "pkg": "^5.8.1",
     "prettier": "^3.2.5"
   }

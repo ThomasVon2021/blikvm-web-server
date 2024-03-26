@@ -1,8 +1,14 @@
+/**
+ * This module defines the logger class that logs messages to multiple loggers.
+ * @module log/logger
+ */
+
 import log4js from 'log4js';
 import fs from 'fs';
 
 /**
  * Represents a logger that logs messages to multiple loggers.
+ * @class
  */
 class Logger {
   /**
@@ -15,6 +21,7 @@ class Logger {
   /**
    * Array containing all the loggers.
    * @type {Array}
+   * @private
    */
   _loggers = [];
 
@@ -93,7 +100,7 @@ class Logger {
 
   /**
    * Initializes the logger.
-   * Reads the log configuration from the 'config/app.json' file and sets up the loggers accordingly.
+   * @private
    */
   _init() {
     const { log } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));

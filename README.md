@@ -6,7 +6,6 @@
 - [4. To-Do Items](#4-to-do-items)
 - [5. Naming Conventions](#5-naming-conventions)
 - [6. Commit Guidelines](#6-commit-guidelines)
-- [7. API Request Convention](#7-api-request-convention)
 
 
 ## 1. Project Structure
@@ -14,12 +13,6 @@
 The file and directory structure of the project is as follows:
 
 - src: Source code
-  - common: Common code
-  - video_api: Video API
-  - http_api: HTTP API and WebSocket API
-  - http_server: HTTP server
-  - log: Log
-  - index.js: Startup program
 - test: Test code
 - lib: Dependency libraries and Dependency scripts
 - doc: Documentation
@@ -33,14 +26,15 @@ The file and directory structure of the project is as follows:
 
 The call hierarchy is divided into six layers, where upper layers can call lower layers, but lower layers cannot call upper layers.
 
-| Layer | Contents |
-|---------|---------|
-| 1 | index.js |
-| 2 | http_server |
-| 3 | http_api, video_api |
-| 4 | log |
-| 5 | common |
-| 6 | lib, config |
+| Layer | Contents |Sub-Contents |
+|---------|---------|---------|
+| 1 | index.js | |
+| 2 | api |http_server |
+| 2 |  | http_api,video_api|
+| 2 |  | common|
+| 4 | log | |
+| 5 | common | |
+| 6 | lib, config | |
 
 ## 3. Code Logic
 
@@ -66,7 +60,7 @@ The following are the unfinished parts of the project and future development pla
 - ~~Video API~~
 - Remote power on/off API
 - Adjust image resolution ratio
-- Packaging
+- ~~Packaging~~
 - Configuration file validation
 
 ## 5. Naming Conventions
@@ -122,15 +116,3 @@ The recommended format is as follows:
 - `chore`: Miscellaneous, other non-functional changes
 
 `subject` is a short description of the commit, which is recommended to be no more than 50 characters.
-
-## 7. API Request Convention
-
-All API requests consist of three parts: key, one-time password, and specific request content, in the following format:
-
-```json
-{
-  key:'',
-  opt:'',
-  ...
-}
-```

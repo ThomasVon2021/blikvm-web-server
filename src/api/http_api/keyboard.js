@@ -1,5 +1,11 @@
+/**
+ * This module defines the keyboard event handler.
+ * @module api/http_api/keyboard
+ */
+
 import fs from 'fs';
-import Logger from '../log/logger.js';
+import Logger from '../../log/logger.js';
+import { existFile } from '../../common/tool.js';
 
 const logger = new Logger();
 
@@ -9,18 +15,23 @@ const logger = new Logger();
  */
 function handleKeyboard(event) {
   const keyboardData = packData(event);
-  fs.writeFile('/dev/hidg0', keyboardData, (error) => {
-    if (error) {
-      logger.info(`Error writing to /dev/hidg0: ${error.message}`);
-    }
-  });
+  const fileName = '/dev/hidg0';
+  if (existFile(fileName)) {
+    fs.writeFile('/dev/hidg0', keyboardData, (error) => {
+      if (error) {
+        logger.info(`Error writing to /dev/hidg0: ${error.message}`);
+      }
+    });
+  } else {
+    logger.info('File /dev/hidg0 does not exist');
+  }
 }
 
 /**
  * Packs the given data into a binary format.
- *
  * @param {string[]} data - The array of keycodes to be packed.
  * @returns {Uint8Array} - The packed binary data.
+ * @private
  */
 function packData(data) {
   const special = [
@@ -57,10 +68,10 @@ function packData(data) {
 
 /**
  * Adds a special key to the current key value.
- *
  * @param {number} current - The current key value.
  * @param {string} add - The special key to add.
  * @returns {number} - The updated key value.
+ * @private
  */
 function addSpecialKey(current, add) {
   const shift = 0x02;
@@ -102,9 +113,9 @@ function addSpecialKey(current, add) {
 
 /**
  * Adds a normal key to the current array.
- *
  * @param {Array} current - The current array of keys.
  * @param {string} add - The key to be added.
+ * @private
  */
 function addNormalKey(current, add) {
   if (current.length > 6) {
@@ -118,6 +129,7 @@ function addNormalKey(current, add) {
  * Maps a keyboard code to a corresponding value.
  * @param {string} bCode - The keyboard code to be mapped.
  * @returns {number|string} - The mapped value for the keyboard code.
+ * @private
  */
 function keyCodeMapping(bCode) {
   const mapping = {

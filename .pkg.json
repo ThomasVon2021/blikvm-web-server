@@ -1,0 +1,4 @@
+{
+  "targets": ["node18-linux-arm64"],
+  "scripts": ["temp/src/*.js"]
+}

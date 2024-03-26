@@ -13,6 +13,7 @@ import closeVideoApi from './close_video_api.route.js';
  * @property {string} path - The path of the route.
  * @property {Function} handler - The handler function for the route.
  * @property {string} method - The HTTP method for the route.
+ * @private
  * */
 const routes = [
   {

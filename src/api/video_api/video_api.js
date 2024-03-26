@@ -1,6 +1,11 @@
+/**
+ * This module defines the video API class that starts and stops the video service.
+ * @module api/video_api/video_api
+ */
+
 import fs from 'fs';
 import { spawn } from 'child_process';
-import Logger from '../log/logger.js';
+import Logger from '../../log/logger.js';
 
 const logger = new Logger();
 
@@ -19,20 +24,22 @@ const VideoApiState = {
 /**
  * Represents the error codes used in the video API.
  * @enum {string}
+ * @private
  */
-const ErrorCode = {
+const VideoApiErrorCode = {
   OK: 'OK',
-  RUN_FAILD: 'RUN_FAILD',
-  CLOSE_TIMEOUT: 'CLOSE_TIMEOUT'
+  START_FAILD: 'START_FAILD'
 };
 
 /**
  * Represents the Video API.
+ * @class
+ * @property {VideoApiState} state - The state of the video API.
  */
 class ViedoApi {
   /**
    * Represents the singleton instance of the VideoApi class.
-   * @type {VideoApi|null}
+   * @type {VideoApi}
    * @private
    */
   static _instance = null;
@@ -40,39 +47,37 @@ class ViedoApi {
   /**
    * The name of the video API.
    * @type {string}
+   * @private
    */
-  _name = 'video_api';
+  _name = 'videoApi';
 
   /**
    * Represents the option for the video API.
-   * @type {?}
+   * @type {Object}
+   * @private
    */
   _option = null;
 
   /**
    * Represents the video server.
-   * @type {null}
+   * @type {ChildProcessWithoutNullStreams}
+   * @private
    */
   _videoServer = null;
 
   /**
    * Represents the state of the video API.
    * @type {VideoApiState}
+   * @private
    */
   _state = VideoApiState.STOPPED;
 
   /**
-   * Timeout value for the video API.
-   * @type {number}
+   * Represents the error code.
+   * @type {VideoApiErrorCode}
    * @private
    */
-  _timeout = 3000;
-
-  /**
-   * Represents the error code.
-   * @type {number}
-   */
-  _error = ErrorCode.OK;
+  _error = VideoApiErrorCode.OK;
 
   /**
    * Error message for the video API.
@@ -96,8 +101,8 @@ class ViedoApi {
 
   /**
    * Get the state of the video API.
-   *
-   * @returns {string} The current state of the video API.
+   * @returns {VideoApiState} The current state of the video API.
+   * @private
    */
   get state() {
     return this._state;
@@ -105,8 +110,8 @@ class ViedoApi {
 
   /**
    * Setter for the state property.
-   *
-   * @param {any} value - The new value for the state.
+   * @param {VideoApiState} value - The new value for the state.
+   * @private
    */
   set state(value) {
     this._state = value;
@@ -114,26 +119,20 @@ class ViedoApi {
 
   /**
    * Starts the video service.
-   * @returns {Promise<Object>} A promise that resolves to an object containing the service name, port, and check message.
-   * @throws {Object} An object containing the service name, port, and check message if the service fails to start.
+   * @returns {Promise<Object>} A promise that resolves to an object containing the service name, port, and message.
+   * @property {string} name - The name of the video service.
+   * @property {number} port - The port number of the video service.
+   * @property {string} msg - The message indicating the status of the video service.
    */
   startService() {
     return new Promise((resolve, reject) => {
-      const { checkResult, checkMessage } = this._startServiceStateCheck();
+      const { checkResult, checkMessage } = this._startServiceCheck();
 
-      const result = {
-        name: this._name,
-        port: this._option.port,
-        msg: checkMessage
-      };
+      const result = { name: this._name, port: this._option.port, msg: '' };
 
       if (checkResult === false) {
+        result.msg = checkMessage;
         reject(result);
-        return;
-      }
-
-      if (this._state === VideoApiState.RUNNING) {
-        resolve(result);
         return;
       }
 
@@ -151,10 +150,11 @@ class ViedoApi {
       });
 
       this._videoServer.on('error', (err) => {
-        this._state = VideoApiState.ERROR;
-        this._error = ErrorCode.RUN_FAILD;
-        this._errorMsg = err.message;
         logger.error(`Video API error: ${err.message}`);
+        this._state = VideoApiState.ERROR;
+        this._error = VideoApiErrorCode.START_FAILD;
+        this._errorMsg = err.message;
+        result.msg = err.message;
         reject(result);
       });
       this._videoServer.on('exit', (code, signal) => {
@@ -181,23 +181,20 @@ class ViedoApi {
 
   /**
    * Closes the video service.
-   * @returns {Promise} A promise that resolves with the result object or rejects with an error object.
+   * @returns {Promise<Object>} A promise that resolves to an object containing the service name, port, and message.
+   * @property {string} name - The name of the video service.
+   * @property {number} port - The port number of the video service.
+   * @property {string} msg - The message indicating the status of the video service.
    */
   closeService() {
     return new Promise((resolve, reject) => {
-      const { checkResult, checkMessage } = this._closeServiceStateCheck();
-      const result = {
-        name: this._name,
-        port: this._option.port,
-        msg: checkMessage
-      };
+      const { checkResult, checkMessage } = this._closeServiceCheck();
+
+      const result = { name: this._name, port: this._option.port, msg: '' };
 
       if (checkResult === false) {
+        result.msg = checkMessage;
         reject(result);
-        return;
-      }
-      if (this._state === VideoApiState.STOPPED) {
-        resolve(result);
         return;
       }
 
@@ -211,11 +208,9 @@ class ViedoApi {
           resolve(result);
         } else {
           const currentTime = Date.now();
-          if (currentTime - startTime > this._timeout) {
-            this._error = ErrorCode.CLOSE_TIMEOUT;
-            this._errorMsg = 'Video API close timeout';
-            result.msg = 'Video API close timeout';
+          if (currentTime - startTime > 3000) {
             logger.error('Video API error : close timeout');
+            result.msg = 'Video API close timeout';
             reject(result);
           } else {
             setTimeout(checkState, 200);
@@ -229,12 +224,12 @@ class ViedoApi {
 
   /**
    * Checks the state of the Video API service and returns the result and message.
-   *
    * @returns {Object} - An object containing the check result and message.
    * @property {boolean} checkResult - The result of the state check.
    * @property {string} checkMessage - The message describing the state of the Video API service.
+   * @private
    */
-  _startServiceStateCheck() {
+  _startServiceCheck() {
     let checkResult = false;
     let checkMessage = '';
 
@@ -243,7 +238,6 @@ class ViedoApi {
         checkMessage = 'Video API is starting, please wait.';
         break;
       case VideoApiState.RUNNING:
-        checkResult = true;
         checkMessage = 'Video API is running.';
         break;
       case VideoApiState.STOPPING:
@@ -251,24 +245,13 @@ class ViedoApi {
         break;
       case VideoApiState.STOPPED:
         checkResult = true;
-        checkMessage = 'Video API is stopped.';
         break;
       case VideoApiState.ERROR:
         switch (this._error) {
-          case ErrorCode.RUN_FAILD:
+          case VideoApiErrorCode.START_FAILD:
             checkResult = true;
-            checkMessage = this._errorMsg;
-            break;
-          case ErrorCode.CLOSE_TIMEOUT:
-            checkMessage = this._errorMsg;
-            break;
-          default:
-            checkMessage = 'Video Error is unknown.';
             break;
         }
-        break;
-      default:
-        checkMessage = 'Video API state is unknown.';
         break;
     }
 
@@ -280,11 +263,13 @@ class ViedoApi {
 
   /**
    * Checks the state of the Video API service and returns the result and message.
-   *
    * @param {string} state - The state of the Video API service.
    * @returns {Object} - An object containing the check result and message.
+   * @property {boolean} checkResult - The result of the state check.
+   * @property {string} checkMessage - The message describing the state of the Video API service.
+   * @private
    */
-  _closeServiceStateCheck() {
+  _closeServiceCheck() {
     let checkResult = false;
     let checkMessage = '';
 
@@ -294,31 +279,19 @@ class ViedoApi {
         break;
       case VideoApiState.RUNNING:
         checkResult = true;
-        checkMessage = 'Video API is running.';
         break;
       case VideoApiState.STOPPING:
         checkMessage = 'Video API is stopping, please wait.';
         break;
       case VideoApiState.STOPPED:
-        checkResult = true;
         checkMessage = 'Video API is stopped';
         break;
       case VideoApiState.ERROR:
         switch (this._error) {
-          case ErrorCode.RUN_FAILD:
-            checkMessage = this._errorMsg;
-            break;
-          case ErrorCode.CLOSE_TIMEOUT:
-            checkResult = true;
-            checkMessage = this._errorMsg;
-            break;
-          default:
-            checkMessage = 'Video Error is unknown.';
+          case VideoApiErrorCode.START_FAILD:
+            checkMessage = `Video API in error state: ${this._errorMsg}`;
             break;
         }
-        break;
-      default:
-        checkMessage = 'Video API state is unknown.';
         break;
     }
 

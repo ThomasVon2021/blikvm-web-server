@@ -1,3 +1,8 @@
+/**
+ * This module provides utility functions.
+ * @module common/tool
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
