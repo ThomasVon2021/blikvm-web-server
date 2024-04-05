@@ -13,35 +13,38 @@ import fs from 'fs';
  */
 async function apiFunc(req, res, next) {
   try {
-    let ret = createApiObj();
+    const ret = createApiObj();
     const cmd = req.body.cmd;
     switch (cmd) {
       case 'power':
         writeToSocket(128)
-        .then(() => {
-          ret.msg = 'power on/off';
-        })
-        .catch((err) => {
-          ret.code = ApiErrorCode.INVALID_INPUT_PARA;
-        });
+          .then(() => {
+            ret.msg = 'power on/off';
+          })
+          .catch((err) => {
+            ret.msg = err.message;
+            ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+          });
         break;
       case 'forcepower':
         writeToSocket(192)
-        .then(() => {
-          ret.msg = 'force power on/off';
-        })
-        .catch((err) => {
-          ret.code = ApiErrorCode.INVALID_INPUT_PARA;
-        });
+          .then(() => {
+            ret.msg = 'force power on/off';
+          })
+          .catch((err) => {
+            ret.msg = err.message;
+            ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+          });
         break;
       case 'reboot':
         writeToSocket(8)
-        .then(() => {
-          ret.msg = 'reboot';
-        })
-        .catch((err) => {
-          ret.code = ApiErrorCode.INVALID_INPUT_PARA;
-        });
+          .then(() => {
+            ret.msg = 'reboot';
+          })
+          .catch((err) => {
+            ret.msg = err.message;
+            ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+          });
         break;
       default:
         ret.msg = 'input invalid atx command';
