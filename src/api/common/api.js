@@ -18,6 +18,7 @@ const API_VERSION = '1.0.0';
 const ApiErrorCode = {
   OK: 0,
   INVALID_KEY_OR_OTP: 100,
+  INVALID_INPUT_PARA: 101,
   INTERVAEL_SERVER_ERROR: 200
 };
 

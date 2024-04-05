@@ -1,5 +1,5 @@
 import { createSocket } from 'unix-dgram';
-
+import { createApiObj, ApiErrorCode } from '../../common/api.js';
 
 
 /**
@@ -13,22 +13,24 @@ import { createSocket } from 'unix-dgram';
  */
 async function apiFunc(req, res, next) {
   try {
+    let res = createApiObj();
     const cmd = req.body.cmd;
     switch (cmd) {
       case 'power':
         await writeToSocket(128);
-        res.json({ msg: 'power on/off' });
+        res.msg = 'power on/off';
         break;
       case 'forcepower':
         await writeToSocket(192);
-        res.json({ msg: 'force power on/off' });
+        res.msg = 'force power on/off';
         break;
       case 'reboot':
         await writeToSocket(8);
-        res.json({ msg: 'reboot' });
+        res.msg = 'reboot';
         break;
       default:
-        res.json({ msg: 'input invalid atx command' });
+        res.msg = 'input invalid atx command';
+        res.code = ApiErrorCode.INVALID_INPUT_PARA;
         break;
     }
   } catch (err) {
