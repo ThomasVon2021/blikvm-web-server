@@ -26,5 +26,8 @@
     },
     "httpApi":{
         "port":10003
+    },
+    "atxConfig":{
+        "controlSockPath":"/var/blikvm/atx.sock"
     }
 }

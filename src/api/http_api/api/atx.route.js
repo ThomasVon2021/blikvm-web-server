@@ -1,6 +1,6 @@
 import { createSocket } from 'unix-dgram';
 import { createApiObj, ApiErrorCode } from '../../common/api.js';
-
+import fs from 'fs';
 
 /**
  * Handles ATX API request.
@@ -13,26 +13,42 @@ import { createApiObj, ApiErrorCode } from '../../common/api.js';
  */
 async function apiFunc(req, res, next) {
   try {
-    let res = createApiObj();
+    let ret = createApiObj();
     const cmd = req.body.cmd;
     switch (cmd) {
       case 'power':
-        await writeToSocket(128);
-        res.msg = 'power on/off';
+        writeToSocket(128)
+        .then(() => {
+          ret.msg = 'power on/off';
+        })
+        .catch((err) => {
+          ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+        });
         break;
       case 'forcepower':
-        await writeToSocket(192);
-        res.msg = 'force power on/off';
+        writeToSocket(192)
+        .then(() => {
+          ret.msg = 'force power on/off';
+        })
+        .catch((err) => {
+          ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+        });
         break;
       case 'reboot':
-        await writeToSocket(8);
-        res.msg = 'reboot';
+        writeToSocket(8)
+        .then(() => {
+          ret.msg = 'reboot';
+        })
+        .catch((err) => {
+          ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+        });
         break;
       default:
-        res.msg = 'input invalid atx command';
-        res.code = ApiErrorCode.INVALID_INPUT_PARA;
+        ret.msg = 'input invalid atx command';
+        ret.code = ApiErrorCode.INVALID_INPUT_PARA;
         break;
     }
+    res.json(ret);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -52,7 +68,8 @@ function writeToSocket(cmd) {
       client.close();
       reject(err);
     });
-    client.send(message, 0, message.length, '/var/blikvm/atx.sock', (err) => {
+    const { atxConfig } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    client.send(message, 0, message.length, atxConfig.controlSockPath, (err) => {
       if (err) {
         client.close();
         reject(err);
