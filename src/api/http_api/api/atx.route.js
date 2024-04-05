@@ -1,5 +1,7 @@
 import { createSocket } from 'unix-dgram';
 
+
+
 /**
  * Handles ATX API request.
  *
@@ -13,16 +15,16 @@ async function apiFunc(req, res, next) {
   try {
     const cmd = req.body.cmd;
     switch (cmd) {
-      case 128:
-        await writeToSocket(cmd);
+      case 'power':
+        await writeToSocket(128);
         res.json({ msg: 'power on/off' });
         break;
-      case 192:
-        await writeToSocket(cmd);
+      case 'forcepower':
+        await writeToSocket(192);
         res.json({ msg: 'force power on/off' });
         break;
-      case 8:
-        await writeToSocket(cmd);
+      case 'reboot':
+        await writeToSocket(8);
         res.json({ msg: 'reboot' });
         break;
       default:
