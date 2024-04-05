@@ -5,7 +5,7 @@ import fs from 'fs';
 /**
  * Handles ATX API request.
  *
- * @param {Object} req - The request object, cmd(128):power on/off, cmd(192):force power on/off, cmd(8):reboot.
+ * @param {Object} req - The request object, cmd(power):power on/off, cmd(forcepower):force power on/off, cmd(reboot):reboot.
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
  * @returns {Promise<void>} - A promise that resolves when the API request is handled.
