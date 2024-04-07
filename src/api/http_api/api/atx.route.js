@@ -11,7 +11,7 @@ import fs from 'fs';
  * @returns {Promise<void>} - A promise that resolves when the API request is handled.
  * @throws {Error} - If there is an error while handling the API request.
  */
-async function apiFunc(req, res, next) {
+function apiFunc(req, res, next) {
   try {
     const ret = createApiObj();
     const cmd = req.body.cmd;
