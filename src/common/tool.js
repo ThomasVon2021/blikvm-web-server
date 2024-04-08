@@ -6,6 +6,10 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
+import { HardwareType } from './enums.js';
+import { execSync } from 'child_process';
+
+let hardwareSysType = HardwareType.UNKNOW;
 
 /**
  * Checks if a directory exists at the specified path.
@@ -92,4 +96,34 @@ function generateSecret(length) {
   return password;
 }
 
-export { existDir, existFile, createDir, createFile, generateUniqueCode, generateSecret };
+/**
+ * Retrieves the hardware type based on the device model.
+ * @returns {enmus} The hardware type, see HardwareType.
+ */
+function getHardwareType() {
+  if (hardwareSysType === HardwareType.UNKNOW) {
+    const modelOutput = execSync('cat /proc/device-tree/model').toString();
+    const pi4bSys = 'Raspberry Pi 4 Model B';
+    const mangoPiSys = 'MangoPi Mcore';
+    const piCM4Sys = 'Raspberry Pi Compute Module 4';
+
+    if (modelOutput.includes(pi4bSys)) {
+      hardwareSysType = HardwareType.PI4B;
+    } else if (modelOutput.includes(mangoPiSys)) {
+      hardwareSysType = HardwareType.MangoPi;
+    } else if (modelOutput.includes(piCM4Sys)) {
+      hardwareSysType = HardwareType.CM4;
+    }
+  }
+  return hardwareSysType;
+}
+
+export {
+  existDir,
+  existFile,
+  createDir,
+  createFile,
+  generateUniqueCode,
+  generateSecret,
+  getHardwareType
+};
