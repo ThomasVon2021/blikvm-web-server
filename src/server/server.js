@@ -7,7 +7,7 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import Logger from '../../log/logger.js';
+import Logger from '../modules/log/logger.js';
 import fs from 'fs';
 import routes from './api/routes.js';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -21,7 +21,7 @@ const logger = new Logger();
  * Represents the state of the HTTP API.
  * @enum {string}
  */
-const HttpApiState = {
+const HttpServerState = {
   STARTING: 'STARTING',
   RUNNING: 'RUNNING',
   STOPPING: 'STOPPING',
@@ -30,24 +30,14 @@ const HttpApiState = {
 };
 
 /**
- * Represents the error codes used in the HTTP API.
- * @enum {string}
- * @private
- */
-const HttpApiErrorCode = {
-  OK: 'OK',
-  RUN_FAILD: 'RUN_FAILD'
-};
-
-/**
  * Represents an HTTP API server.
  * @class
- * @property {HttpApiState} state - The state of the HTTP API.
+ * @property {HttpServerState} state - The state of the HTTP API.
  */
-class HttpApi {
+class HttpServer {
   /**
-   * Represents the singleton instance of the HttpApi class.
-   * @type {HttpApi}
+   * Represents the singleton instance of the HttpServer class.
+   * @type {HttpServer}
    * @private
    */
   static _instance = null;
@@ -57,7 +47,7 @@ class HttpApi {
    * @type {string}
    * @private
    */
-  _name = 'httpApi';
+  _name = 'httpServer';
 
   /**
    * Http server instance.
@@ -81,42 +71,28 @@ class HttpApi {
   _option = null;
 
   /**
-   * Represents the state of the HttpApi.
-   * @type {HttpApiState}
+   * Represents the state of the HttpServer.
+   * @type {HttpServerState}
    * @private
    */
-  _state = HttpApiState.STOPPED;
+  _state = HttpServerState.STOPPED;
 
   /**
-   * Represents the error code.
-   * @type {HttpApiErrorCode}
-   * @private
-   */
-  _error = HttpApiErrorCode.OK;
-
-  /**
-   * Error message variable.
-   * @type {string}
-   * @private
-   */
-  _errorMsg = '';
-
-  /**
-   * Represents the HttpApi class.
+   * Represents the HttpServer class.
    * @constructor
    */
   constructor() {
-    if (!HttpApi._instance) {
-      HttpApi._instance = this;
+    if (!HttpServer._instance) {
+      HttpServer._instance = this;
       this._init();
     }
 
-    return HttpApi._instance;
+    return HttpServer._instance;
   }
 
   /**
    * Get the state of the HTTP API.
-   * @returns {HttpApiState} The state of the HTTP API.
+   * @returns {HttpServerState} The state of the HTTP API.
    * @private
    */
   get state() {
@@ -125,7 +101,7 @@ class HttpApi {
 
   /**
    * Setter for the state property.
-   * @param {HttpApiState} value - The new value for the state.
+   * @param {HttpServerState} value - The new value for the state.
    * @private
    */
   set state(value) {
@@ -141,41 +117,17 @@ class HttpApi {
    */
   startService() {
     return new Promise((resolve, reject) => {
-      const { checkResult, checkMessage } = this._startServiceCheck();
-
-      const result = { name: this._name, port: this._option.port, msg: '' };
-
-      if (checkResult === false) {
-        result.msg = checkMessage;
-        reject(result);
-        return;
-      }
-
-      this._state = HttpApiState.STARTING;
-      let timer = null;
-
-      const startServer = () => {
-        this._server.listen(this._option.port, () => {
-          clearTimeout(timer);
-          this._state = HttpApiState.RUNNING;
-          logger.info(
-            `Http Api started at http://localhost:${this._option.port}, state: ${this._state}`
-          );
-          logger.info(
-            `WebSocket Api started at ws://localhost:${this._option.port}, state: ${this._state}`
-          );
-          resolve(result);
-        });
-      };
-
-      timer = setTimeout(() => {
-        if (this._error === HttpApiErrorCode.RUN_FAILD) {
-          result.msg = this._errorMsg;
-          reject(result);
-        }
-      }, 500);
-
-      startServer();
+      this._state = HttpServerState.STARTING;
+      this._server.listen(this._option.port, () => {
+        this._state = HttpServerState.RUNNING;
+        logger.info(
+          `Http Api started at http://localhost:${this._option.port}, state: ${this._state}`
+        );
+        logger.info(
+          `WebSocket Api started at ws://localhost:${this._option.port}, state: ${this._state}`
+        );
+        resolve('ok');
+      });
     });
   }
 
@@ -188,17 +140,7 @@ class HttpApi {
    */
   closeService() {
     return new Promise((resolve, reject) => {
-      const { checkResult, checkMessage } = this._closeServiceCheck();
-
-      const result = { name: this._name, port: this._option.port, msg: '' };
-
-      if (checkResult === false) {
-        result.msg = checkMessage;
-        reject(result);
-        return;
-      }
-
-      this._state = HttpApiState.STOPPING;
+      this._state = HttpServerState.STOPPING;
 
       const wsClientNumber = this._wss.clients.size;
       this._wss.clients.forEach((client) => {
@@ -210,14 +152,14 @@ class HttpApi {
       const checkClose = () => {
         if (wsClientNumber <= 0) {
           this._server.close(() => {
-            this._state = HttpApiState.STOPPED;
+            this._state = HttpServerState.STOPPED;
             logger.info(
               `Http Api closed at http://localhost:${this._option.port}, state: ${this._state}`
             );
             logger.info(
               `WebSocket Api closed at ws://localhost:${this._option.port}, state: ${this._state}`
             );
-            resolve(result);
+            resolve('ok');
           });
         } else {
           setTimeout(checkClose, 100);
@@ -229,90 +171,12 @@ class HttpApi {
   }
 
   /**
-   * Checks the state of the HTTP API service and returns the result and message.
-   * @returns {Object} An object containing the check result and message.
-   * @property {boolean} checkResult - The result of the state check.
-   * @property {string} checkMessage - The message describing the state of the HTTP API service.
-   * @private
-   */
-  _startServiceCheck() {
-    let checkResult = false;
-    let checkMessage = '';
-
-    switch (this._state) {
-      case HttpApiState.STARTING:
-        checkMessage = 'HTTP API is starting, please wait.';
-        break;
-      case HttpApiState.RUNNING:
-        checkMessage = 'HTTP API is running.';
-        break;
-      case HttpApiState.STOPPING:
-        checkMessage = 'HTTP API is stopping, please wait.';
-        break;
-      case HttpApiState.STOPPED:
-        checkResult = true;
-        break;
-      case HttpApiState.ERROR:
-        switch (this._error) {
-          case HttpApiErrorCode.RUN_FAILD:
-            checkResult = true;
-            break;
-        }
-        break;
-    }
-
-    return {
-      checkResult,
-      checkMessage
-    };
-  }
-
-  /**
-   * Checks the state of the HTTP API service and returns the result and message.
-   * @returns {Object} An object containing the check result and message.
-   * @property {boolean} checkResult - The result of the state check.
-   * @property {string} checkMessage - The message describing the state of the HTTP API service.
-   * @private
-   */
-  _closeServiceCheck() {
-    let checkResult = false;
-    let checkMessage = '';
-
-    switch (this._state) {
-      case HttpApiState.STARTING:
-        checkMessage = 'HTTP API is starting, please wait.';
-        break;
-      case HttpApiState.RUNNING:
-        checkResult = true;
-        break;
-      case HttpApiState.STOPPING:
-        checkMessage = 'HTTP API is stopping, please wait.';
-        break;
-      case HttpApiState.STOPPED:
-        checkMessage = 'HTTP API is stopped';
-        break;
-      case HttpApiState.ERROR:
-        switch (this._error) {
-          case HttpApiErrorCode.RUN_FAILD:
-            checkMessage = `HTTP API is in error state: ${this._errorMsg}`;
-            break;
-        }
-        break;
-    }
-
-    return {
-      checkResult,
-      checkMessage
-    };
-  }
-
-  /**
    * Initializes the HTTP API server.
    * @private
    */
   _init() {
-    const { httpApi } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    this._option = httpApi;
+    const { server } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    this._option = server;
 
     const app = express();
 
@@ -401,18 +265,16 @@ class HttpApi {
    */
   _wssVerifyClient(ws, req) {
     const { headers } = req;
-    const key = headers.key;
-    const otp = headers.otp;
+    const user = headers.user;
+    const pwd = headers.pwd;
     const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-    if (key && key === data.key) {
-      return true;
-    } else if (otp && otp === data.otp) {
+    if (user && user === data.user && pwd && pwd === data.pwd) {
       return true;
     } else {
       const ret = createApiObj();
-      ret.code = ApiErrorCode.INVALID_KEY_OR_OTP;
-      ret.msg = 'Key or OTP is missing or wrong';
+      ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
+      ret.msg = 'user or pwd is missing or wrong';
       ws.send(JSON.stringify(ret));
       ws.close();
       return false;
@@ -425,19 +287,7 @@ class HttpApi {
    */
   _httpServerEvents() {
     this._server.on('error', (error) => {
-      switch (error.code) {
-        case 'EACCES':
-          this._state = HttpApiState.ERROR;
-          this._error = HttpApiErrorCode.RUN_FAILD;
-          this._errorMsg = 'Permission denied to access port';
-          break;
-        case 'EADDRINUSE':
-          this._state = HttpApiState.ERROR;
-          this._error = HttpApiErrorCode.RUN_FAILD;
-          this._errorMsg = 'Port is already in use.';
-          break;
-      }
-      logger.error(`Http Api error: ${error.message}`);
+      logger.error(`Http Server error: ${error.message}`);
     });
   }
 
@@ -464,17 +314,15 @@ class HttpApi {
    */
   _httpVerityMiddle(req, res, next) {
     const ret = createApiObj();
-    const key = req.body.key;
-    const otp = req.body.otp;
+    const user = req.body.user;
+    const pwd = req.body.pwd;
     const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-    if (key && key === data.key) {
-      next();
-    } else if (otp && otp === data.otp) {
+    if (user && user === data.user && pwd && pwd === data.pwd) {
       next();
     } else {
-      ret.code = ApiErrorCode.INVALID_KEY_OR_OTP;
-      ret.msg = 'Key or OTP is missing or wrong';
+      ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
+      ret.msg = 'user or password is missing or wrong';
       res.status(400).json(ret);
     }
   }
@@ -495,5 +343,5 @@ class HttpApi {
     res.status(500).json(ret);
   }
 }
-export default HttpApi;
-export { HttpApiState };
+export default HttpServer;
+export { HttpServerState };

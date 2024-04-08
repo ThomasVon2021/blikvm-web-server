@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import { spawn } from 'child_process';
-import Logger from '../../log/logger.js';
+import Logger from '../log/logger.js';
 
 const logger = new Logger();
 
@@ -36,7 +36,7 @@ const VideoApiErrorCode = {
  * @class
  * @property {VideoApiState} state - The state of the video API.
  */
-class ViedoApi {
+class Video {
   /**
    * Represents the singleton instance of the VideoApi class.
    * @type {VideoApi}
@@ -49,7 +49,7 @@ class ViedoApi {
    * @type {string}
    * @private
    */
-  _name = 'videoApi';
+  _name = 'video';
 
   /**
    * Represents the option for the video API.
@@ -91,12 +91,12 @@ class ViedoApi {
    * @constructor
    */
   constructor() {
-    if (!ViedoApi._instance) {
-      ViedoApi._instance = this;
+    if (!Video._instance) {
+      Video._instance = this;
       this._init();
     }
 
-    return ViedoApi._instance;
+    return Video._instance;
   }
 
   /**
@@ -306,10 +306,10 @@ class ViedoApi {
    * @private
    */
   _init() {
-    const { videoApi } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    this._option = videoApi;
+    const { video } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    this._option = video;
   }
 }
 
-export default ViedoApi;
+export default Video;
 export { VideoApiState };

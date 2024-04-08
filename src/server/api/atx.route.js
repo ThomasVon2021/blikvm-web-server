@@ -71,8 +71,8 @@ function writeToSocket(cmd) {
       client.close();
       reject(err);
     });
-    const { atxConfig } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    client.send(message, 0, message.length, atxConfig.controlSockPath, (err) => {
+    const { atx } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    client.send(message, 0, message.length, atx.controlSockPath, (err) => {
       if (err) {
         client.close();
         reject(err);

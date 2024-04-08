@@ -1,9 +1,8 @@
-import HttpApi from '../../http_api/http_api.js';
+import Video from '../../modules/video/video.js';
 import { ApiErrorCode, createApiObj } from '../../common/api.js';
 
 /**
- * Handles the API request to close the HTTP service.
- *
+ * Handles the API request to start the video service.
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
@@ -12,18 +11,18 @@ import { ApiErrorCode, createApiObj } from '../../common/api.js';
 function apiFunc(req, res, next) {
   try {
     const ret = createApiObj();
-    const httpApi = new HttpApi();
+    const video = new Video();
 
-    httpApi
-      .closeService()
+    video
+      .startService()
       .then((result) => {
-        ret.data.state = httpApi.state;
+        ret.data.state = video.state;
         res.json(ret);
       })
       .catch((result) => {
         ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
         ret.msg = result.msg;
-        ret.data.state = httpApi.state;
+        ret.data.state = video.state;
         res.json(ret);
       });
   } catch (err) {

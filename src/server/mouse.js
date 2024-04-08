@@ -3,9 +3,9 @@
  * @module api/http_api/mouse
  */
 
-import Logger from '../../log/logger.js';
+import Logger from '../modules/log/logger.js';
+import { existFile } from '../common/tool.js';
 import fs from 'fs';
-import { existFile } from '../../common/tool.js';
 
 const logger = new Logger();
 

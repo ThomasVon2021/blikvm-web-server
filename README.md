@@ -26,15 +26,13 @@ The file and directory structure of the project is as follows:
 
 The call hierarchy is divided into six layers, where upper layers can call lower layers, but lower layers cannot call upper layers.
 
-| Layer | Contents |Sub-Contents |
-|---------|---------|---------|
-| 1 | index.js | |
-| 2 | api |http_server |
-| 2 |  | http_api,video_api|
-| 2 |  | common|
-| 4 | log | |
-| 5 | common | |
-| 6 | lib, config | |
+| Layer | Contents |
+|---------|---------|
+| 1 | index.js |
+| 2 | server |
+| 3 | modules |
+| 5 | common |
+| 6 | lib, config |
 
 ## 3. Code Logic
 

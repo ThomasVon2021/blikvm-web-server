@@ -16,18 +16,15 @@
     "other":{
         "secretFile":"./config/secret.json"
     },
-    "httpServer": {
-        "port": 10001
+    "server":{
+        "port":10001
     },
-    "videoApi":{
+    "video":{
         "port": 10002,
         "shell":"./lib/kvmd-video.sh",
         "bin":"./lib/pi/ustreamer.bin"
     },
-    "httpApi":{
-        "port":10003
-    },
-    "atxConfig":{
+    "atx":{
         "controlSockPath":"/var/blikvm/atx.sock"
     }
 }
