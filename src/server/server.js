@@ -7,7 +7,7 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import Logger from '../modules/log/logger.js';
+import Logger from '../log/logger.js';
 import fs from 'fs';
 import routes from './api/routes.js';
 import { WebSocketServer, WebSocket } from 'ws';

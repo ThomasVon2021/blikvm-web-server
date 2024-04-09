@@ -2,7 +2,7 @@
  * Represents the hardware types.
  * @enum {number}
  */
-export const HardwareType = {
+const HardwareType = {
   /**
    * Unknown hardware type.
    */
@@ -20,3 +20,13 @@ export const HardwareType = {
    */
   MangoPi: 3
 };
+
+const ModuleState = {
+  STARTING: 'STARTING',
+  RUNNING: 'RUNNING',
+  STOPPING: 'STOPPING',
+  STOPPED: 'STOPPED',
+  ERROR: 'ERROR'
+};
+
+export { HardwareType, ModuleState };

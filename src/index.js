@@ -1,4 +1,4 @@
-import Logger from './modules/log/logger.js';
+import Logger from './log/logger.js';
 import { existFile, createFile, generateUniqueCode } from './common/tool.js';
 import fs from 'fs';
 import HttpServer from './server/server.js';

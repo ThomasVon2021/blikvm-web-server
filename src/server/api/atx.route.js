@@ -5,7 +5,7 @@ import fs from 'fs';
 /**
  * Handles ATX API request.
  *
- * @param {Object} req - The request object, cmd(power):power on/off, cmd(forcepower):force power on/off, cmd(reboot):reboot. 
+ * @param {Object} req - The request object, cmd(power):power on/off, cmd(forcepower):force power on/off, cmd(reboot):reboot.
  * like: curl -X POST -k -u admin:admin http://ip:port/atx/click?button=power
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
