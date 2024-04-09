@@ -5,7 +5,8 @@ import fs from 'fs';
 /**
  * Handles ATX API request.
  *
- * @param {Object} req - The request object, cmd(power):power on/off, cmd(forcepower):force power on/off, cmd(reboot):reboot.
+ * @param {Object} req - The request object, cmd(power):power on/off, cmd(forcepower):force power on/off, cmd(reboot):reboot. 
+ * like: curl -X POST -k -u admin:admin http://ip:port/atx/click?button=power
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
  * @returns {Promise<void>} - A promise that resolves when the API request is handled.
@@ -14,44 +15,50 @@ import fs from 'fs';
 function apiFunc(req, res, next) {
   try {
     const ret = createApiObj();
-    const cmd = req.body.cmd;
+    const cmd = req.query.button;
     switch (cmd) {
       case 'power':
         writeToSocket(128)
           .then(() => {
             ret.msg = 'power on/off';
+            res.json(ret);
           })
           .catch((err) => {
             ret.msg = err.message;
             ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+            res.json(ret);
           });
         break;
       case 'forcepower':
         writeToSocket(192)
           .then(() => {
             ret.msg = 'force power on/off';
+            res.json(ret);
           })
           .catch((err) => {
             ret.msg = err.message;
             ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+            res.json(ret);
           });
         break;
       case 'reboot':
         writeToSocket(8)
           .then(() => {
             ret.msg = 'reboot';
+            res.json(ret);
           })
           .catch((err) => {
             ret.msg = err.message;
             ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+            res.json(ret);
           });
         break;
       default:
         ret.msg = 'input invalid atx command';
         ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+        res.json(ret);
         break;
     }
-    res.json(ret);
   } catch (err) {
     next(err);
   }

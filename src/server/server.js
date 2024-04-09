@@ -314,12 +314,20 @@ class HttpServer {
    */
   _httpVerityMiddle(req, res, next) {
     const ret = createApiObj();
-    const user = req.body.user;
-    const pwd = req.body.pwd;
-    const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
-    if (user && user === data.user && pwd && pwd === data.pwd) {
-      next();
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      const auth = authHeader.split(' ')[1];
+      const credentials = Buffer.from(auth, 'base64').toString();
+      const [user, pwd] = credentials.split(':');
+      const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+      const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+      if (user && user === data.user && pwd && pwd === data.pwd) {
+        next();
+      } else {
+        ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
+        ret.msg = 'user or password is missing or wrong';
+        res.status(400).json(ret);
+      }
     } else {
       ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
       ret.msg = 'user or password is missing or wrong';

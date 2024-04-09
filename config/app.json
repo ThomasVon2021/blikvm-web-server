@@ -24,6 +24,9 @@
         "shell":"./lib/kvmd-video.sh",
         "bin":"./lib/pi/ustreamer.bin"
     },
+    "kvmd":{
+        "bin":"./lib/pi/kvmd-main"
+    },
     "atx":{
         "controlSockPath":"/var/blikvm/atx.sock"
     }

@@ -3,6 +3,7 @@ import { existFile, createFile, generateUniqueCode } from './common/tool.js';
 import fs from 'fs';
 import HttpServer from './server/server.js';
 import Video from './modules/video/video.js';
+import KVMDMain from './modules/kvmd/kvmd-main.js';
 
 const logger = new Logger();
 
@@ -12,6 +13,8 @@ const httpServer = new HttpServer();
 httpServer.startService().then((result) => {
   const video = new Video();
   video.startService();
+  const kvmdmain = new KVMDMain();
+  kvmdmain.startService();
 });
 
 /**
