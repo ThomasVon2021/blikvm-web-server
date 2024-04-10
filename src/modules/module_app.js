@@ -21,7 +21,7 @@ class ModuleApp extends Module {
 
   _errorMsg = '';
 
-  startService() {
+  startService () {
     return new Promise((resolve, reject) => {
       const { checkResult, checkMessage } = this._startServiceCheck();
 
@@ -66,9 +66,7 @@ class ModuleApp extends Module {
           return;
         }
         this._state = ModuleState.RUNNING;
-        logger.info(
-          `${this._name} API started, state: ${this._state}`
-        );
+        logger.info(`${this._name} API started, state: ${this._state}`);
         resolve(result);
       }, 200);
     });

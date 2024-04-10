@@ -1,5 +1,5 @@
 import Video from '../../modules/video/video.js';
-import KVMDMain from '../../modules/kvmd/kvmd-main.js';
+import KVMDMain from '../../modules/kvmd/kvmd_main.js';
 import { createApiObj } from '../../common/api.js';
 
 /**
