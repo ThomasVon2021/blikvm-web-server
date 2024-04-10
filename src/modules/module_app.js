@@ -21,7 +21,7 @@ class ModuleApp extends Module {
 
   _errorMsg = '';
 
-  startService() {
+  startService () {
     return new Promise((resolve, reject) => {
       const { checkResult, checkMessage } = this._startServiceCheck();
 
