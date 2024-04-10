@@ -25,7 +25,8 @@
         "bin":"./lib/pi/ustreamer.bin"
     },
     "kvmd":{
-        "bin":"./lib/pi/kvmd-main"
+        "bin":"./lib/pi/kvmd-main",
+        "janusBin":"./lib/pi/janus"
     },
     "atx":{
         "controlSockPath":"/var/blikvm/atx.sock",
