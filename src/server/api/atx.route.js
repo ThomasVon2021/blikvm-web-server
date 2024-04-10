@@ -1,6 +1,7 @@
 import { createSocket } from 'unix-dgram';
 import { createApiObj, ApiErrorCode } from '../../common/api.js';
 import fs from 'fs';
+import ATX from '../../modules/kvmd/kvmd_atx.js';
 
 /**
  * Handles ATX API request.
@@ -12,7 +13,7 @@ import fs from 'fs';
  * @returns {Promise<void>} - A promise that resolves when the API request is handled.
  * @throws {Error} - If there is an error while handling the API request.
  */
-function apiFunc(req, res, next) {
+function apiFuncATXClick(req, res, next) {
   try {
     const ret = createApiObj();
     const cmd = req.query.button;
@@ -64,6 +65,13 @@ function apiFunc(req, res, next) {
   }
 }
 
+function apiFuncATXState(req, res, next) {
+  const atx = new ATX();
+  const ret = createApiObj();
+  ret.data.atx = atx.getATXState();
+  res.json(ret);
+}
+
 /**
  * Writes a command to the socket.
  *
@@ -91,4 +99,4 @@ function writeToSocket(cmd) {
   });
 }
 
-export default apiFunc;
+export { apiFuncATXClick, apiFuncATXState };

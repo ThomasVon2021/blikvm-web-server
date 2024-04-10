@@ -28,6 +28,7 @@
         "bin":"./lib/pi/kvmd-main"
     },
     "atx":{
-        "controlSockPath":"/var/blikvm/atx.sock"
+        "controlSockPath":"/var/blikvm/atx.sock",
+        "stateSockPath":"/dev/shm/blikvm/atx"
     }
 }

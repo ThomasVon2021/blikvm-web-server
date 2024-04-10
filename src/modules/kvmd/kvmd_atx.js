@@ -1,57 +1,73 @@
-import dgram from 'unix_dgram';
+import fs from 'fs';
+
+const ATXState = {
+  LED_PWR: 0b01000000,
+  LED_HDD: 0b00001000
+};
 
 class ATX {
+  static _instance = null;
+  _socketPath = null;
+  _client = null;
+  _ledPwr = false;
+  _ledHDD = false;
 
-    static _instance = null;
-
-    constructor() {
-        if (!ATX._instance) {
-            ATX._instance = this;
-          this._init();
-        }
-    
-        return Video._instance;
-      }
-
-  constructor(socketPath) {
-    if (!UnixDomainSocketServer.instance) {
-      this.socketPath = socketPath;
-      this.client = dgram.createSocket('unix_dgram');
-
-      // 绑定消息接收和错误事件
-      this.client.on('message', this.handleMessage.bind(this));
-      this.client.on('error', this.handleError.bind(this));
-
-      // 绑定套接字到指定路径并开始监听
-      this.client.bind(this.socketPath, () => {
-        console.log(`Socket bound to ${this.socketPath}`);
-        console.log('Waiting for messages...');
-      });
-
-      UnixDomainSocketServer.instance = this;
+  constructor() {
+    if (!ATX._instance) {
+      ATX._instance = this;
+      this._init();
     }
 
-    return UnixDomainSocketServer.instance;
+    return ATX._instance;
   }
 
-  // 处理接收到的消息
-  handleMessage(msg, rinfo) {
-    console.log(`Received message: ${msg.toString()} from ${rinfo.address}:${rinfo.port}`);
-    // 在这里可以添加处理接收到消息的逻辑，例如解析消息内容、调用其他函数等
+  _init() {
+    const { atx } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    this._socketPath = atx.stateSockPath;
   }
 
-  // 处理错误
-  handleError(err) {
-    console.error('Socket error:', err);
+  startService() {
+    this.watcher = fs.watch(this._socketPath, { encoding: 'utf-8' }, (eventType, filename) => {
+      if (filename) {
+        this._readFileContent()
+          .then((content) => {
+            // console.log('ATX state: ', content[0]);
+            if (content[0] & ATXState.LED_PWR) {
+              this._ledPwr = true;
+            } else {
+              this._ledPwr = false;
+            }
+            if (content[0] & ATXState.LED_HDD) {
+              this._ledHDD = true;
+            } else {
+              this._ledHDD = false;
+            }
+          })
+          .catch((err) => {
+            console.error('Error reading file:', err);
+          });
+      }
+    });
   }
 
-  // 关闭套接字
-  close() {
-    this.client.close();
+  closeService() {
+    // 停止监听文件变化
+    if (this.watcher) {
+      this.watcher.close();
+      console.log(`Stopped watching file: ${this._socketPath}`);
+    }
+  }
+
+  getATXState() {
+    return {
+      ledPwr: this._ledPwr,
+      ledHDD: this._ledHDD
+    };
+  }
+
+  _readFileContent() {
+    return fs.promises.readFile(this._socketPath);
   }
 }
 
-// 导出单例对象，而不是类本身
-const socketPath = '/tmp/mysocket';
-const instance = new UnixDomainSocketServer(socketPath);
-export default instance;
+export default ATX;

@@ -1,4 +1,4 @@
-import KVMDMain from '../../modules/kvmd/kvmd-main.js';
+import KVMDMain from '../../modules/kvmd/kvmd_main.js';
 import { ApiErrorCode, createApiObj } from '../../common/api.js';
 
 /**
