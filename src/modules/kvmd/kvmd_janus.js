@@ -4,7 +4,7 @@ import ModuleApp from '../module_app.js';
 class Janus extends ModuleApp {
   static _instance = null;
 
-  constructor () {
+  constructor() {
     if (!Janus._instance) {
       super();
       Janus._instance = this;
@@ -14,7 +14,7 @@ class Janus extends ModuleApp {
     return Janus._instance;
   }
 
-  _init () {
+  _init() {
     const { kvmd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     this._bin = kvmd.janusBin;
     this._name = 'janus';

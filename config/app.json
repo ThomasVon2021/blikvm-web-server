@@ -29,7 +29,7 @@
         "janusBin":"./lib/pi/janus"
     },
     "atx":{
-        "controlSockPath":"/var/blikvm/atx.sock",
-        "stateSockPath":"/dev/shm/blikvm/atx"
+        "controlSockFilePath":"/var/blikvm/atx.sock",
+        "stateSockFilePath":"/dev/shm/blikvm/atx"
     }
 }

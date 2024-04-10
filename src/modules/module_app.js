@@ -5,9 +5,9 @@ import Logger from '../log/logger.js';
 
 const logger = new Logger();
 
-const ModuleAppErrorCode = {
+const ModuleAppStateCode = {
   OK: 'OK',
-  START_FAILD: 'START_FAILD'
+  START_FAILED: 'START_FAILED'
 };
 
 class ModuleApp extends Module {
@@ -17,11 +17,11 @@ class ModuleApp extends Module {
 
   _app = null;
 
-  _error = ModuleAppErrorCode.OK;
+  _error = ModuleAppStateCode.OK;
 
   _errorMsg = '';
 
-  startService () {
+  startService() {
     return new Promise((resolve, reject) => {
       const { checkResult, checkMessage } = this._startServiceCheck();
 
@@ -47,7 +47,7 @@ class ModuleApp extends Module {
       this._app.on('error', (err) => {
         logger.error(`${this._name} API error: ${err.message}`);
         this._state = ModuleState.ERROR;
-        this._error = ModuleAppErrorCode.START_FAILD;
+        this._error = ModuleAppStateCode.START_FAILED;
         this._errorMsg = err.message;
         result.msg = err.message;
         reject(result);
@@ -123,11 +123,12 @@ class ModuleApp extends Module {
         checkMessage = `${this._name} API is stopping, please wait.`;
         break;
       case ModuleState.STOPPED:
+        checkMessage = `${this._name} API is stopped, it can start now.`;
         checkResult = true;
         break;
       case ModuleState.ERROR:
         switch (this._error) {
-          case ModuleAppErrorCode.START_FAILD:
+          case ModuleAppStateCode.START_FAILED:
             checkResult = true;
             break;
         }
@@ -159,7 +160,7 @@ class ModuleApp extends Module {
         break;
       case ModuleState.ERROR:
         switch (this._error) {
-          case ModuleAppErrorCode.START_FAILD:
+          case ModuleAppStateCode.START_FAILED:
             checkMessage = `${this._name} API in error state: ${this._errorMsg}`;
             break;
         }

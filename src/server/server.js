@@ -325,12 +325,12 @@ class HttpServer {
         next();
       } else {
         ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
-        ret.msg = 'user or password is missing or wrong';
+        ret.msg = 'invalid credentials';
         res.status(400).json(ret);
       }
     } else {
       ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
-      ret.msg = 'user or password is missing or wrong';
+      ret.msg = 'invalid credentials';
       res.status(400).json(ret);
     }
   }

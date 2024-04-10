@@ -17,7 +17,7 @@ class ATX extends Module {
   _ledPwr = false;
   _ledHDD = false;
 
-  constructor () {
+  constructor() {
     if (!ATX._instance) {
       super();
       ATX._instance = this;
@@ -29,11 +29,11 @@ class ATX extends Module {
 
   _init() {
     const { atx } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    this._socketPath = atx.stateSockPath;
+    this._socketPath = atx.stateSockFilePath;
     this._name = 'ATX';
   }
 
-  startService () {
+  startService() {
     this.watcher = fs.watch(this._socketPath, { encoding: 'utf-8' }, (eventType, filename) => {
       if (filename) {
         this._readFileContent()
@@ -57,7 +57,7 @@ class ATX extends Module {
     });
   }
 
-  closeService () {
+  closeService() {
     // 停止监听文件变化
     if (this.watcher) {
       this.watcher.close();
@@ -66,14 +66,14 @@ class ATX extends Module {
     }
   }
 
-  getATXState () {
+  getATXState() {
     return {
       ledPwr: this._ledPwr,
       ledHDD: this._ledHDD
     };
   }
 
-  _readFileContent () {
+  _readFileContent() {
     return fs.promises.readFile(this._socketPath);
   }
 }
