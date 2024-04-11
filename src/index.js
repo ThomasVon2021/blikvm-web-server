@@ -5,7 +5,7 @@ import HttpServer from './server/server.js';
 import Video from './modules/video/video.js';
 import KVMDMain from './modules/kvmd/kvmd_main.js';
 import ATX from './modules/kvmd/kvmd_atx.js';
-import Janus from './modules/kvmd/kvmd_janus.js'
+import Janus from './modules/kvmd/kvmd_janus.js';
 
 const logger = new Logger();
 

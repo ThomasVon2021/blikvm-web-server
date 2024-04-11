@@ -13,7 +13,7 @@ import routes from './api/routes.js';
 import { WebSocketServer, WebSocket } from 'ws';
 import handleMouse from './mouse.js';
 import handleKeyboard from './keyboard.js';
-import { ApiErrorCode, createApiObj } from '../common/api.js';
+import { ApiCode, createApiObj } from '../common/api.js';
 
 const logger = new Logger();
 
@@ -248,7 +248,7 @@ class HttpServer {
     } catch (err) {
       logger.error(`Error handling Websocket request: ${err.message}`);
       const ret = createApiObj();
-      ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+      ret.code = ApiCode.INTERNAL_SERVER_ERROR;
       ret.msg = err.message;
       ws.send(JSON.stringify(ret));
       ws.close();
@@ -273,7 +273,7 @@ class HttpServer {
       return true;
     } else {
       const ret = createApiObj();
-      ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
+      ret.code = ApiCode.INVALID_CREDENTIALS;
       ret.msg = 'user or pwd is missing or wrong';
       ws.send(JSON.stringify(ret));
       ws.close();
@@ -324,13 +324,13 @@ class HttpServer {
       if (user && user === data.user && pwd && pwd === data.pwd) {
         next();
       } else {
-        ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
-        ret.msg = 'user or password is missing or wrong';
+        ret.code = ApiCode.INVALID_CREDENTIALS;
+        ret.msg = 'invalid credentials';
         res.status(400).json(ret);
       }
     } else {
-      ret.code = ApiErrorCode.INVALID_USER_OR_PWD;
-      ret.msg = 'user or password is missing or wrong';
+      ret.code = ApiCode.INVALID_CREDENTIALS;
+      ret.msg = 'invalid credentials';
       res.status(400).json(ret);
     }
   }
@@ -346,7 +346,7 @@ class HttpServer {
   _httpErrorMiddle(err, req, res, next) {
     logger.error(`Error handling HTTP request: ${err.message}`);
     const ret = createApiObj();
-    ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+    ret.code = ApiCode.INTERNAL_SERVER_ERROR;
     ret.msg = err.message;
     res.status(500).json(ret);
   }

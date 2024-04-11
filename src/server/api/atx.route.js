@@ -1,5 +1,5 @@
 import { createSocket } from 'unix-dgram';
-import { createApiObj, ApiErrorCode } from '../../common/api.js';
+import { createApiObj, ApiCode } from '../../common/api.js';
 import fs from 'fs';
 import ATX from '../../modules/kvmd/kvmd_atx.js';
 
@@ -13,7 +13,7 @@ import ATX from '../../modules/kvmd/kvmd_atx.js';
  * @returns {Promise<void>} - A promise that resolves when the API request is handled.
  * @throws {Error} - If there is an error while handling the API request.
  */
-function apiFuncATXClick(req, res, next) {
+function apiATXClick(req, res, next) {
   try {
     const ret = createApiObj();
     const cmd = req.query.button;
@@ -21,42 +21,42 @@ function apiFuncATXClick(req, res, next) {
       case 'power':
         writeToSocket(128)
           .then(() => {
-            ret.msg = 'power on/off';
+            ret.msg = 'Short click on the power button';
             res.json(ret);
           })
           .catch((err) => {
             ret.msg = err.message;
-            ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+            ret.code = ApiCode.INTERNAL_SERVER_ERROR;
             res.json(ret);
           });
         break;
       case 'forcepower':
         writeToSocket(192)
           .then(() => {
-            ret.msg = 'force power on/off';
+            ret.msg = 'Long press on the power button (5+ seconds)';
             res.json(ret);
           })
           .catch((err) => {
             ret.msg = err.message;
-            ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+            ret.code = ApiCode.INTERNAL_SERVER_ERROR;
             res.json(ret);
           });
         break;
       case 'reboot':
         writeToSocket(8)
           .then(() => {
-            ret.msg = 'reboot';
+            ret.msg = 'Short click on the reset button';
             res.json(ret);
           })
           .catch((err) => {
             ret.msg = err.message;
-            ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+            ret.code = ApiCode.INTERNAL_SERVER_ERROR;
             res.json(ret);
           });
         break;
       default:
         ret.msg = 'input invalid atx command';
-        ret.code = ApiErrorCode.INVALID_INPUT_PARA;
+        ret.code = ApiCode.INVALID_INPUT_PARAM;
         res.json(ret);
         break;
     }
@@ -65,7 +65,7 @@ function apiFuncATXClick(req, res, next) {
   }
 }
 
-function apiFuncATXState(req, res, next) {
+function apiATXState(req, res, next) {
   const atx = new ATX();
   const ret = createApiObj();
   ret.data.atx = atx.getATXState();
@@ -87,7 +87,7 @@ function writeToSocket(cmd) {
       reject(err);
     });
     const { atx } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    client.send(message, 0, message.length, atx.controlSockPath, (err) => {
+    client.send(message, 0, message.length, atx.controlSockFilePath, (err) => {
       if (err) {
         client.close();
         reject(err);
@@ -99,4 +99,4 @@ function writeToSocket(cmd) {
   });
 }
 
-export { apiFuncATXClick, apiFuncATXState };
+export { apiATXClick, apiATXState };
