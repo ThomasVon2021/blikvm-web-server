@@ -1,5 +1,5 @@
 import { createSocket } from 'unix-dgram';
-import { createApiObj, ApiErrorCode } from '../../common/api.js';
+import { createApiObj, ApiCode } from '../../common/api.js';
 import fs from 'fs';
 import ATX from '../../modules/kvmd/kvmd_atx.js';
 
@@ -13,7 +13,7 @@ import ATX from '../../modules/kvmd/kvmd_atx.js';
  * @returns {Promise<void>} - A promise that resolves when the API request is handled.
  * @throws {Error} - If there is an error while handling the API request.
  */
-function apiFuncATXClick(req, res, next) {
+function apiATXClick(req, res, next) {
   try {
     const ret = createApiObj();
     const cmd = req.query.button;
@@ -26,7 +26,7 @@ function apiFuncATXClick(req, res, next) {
           })
           .catch((err) => {
             ret.msg = err.message;
-            ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+            ret.code = ApiCode.INTERNAL_SERVER_ERROR;
             res.json(ret);
           });
         break;
@@ -38,7 +38,7 @@ function apiFuncATXClick(req, res, next) {
           })
           .catch((err) => {
             ret.msg = err.message;
-            ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+            ret.code = ApiCode.INTERNAL_SERVER_ERROR;
             res.json(ret);
           });
         break;
@@ -50,13 +50,13 @@ function apiFuncATXClick(req, res, next) {
           })
           .catch((err) => {
             ret.msg = err.message;
-            ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+            ret.code = ApiCode.INTERNAL_SERVER_ERROR;
             res.json(ret);
           });
         break;
       default:
         ret.msg = 'input invalid atx command';
-        ret.code = ApiErrorCode.INVALID_INPUT_PARAM;
+        ret.code = ApiCode.INVALID_INPUT_PARAM;
         res.json(ret);
         break;
     }
@@ -65,7 +65,7 @@ function apiFuncATXClick(req, res, next) {
   }
 }
 
-function apiFuncATXState(req, res, next) {
+function apiATXState(req, res, next) {
   const atx = new ATX();
   const ret = createApiObj();
   ret.data.atx = atx.getATXState();
@@ -99,4 +99,4 @@ function writeToSocket(cmd) {
   });
 }
 
-export { apiFuncATXClick, apiFuncATXState };
+export { apiATXClick, apiATXState };

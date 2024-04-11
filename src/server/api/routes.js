@@ -1,7 +1,7 @@
-import { apiFuncATXClick, apiFuncATXState } from './atx.route.js';
+import { apiATXClick, apiATXState } from './atx.route.js';
 import deviceId from './device_id.route.js';
 import state from './state.route.js';
-import Video from './video.route.js';
+import video from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 
 /**
@@ -13,11 +13,11 @@ import KVMDMain from './kvmd_main.route.js';
  * @private
  */
 const routes = [
-  { path: '/api/atx/state', handler: apiFuncATXState, method: 'get' },
-  { path: '/api/atx/click', handler: apiFuncATXClick, method: 'post' },
+  { path: '/api/atx/state', handler: apiATXState, method: 'get' },
+  { path: '/api/atx/click', handler: apiATXClick, method: 'post' },
   { path: '/api/device_id', handler: deviceId, method: 'post' },
   { path: '/api/state', handler: state, method: 'post' },
-  { path: '/api/video', handler: Video, method: 'post' },
+  { path: '/api/video', handler: video, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' }
 ];
 

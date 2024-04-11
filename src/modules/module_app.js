@@ -123,7 +123,6 @@ class ModuleApp extends Module {
         checkMessage = `${this._name} API is stopping, please wait.`;
         break;
       case ModuleState.STOPPED:
-        checkMessage = `${this._name} API is stopped, it can start now.`;
         checkResult = true;
         break;
       case ModuleState.ERROR:

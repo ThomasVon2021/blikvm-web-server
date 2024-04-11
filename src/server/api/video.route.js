@@ -1,5 +1,5 @@
 import Video from '../../modules/video/video.js';
-import { ApiErrorCode, createApiObj } from '../../common/api.js';
+import { ApiCode, createApiObj } from '../../common/api.js';
 
 /**
  * Handles the API request to start the video service.
@@ -21,7 +21,7 @@ function apiFunc(req, res, next) {
           res.json(ret);
         })
         .catch((result) => {
-          ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+          ret.code = ApiCode.INTERNAL_SERVER_ERROR;
           ret.msg = result.msg;
           ret.data.state = video.state;
           res.json(ret);
@@ -34,14 +34,14 @@ function apiFunc(req, res, next) {
           res.json(ret);
         })
         .catch((result) => {
-          ret.code = ApiErrorCode.INTERVAEL_SERVER_ERROR;
+          ret.code = ApiCode.INTERNAL_SERVER_ERROR;
           ret.msg = result.msg;
           ret.data.state = video.state;
           res.json(ret);
         });
     } else {
       ret.msg = 'input invalid video command';
-      ret.code = ApiErrorCode.INVALID_INPUT_PARAM;
+      ret.code = ApiCode.INVALID_INPUT_PARAM;
       res.json(ret);
     }
   } catch (err) {
