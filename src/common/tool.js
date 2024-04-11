@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
 import { HardwareType } from './enums.js';
-import { execSync } from 'child_process';
+import { execSync, exec } from 'child_process';
 
 let hardwareSysType = HardwareType.UNKNOW;
 
@@ -29,6 +29,15 @@ function existDir(path) {
  */
 function existFile(path) {
   return fs.existsSync(path) && fs.lstatSync(path).isFile();
+}
+
+function isDeviceFile(path) {
+  try {
+    fs.accessSync(path, fs.constants.R_OK | fs.constants.W_OK);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 /**
@@ -118,6 +127,19 @@ function getHardwareType() {
   return hardwareSysType;
 }
 
+function executeScriptAtPath(scriptPath) {
+  const bashCommand = `bash ${scriptPath}`;
+  return new Promise((resolve, reject) => {
+    exec(bashCommand, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+
 export {
   existDir,
   existFile,
@@ -125,5 +147,7 @@ export {
   createFile,
   generateUniqueCode,
   generateSecret,
-  getHardwareType
+  getHardwareType,
+  executeScriptAtPath,
+  isDeviceFile
 };

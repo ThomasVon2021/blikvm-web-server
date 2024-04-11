@@ -6,6 +6,7 @@ import Video from './modules/video/video.js';
 import KVMDMain from './modules/kvmd/kvmd_main.js';
 import ATX from './modules/kvmd/kvmd_atx.js';
 import Janus from './modules/kvmd/kvmd_janus.js';
+import HID from './modules/kvmd/kvmd_hid.js';
 
 const logger = new Logger();
 
@@ -13,6 +14,8 @@ createSecretFile();
 
 const httpServer = new HttpServer();
 httpServer.startService().then((result) => {
+  const hid = new HID();
+  hid.startService();
   const video = new Video();
   video.startService();
   const kvmdmain = new KVMDMain();

@@ -3,6 +3,7 @@ import deviceId from './device_id.route.js';
 import state from './state.route.js';
 import video from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
+import hid from './hid.route.js';
 
 /**
  * Array of route objects.
@@ -18,7 +19,8 @@ const routes = [
   { path: '/api/device_id', handler: deviceId, method: 'post' },
   { path: '/api/state', handler: state, method: 'post' },
   { path: '/api/video', handler: video, method: 'post' },
-  { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' }
+  { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
+  { path: '/api/hid', handler: hid, method: 'post' }
 ];
 
 export default routes;
