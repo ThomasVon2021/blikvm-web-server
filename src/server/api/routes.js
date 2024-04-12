@@ -20,7 +20,8 @@ const routes = [
   { path: '/api/state', handler: state, method: 'post' },
   { path: '/api/video', handler: video, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
-  { path: '/api/hid', handler: hid, method: 'post' }
+  { path: '/api/hid', handler: hid, method: 'post' },
+  { path: '/api/msd', handler: hid, method: 'post' }
 ];
 
 export default routes;
