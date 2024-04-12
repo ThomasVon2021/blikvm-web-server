@@ -9,7 +9,7 @@ import { v4 } from 'uuid';
 import { HardwareType } from './enums.js';
 import { execSync, exec } from 'child_process';
 
-let hardwareSysType = HardwareType.UNKNOW;
+let hardwareSysType = HardwareType.UNKNOWN;
 
 /**
  * Checks if a directory exists at the specified path.
@@ -110,7 +110,7 @@ function generateSecret(length) {
  * @returns {enmus} The hardware type, see HardwareType.
  */
 function getHardwareType() {
-  if (hardwareSysType === HardwareType.UNKNOW) {
+  if (hardwareSysType === HardwareType.UNKNOWN) {
     const modelOutput = execSync('cat /proc/device-tree/model').toString();
     const pi4bSys = 'Raspberry Pi 4 Model B';
     const mangoPiSys = 'MangoPi Mcore';

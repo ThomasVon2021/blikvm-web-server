@@ -105,7 +105,7 @@ class Logger {
   _init() {
     const { log } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
 
-    if (!log.console.isPrint && !log.file.isPrint) {
+    if (!log.console.enabled && !log.file.enabled) {
       return;
     }
 
@@ -123,14 +123,14 @@ class Logger {
       }
     };
 
-    if (log.console.isPrint) {
+    if (log.console.enabled) {
       config.categories.console = {
         appenders: ['console'],
         level: log.console.level
       };
     }
 
-    if (log.file.isPrint) {
+    if (log.file.enabled) {
       config.appenders.file = {
         type: 'file',
         filename: log.file.fileName,
@@ -146,10 +146,10 @@ class Logger {
 
     log4js.configure(config);
 
-    if (log.console.isPrint) {
+    if (log.console.enabled) {
       this._loggers.push(log4js.getLogger('console'));
     }
-    if (log.file.isPrint) {
+    if (log.file.enabled) {
       this._loggers.push(log4js.getLogger('file'));
     }
   }

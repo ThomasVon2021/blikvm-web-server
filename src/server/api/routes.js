@@ -14,7 +14,7 @@ import hid from './hid.route.js';
  * @private
  */
 const routes = [
-  { path: '/api/atx/state', handler: apiATXState, method: 'get' },
+  { path: '/api/atx/state', handler: apiATXState, method: 'post' },
   { path: '/api/atx/click', handler: apiATXClick, method: 'post' },
   { path: '/api/device_id', handler: deviceId, method: 'post' },
   { path: '/api/state', handler: state, method: 'post' },
