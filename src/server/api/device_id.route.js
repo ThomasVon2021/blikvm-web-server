@@ -10,8 +10,8 @@ import { createApiObj } from '../../common/api.js';
  */
 function apiFunc(req, res, next) {
   try {
-    const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+    const { firmwareObject } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, 'utf8'));
     const ret = createApiObj();
     ret.data.id = data.id;
     res.json(ret);

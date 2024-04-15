@@ -1,5 +1,5 @@
 import Logger from './log/logger.js';
-import { existFile, createFile, generateUniqueCode } from './common/tool.js';
+import { fileExists, createFile, generateUniqueCode } from './common/tool.js';
 import fs from 'fs';
 import HttpServer from './server/server.js';
 import Video from './modules/video/video.js';
@@ -31,15 +31,15 @@ httpServer.startService().then((result) => {
  * @private
  */
 function createSecretFile() {
-  const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-  if (!existFile(other.secretFile)) {
-    createFile(other.secretFile);
+  const { firmwareObject } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+  if (!fileExists(firmwareObject.firmwareFile)) {
+    createFile(firmwareObject.firmwareFile);
     const data = {
       user: 'admin',
       pwd: 'admin',
       id: generateUniqueCode()
     };
-    fs.writeFileSync(other.secretFile, JSON.stringify(data));
-    logger.info(`Secret file created at ${other.secretFile}`);
+    fs.writeFileSync(firmwareObject.firmwareFile, JSON.stringify(data));
+    logger.info(`Secret file created at ${firmwareObject.firmwareFile}`);
   }
 }

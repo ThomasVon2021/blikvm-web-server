@@ -17,7 +17,7 @@ let hardwareSysType = HardwareType.UNKNOWN;
  * @param {string} path - The path to the directory.
  * @returns {boolean} - Returns true if the directory exists, false otherwise.
  */
-function existDir(path) {
+function dirExists(path) {
   return fs.existsSync(path) && fs.lstatSync(path).isDirectory();
 }
 
@@ -27,7 +27,7 @@ function existDir(path) {
  * @param {string} path - The path to the file.
  * @returns {boolean} - Returns true if the file exists and is a regular file, otherwise returns false.
  */
-function existFile(path) {
+function fileExists(path) {
   return fs.existsSync(path) && fs.lstatSync(path).isFile();
 }
 
@@ -46,7 +46,7 @@ function isDeviceFile(path) {
  * @returns {boolean} Returns true if the directory is created successfully, false otherwise.
  */
 function createDir(dirname) {
-  if (existDir(dirname)) {
+  if (dirExists(dirname)) {
     return true;
   }
 
@@ -141,8 +141,8 @@ function executeScriptAtPath(scriptPath) {
 }
 
 export {
-  existDir,
-  existFile,
+  dirExists,
+  fileExists,
   createDir,
   createFile,
   generateUniqueCode,

@@ -13,8 +13,8 @@
             "backups": 3
         }
     },
-    "other":{
-        "secretFile":"./config/secret.json"
+    "firmwareObject":{
+        "firmwareFile":"./config/firmware.json"
     },
     "server":{
         "port":10001
