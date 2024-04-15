@@ -140,6 +140,79 @@ function executeScriptAtPath(scriptPath) {
   });
 }
 
+function executeCMD(cmd) {
+  return new Promise((resolve, reject) => {
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+
+function getSystemType() {
+  try {
+    const output = execSync('mount | grep " / "', { encoding: 'utf-8' });
+    if (output.includes('ro,noatime')) {
+      return 'ro';
+    } else if (output.includes('rw,noatime')) {
+      return 'rw';
+    } else {
+      return 'error';
+    }
+  } catch (error) {
+    return 'error';
+  }
+}
+
+function changetoRWSystem() {
+  try {
+    const output = execSync('mount | grep " / "', { encoding: 'utf-8' });
+    if (output.includes('ro,noatime')) {
+      execSync('mount -o remount,rw /');
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function changetoROSystem() {
+  try {
+    const output = execSync('mount | grep " / "', { encoding: 'utf-8' });
+    if (output.includes('rw,noatime')) {
+      execSync('mount -o remount,ro /');
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function getAllFilesInDirectory(dirPath) {
+  try {
+    const files = fs.readdirSync(dirPath);
+    let fileList = [];
+
+    files.forEach((file) => {
+      const filePath = path.join(dirPath, file);
+      const stats = fs.statSync(filePath);
+
+      if (stats.isFile()) {
+        fileList.push(filePath);
+      } else if (stats.isDirectory()) {
+        const subFiles = getAllFilesInDirectory(filePath);
+        fileList = fileList.concat(subFiles);
+      }
+    });
+    return fileList;
+  } catch (err) {
+    return [];
+  }
+}
+
 export {
   dirExists,
   fileExists,
@@ -149,5 +222,10 @@ export {
   generateSecret,
   getHardwareType,
   executeScriptAtPath,
-  isDeviceFile
+  isDeviceFile,
+  executeCMD,
+  getSystemType,
+  changetoRWSystem,
+  changetoROSystem,
+  getAllFilesInDirectory
 };

@@ -117,7 +117,7 @@ fi
 
 case ${CMD} in
     forward)
-        mount -o remount,rw /
+        #mount -o remount,rw /
 
         if [ -f  "$ventoy_dir/"$MSD_NAME".img" ]
         then
@@ -178,14 +178,14 @@ case ${CMD} in
                 bash $usb_dis_gadget_sh
                 bash $usb_gadget_sh
 
-                mount -o remount,ro /
+                #mount -o remount,ro /
         else
                 echo "there is no iso file, please first make iso file."
         fi
         ;;
 
     rever)
-	mount -o remount,rw /
+	#mount -o remount,rw /
 
         if [ -f  "$ventoy_dir/"$MSD_NAME".img" ]
         then
@@ -236,7 +236,7 @@ case ${CMD} in
                 bash $usb_dis_gadget_sh
                 bash $usb_gadget_sh
 
-                mount -o remount,ro /
+                #mount -o remount,ro /
         fi
 	;;
 
@@ -246,7 +246,7 @@ case ${CMD} in
 #               echo "param need point one, or default 0 use iso all img."
 #       fi
 
-        mount -o remount,rw /
+        #mount -o remount,rw /
 
         if [ -f  "$ventoy_dir/"$MSD_NAME".img" ]
         then
@@ -260,7 +260,8 @@ case ${CMD} in
                 cd  $ventoy_dir
                 echo "update file not exist,please wait..."
 
-                dd if=/dev/zero of=$MSD_NAME".img" bs=1M count=$((VENTOY_SIZE*1024)) status=progress;
+                #dd if=/dev/zero of=$MSD_NAME".img" bs=1M count=$((VENTOY_SIZE*1024)) status=progress;
+                truncate -s "${VENTOY_SIZE}G" "${MSD_NAME}.img"
         fi
 
         if [ "$TYPE" != "ventoy" ] 
@@ -365,7 +366,7 @@ case ${CMD} in
         losetup -d $dev_name
 
         update_json  msd_img_created created
-        mount -o remount,ro /
+        #mount -o remount,ro /
         ;;
 
     conn)
