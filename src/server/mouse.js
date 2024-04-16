@@ -4,7 +4,7 @@
  */
 
 import Logger from '../log/logger.js';
-import { existFile } from '../common/tool.js';
+import { isDeviceFile } from '../common/tool.js';
 import fs from 'fs';
 
 const logger = new Logger();
@@ -23,7 +23,7 @@ function handleMouse(event) {
     horizontalWheelDelta
   );
   const fileName = '/dev/hidg1';
-  if (existFile(fileName)) {
+  if (isDeviceFile(fileName)) {
     fs.writeFile('/dev/hidg1', data, (error) => {
       if (error) {
         logger.info(`Error writing to /dev/hidg1: ${error.message}`);

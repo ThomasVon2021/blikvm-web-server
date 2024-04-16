@@ -267,8 +267,8 @@ class HttpServer {
     const { headers } = req;
     const user = headers.user;
     const pwd = headers.pwd;
-    const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+    const { firmwareObject } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, 'utf8'));
     if (user && user === data.user && pwd && pwd === data.pwd) {
       return true;
     } else {
@@ -319,8 +319,8 @@ class HttpServer {
       const auth = authHeader.split(' ')[1];
       const credentials = Buffer.from(auth, 'base64').toString();
       const [user, pwd] = credentials.split(':');
-      const { other } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-      const data = JSON.parse(fs.readFileSync(other.secretFile, 'utf8'));
+      const { firmwareObject } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+      const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, 'utf8'));
       if (user && user === data.user && pwd && pwd === data.pwd) {
         next();
       } else {

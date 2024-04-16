@@ -13,6 +13,7 @@
     "build": "npm run build-1 && npm run build-2 && npm run build-3",
     "lint": "eslint . --ext .js,.cjs, --fix --ignore-path .gitignore",
     "format": "prettier --write src",
+    "check": "eslint . --ext .js,.cjs, --fix --ignore-path .gitignore && prettier --write src",
     "docs": "jsdoc -c .jsdoc.json -R README.md",
     "test": "jest test/"
   },

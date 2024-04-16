@@ -6,7 +6,7 @@ const HardwareType = {
   /**
    * Unknown hardware type.
    */
-  UNKNOW: 0,
+  UNKNOWN: 0,
   /**
    * Raspberry Pi 4B.
    */

@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import Logger from '../log/logger.js';
-import { existFile } from '../common/tool.js';
+import { isDeviceFile } from '../common/tool.js';
 
 const logger = new Logger();
 
@@ -16,7 +16,7 @@ const logger = new Logger();
 function handleKeyboard(event) {
   const keyboardData = packData(event);
   const fileName = '/dev/hidg0';
-  if (existFile(fileName)) {
+  if (isDeviceFile(fileName)) {
     fs.writeFile('/dev/hidg0', keyboardData, (error) => {
       if (error) {
         logger.info(`Error writing to /dev/hidg0: ${error.message}`);

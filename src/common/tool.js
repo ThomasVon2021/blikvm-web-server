@@ -7,9 +7,9 @@ import fs from 'fs';
 import path from 'path';
 import { v4 } from 'uuid';
 import { HardwareType } from './enums.js';
-import { execSync } from 'child_process';
+import { execSync, exec } from 'child_process';
 
-let hardwareSysType = HardwareType.UNKNOW;
+let hardwareSysType = HardwareType.UNKNOWN;
 
 /**
  * Checks if a directory exists at the specified path.
@@ -17,7 +17,7 @@ let hardwareSysType = HardwareType.UNKNOW;
  * @param {string} path - The path to the directory.
  * @returns {boolean} - Returns true if the directory exists, false otherwise.
  */
-function existDir(path) {
+function dirExists(path) {
   return fs.existsSync(path) && fs.lstatSync(path).isDirectory();
 }
 
@@ -27,8 +27,17 @@ function existDir(path) {
  * @param {string} path - The path to the file.
  * @returns {boolean} - Returns true if the file exists and is a regular file, otherwise returns false.
  */
-function existFile(path) {
+function fileExists(path) {
   return fs.existsSync(path) && fs.lstatSync(path).isFile();
+}
+
+function isDeviceFile(path) {
+  try {
+    fs.accessSync(path, fs.constants.R_OK | fs.constants.W_OK);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 /**
@@ -37,7 +46,7 @@ function existFile(path) {
  * @returns {boolean} Returns true if the directory is created successfully, false otherwise.
  */
 function createDir(dirname) {
-  if (existDir(dirname)) {
+  if (dirExists(dirname)) {
     return true;
   }
 
@@ -101,7 +110,7 @@ function generateSecret(length) {
  * @returns {enmus} The hardware type, see HardwareType.
  */
 function getHardwareType() {
-  if (hardwareSysType === HardwareType.UNKNOW) {
+  if (hardwareSysType === HardwareType.UNKNOWN) {
     const modelOutput = execSync('cat /proc/device-tree/model').toString();
     const pi4bSys = 'Raspberry Pi 4 Model B';
     const mangoPiSys = 'MangoPi Mcore';
@@ -118,12 +127,27 @@ function getHardwareType() {
   return hardwareSysType;
 }
 
+function executeScriptAtPath(scriptPath) {
+  const bashCommand = `bash ${scriptPath}`;
+  return new Promise((resolve, reject) => {
+    exec(bashCommand, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+
 export {
-  existDir,
-  existFile,
+  dirExists,
+  fileExists,
   createDir,
   createFile,
   generateUniqueCode,
   generateSecret,
-  getHardwareType
+  getHardwareType,
+  executeScriptAtPath,
+  isDeviceFile
 };

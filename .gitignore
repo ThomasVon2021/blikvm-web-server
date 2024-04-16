@@ -3,4 +3,4 @@ temp
 package-lock.json
 release
 doc/func
-config/secret.json
+config/firmware.json

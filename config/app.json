@@ -1,11 +1,11 @@
 {
     "log": {
         "console": {
-            "isPrint": true,
+            "enabled": true,
             "level": "info"
         },
         "file": {
-            "isPrint": true,
+            "enabled": true,
             "level": "trace",
             "fileName": "./temp/logs/app.log",
             "flags": "a",
@@ -13,8 +13,8 @@
             "backups": 3
         }
     },
-    "other":{
-        "secretFile":"./config/secret.json"
+    "firmwareObject":{
+        "firmwareFile":"./config/firmware.json"
     },
     "server":{
         "port":10001
@@ -26,7 +26,9 @@
     },
     "kvmd":{
         "bin":"./lib/pi/kvmd-main",
-        "janusBin":"./lib/pi/janus"
+        "janusBin":"./lib/pi/janus",
+        "hidEnable":"./lib/hid/enable-gadget.sh",
+        "hidDisable":"./lib/hid/disable-gadget.sh"
     },
     "atx":{
         "controlSockFilePath":"/var/blikvm/atx.sock",
