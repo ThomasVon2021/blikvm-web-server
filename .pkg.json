@@ -1,4 +1,7 @@
 {
   "targets": ["node18-linux-arm64"],
-  "scripts": ["temp/src/*.js"]
+  "scripts": ["temp/src/*.js"],
+  "assets": [
+    "node_modules/@serialport/bindings-cpp/prebuilds/linux-arm64/node.napi.armv8.node"
+  ]
 }
