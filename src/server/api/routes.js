@@ -4,6 +4,15 @@ import state from './state.route.js';
 import video from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 import hid from './hid.route.js';
+import {
+  apiUpload,
+  apiCreate,
+  apiState,
+  apiConnect,
+  apiImages,
+  apiRemoveMSD,
+  apiDeleteImage
+} from './msd.route.js';
 
 /**
  * Array of route objects.
@@ -20,7 +29,14 @@ const routes = [
   { path: '/api/state', handler: state, method: 'post' },
   { path: '/api/video', handler: video, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
-  { path: '/api/hid', handler: hid, method: 'post' }
+  { path: '/api/hid', handler: hid, method: 'post' },
+  { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
+  { path: '/api/msd/create', handler: apiCreate, method: 'post' },
+  { path: '/api/msd/state', handler: apiState, method: 'post' },
+  { path: '/api/msd/connect', handler: apiConnect, method: 'post' },
+  { path: '/api/msd/images', handler: apiImages, method: 'post' },
+  { path: '/api/msd/remove', handler: apiRemoveMSD, method: 'post' },
+  { path: '/api/msd/delete', handler: apiDeleteImage, method: 'post' }
 ];
 
 export default routes;

@@ -33,5 +33,10 @@
     "atx":{
         "controlSockFilePath":"/var/blikvm/atx.sock",
         "stateSockFilePath":"/dev/shm/blikvm/atx"
+    },
+    "msd":{
+        "isoFilePath":"/mnt/msd/user",
+        "shell":"./lib/kvmd-msd.sh",
+        "stateFilePath":"/mnt/msd/config/msd.json"
     }
 }
