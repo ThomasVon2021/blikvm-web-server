@@ -18,7 +18,7 @@
     "janusBin": "./lib/pi/janus",
     "hidEnable": "./lib/hid/enable-gadget.sh",
     "hidDisable": "./lib/hid/disable-gadget.sh",
-    "switch": { "enabled": false, "modle": "blikvm_switch_v1.0", "devicePath": "/dev/ttyAMA0" }
+    "switch": { "enabled": false, "module": "blikvm_switch_v1.0", "devicePath": "/dev/ttyAMA0" }
   },
   "atx": {
     "controlSockFilePath": "/var/blikvm/atx.sock",

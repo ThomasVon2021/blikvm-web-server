@@ -1,10 +1,10 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
-import KVMDSwitchV1 from '../../modules/kvmd/kvmd_switch_v1.0.js';
+import KVMDBliSwitchV1 from '../../modules/kvmd/kvmd_switch_v1.0.js';
 
 function _enableSwitch(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const kvmdSwitch = new KVMDSwitchV1();
+    const kvmdSwitch = new KVMDBliSwitchV1();
     kvmdSwitch
       .enableSwitch()
       .then((result) => {
@@ -25,7 +25,7 @@ function _enableSwitch(req, res, next) {
 function _disableSwitch(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const kvmdSwitch = new KVMDSwitchV1();
+    const kvmdSwitch = new KVMDBliSwitchV1();
     kvmdSwitch
       .disableSwitch()
       .then((result) => {
@@ -59,7 +59,7 @@ function apiEnableSwitch(req, res, next) {
 function apiGetSwitchChannel(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const kvmdSwitch = new KVMDSwitchV1();
+    const kvmdSwitch = new KVMDBliSwitchV1();
     const channel = kvmdSwitch.getChannel();
     const state = kvmdSwitch.getState();
     returnObject.data = {
@@ -76,7 +76,7 @@ function apiGetSwitchChannel(req, res, next) {
 function apiChangeChannel(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const kvmdSwitch = new KVMDSwitchV1();
+    const kvmdSwitch = new KVMDBliSwitchV1();
     const channel = req.query.channel;
     const result = kvmdSwitch.switchChannel(channel);
 
