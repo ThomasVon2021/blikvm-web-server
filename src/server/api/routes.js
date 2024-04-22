@@ -14,6 +14,7 @@ import {
   apiDeleteImage
 } from './msd.route.js';
 import { apiLogin, apiChangeAccount } from './login.route.js';
+import { apiEnableSwitch, apiGetSwitchChannel, apiChangeChannel } from './switch.route.js';
 
 /**
  * Array of route objects.
@@ -39,7 +40,10 @@ const routes = [
   { path: '/api/msd/remove', handler: apiRemoveMSD, method: 'post' },
   { path: '/api/msd/delete', handler: apiDeleteImage, method: 'post' },
   { path: '/api/login', handler: apiLogin, method: 'post' },
-  { path: '/api/changeaccount', handler: apiChangeAccount, method: 'post' }
+  { path: '/api/changeaccount', handler: apiChangeAccount, method: 'post' },
+  { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
+  { path: '/api/switch/state', handler: apiGetSwitchChannel, method: 'post' },
+  { path: '/api/switch/change', handler: apiChangeChannel, method: 'post' }
 ];
 
 export default routes;

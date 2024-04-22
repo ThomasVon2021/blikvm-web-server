@@ -1,42 +1,32 @@
 {
-    "log": {
-        "console": {
-            "enabled": true,
-            "level": "info"
-        },
-        "file": {
-            "enabled": true,
-            "level": "trace",
-            "fileName": "./temp/logs/app.log",
-            "flags": "a",
-            "maxLogSize": 30,
-            "backups": 3
-        }
-    },
-    "firmwareObject":{
-        "firmwareFile":"./config/firmware.json"
-    },
-    "server":{
-        "port":10001
-    },
-    "video":{
-        "port": 10002,
-        "shell":"./lib/kvmd-video.sh",
-        "bin":"./lib/pi/ustreamer.bin"
-    },
-    "kvmd":{
-        "bin":"./lib/pi/kvmd-main",
-        "janusBin":"./lib/pi/janus",
-        "hidEnable":"./lib/hid/enable-gadget.sh",
-        "hidDisable":"./lib/hid/disable-gadget.sh"
-    },
-    "atx":{
-        "controlSockFilePath":"/var/blikvm/atx.sock",
-        "stateSockFilePath":"/dev/shm/blikvm/atx"
-    },
-    "msd":{
-        "isoFilePath":"/mnt/msd/user",
-        "shell":"./lib/kvmd-msd.sh",
-        "stateFilePath":"/mnt/msd/config/msd.json"
+  "log": {
+    "console": { "enabled": true, "level": "info" },
+    "file": {
+      "enabled": true,
+      "level": "trace",
+      "fileName": "./temp/logs/app.log",
+      "flags": "a",
+      "maxLogSize": 30,
+      "backups": 3
     }
+  },
+  "firmwareObject": { "firmwareFile": "./config/firmware.json" },
+  "server": { "port": 10001 },
+  "video": { "port": 10002, "shell": "./lib/kvmd-video.sh", "bin": "./lib/pi/ustreamer.bin" },
+  "kvmd": {
+    "bin": "./lib/pi/kvmd-main",
+    "janusBin": "./lib/pi/janus",
+    "hidEnable": "./lib/hid/enable-gadget.sh",
+    "hidDisable": "./lib/hid/disable-gadget.sh",
+    "switch": { "enabled": false, "module": "blikvm_switch_v1.0", "devicePath": "/dev/ttyAMA0" }
+  },
+  "atx": {
+    "controlSockFilePath": "/var/blikvm/atx.sock",
+    "stateSockFilePath": "/dev/shm/blikvm/atx"
+  },
+  "msd": {
+    "isoFilePath": "/mnt/msd/user",
+    "shell": "./lib/kvmd-msd.sh",
+    "stateFilePath": "/mnt/msd/config/msd.json"
+  }
 }
