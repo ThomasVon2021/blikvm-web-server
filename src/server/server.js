@@ -213,9 +213,9 @@ class HttpServer {
    */
   _websocketServerConnectionEvent(ws, req) {
     try {
-      if (!this._wssVerifyClient(ws, req)) {
-        return;
-      }
+      // if (!this._wssVerifyClient(ws, req)) {
+      //   return;
+      // }
 
       logger.info(`WebSocket Client connected, total clients: ${this._wss.clients.size}`);
 
@@ -277,6 +277,7 @@ class HttpServer {
       ret.msg = 'user or pwd is missing or wrong';
       ws.send(JSON.stringify(ret));
       ws.close();
+      logger.error("user or pwd is missing or wrong");
       return false;
     }
   }

@@ -4,10 +4,15 @@
  */
 
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 import { v4 } from 'uuid';
 import { HardwareType } from './enums.js';
 import { execSync, exec } from 'child_process';
+import si from 'systeminformation';
+import Logger from '../log/logger.js';
+
+const logger = new Logger();
 
 let hardwareSysType = HardwareType.UNKNOWN;
 
@@ -213,6 +218,85 @@ function getAllFilesInDirectory(dirPath) {
   }
 }
 
+/**
+ * 延迟指定的毫秒数。
+ * @param {number} ms - 延迟的毫秒数。
+ * @returns {Promise} Promise 对象，表示延迟完成。
+ */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getDiskSpace(path) {
+  try {
+    // 获取磁盘信息
+    const disk = await si.fsSize();
+    // 在磁盘信息中找到指定路径的磁盘
+    const diskOnPath = disk.find(d => d.mount === path);
+
+    console.log('diskOnPath', diskOnPath);
+
+    // 如果找到了指定路径的磁盘信息
+    if (diskOnPath) {
+      const resJson = {
+        used: diskOnPath.used,
+        size: diskOnPath.size // 磁盘剩余空间
+      };
+      return resJson;
+    } else {
+      // 如果未找到指定路径的磁盘信息，则返回空对象或者null，视情况而定
+      logger.error(`can't find ${path}`);
+      return {}; // 或者 return null;
+    }
+  } catch (err) {
+    // 捕获异常并返回null
+    return null;
+  }
+}
+
+async function readVentoyDirectory(ventoyDirectory) {
+  try {
+    // Use getDiskSpace to get disk space information
+    const { used, size } = await getDiskSpace('/mnt');
+
+    const files = await fsPromises.readdir(ventoyDirectory);
+
+    const fileInformation = await Promise.all(
+      files.map(async file => {
+        const filePath = path.join(ventoyDirectory, file);
+        try {
+          const stats = await fsPromises.stat(filePath);
+
+          // Check if the file is a regular file
+          if (stats.isFile()) {
+            return {
+              name: file,
+              path: filePath,
+              imageSize: stats.size,
+              date: stats.mtime
+            };
+          }
+        } catch (error) {
+          // Handle error for individual file stat
+          console.error(`Error reading file stats for ${file}:`, error);
+        }
+      })
+    )
+
+    // Filter out undefined values (directories or non-regular files)
+    const filteredFileInformation = fileInformation.filter(info => info);
+    const capacity = ((size - used) / size * 100).toFixed(2);
+    return {
+      size,
+      used,
+      capacity,
+      files: filteredFileInformation
+    }
+  } catch (error) {
+    console.error('Error reading directory:', error);
+  }
+}
+
 export {
   dirExists,
   fileExists,
@@ -227,5 +311,7 @@ export {
   getSystemType,
   changetoRWSystem,
   changetoROSystem,
-  getAllFilesInDirectory
+  getAllFilesInDirectory,
+  sleep,
+  readVentoyDirectory
 };

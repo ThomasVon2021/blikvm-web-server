@@ -20,11 +20,16 @@ httpServer.startService().then((result) => {
   video.startService();
   const kvmdmain = new KVMDMain();
   kvmdmain.startService();
-  const atx = new ATX();
-  atx.startService();
   const janus = new Janus();
   janus.startService();
+  const atx = new ATX();
+  setTimeout(() => {
+    console.log('Start ATX service');
+    atx.startService();
+  }, 5000); // 5000 ms delay start ATX service
 });
+
+
 
 /**
  * Creates or updates a secret file with a unique code, secret key, and empty OTP.

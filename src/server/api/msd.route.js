@@ -55,11 +55,11 @@ function apiConnect(req, res, next) {
   }
 }
 
-function apiImages(req, res, next) {
+async function apiImages(req, res, next) {
   try {
     const returnObject = createApiObj();
     const msd = new MSD();
-    returnObject.data = msd.getImages();
+    returnObject.data = await msd.getImages();
     returnObject.code = ApiCode.OK;
     res.json(returnObject);
   } catch (err) {

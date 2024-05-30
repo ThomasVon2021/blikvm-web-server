@@ -49,6 +49,7 @@ class ATX extends Module {
               this._ledHDD = false;
             }
             this._state = ModuleState.RUNNING;
+            logger.info(`ATX API started, state: ${this._state}`);
           })
           .catch((err) => {
             logger.error(`${this._name} error: ${err.message}`);

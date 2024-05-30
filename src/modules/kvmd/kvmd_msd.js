@@ -2,12 +2,13 @@ import multer from 'multer';
 import fs from 'fs';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import Logger from '../../log/logger.js';
+import { exec } from 'child_process';
 import {
   executeCMD,
   getSystemType,
   changetoRWSystem,
   changetoROSystem,
-  getAllFilesInDirectory
+  readVentoyDirectory
 } from '../../common/tool.js';
 
 const logger = new Logger();
@@ -82,6 +83,37 @@ class MSD {
     return true;
   }
 
+  _parseProgress(data) {
+    // 解析命令输出并提取拷贝进度信息
+    const match = data.match(/(\d+)%/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  _executeCmdCP(cmd, progressCallback) {
+    return new Promise((resolve, reject) => {
+      const childProcess = exec(cmd);
+
+      childProcess.stdout.on('data', (data) => {
+        const progress = this._parseProgress(data);
+        if (progress !== null) {
+          progressCallback(progress);
+        }
+      });
+
+      childProcess.stderr.on('data', (data) => {
+        console.error(`data: ${data}`);
+      });
+
+      childProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Command exited with code ${code}`));
+        }
+      });
+    });
+  }
+
   getMSDState() {
     const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     const state = JSON.parse(fs.readFileSync(msd.stateFilePath, 'utf8'));
@@ -115,7 +147,9 @@ class MSD {
       const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
       const cmd = `bash ${msd.shell} -c make -s ${size} -n ${name} -t ${type} -f ${images}`;
       logger.info(`Create MSD: ${cmd}`);
-      executeCMD(cmd)
+      this._executeCmdCP(cmd, (progress) => {
+        logger.info(`progress: ${progress}`);
+      })
         .then(() => {
           returnObject.msg = 'create msd image ok';
           returnObject.code = ApiCode.ok;
@@ -195,10 +229,10 @@ class MSD {
       });
   }
 
-  getImages(dir) {
+  async getImages(dir) {
     const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     try {
-      const isos = getAllFilesInDirectory(msd.isoFilePath);
+      const isos = await readVentoyDirectory(msd.isoFilePath);
       return isos;
     } catch (err) {
       logger.error(`Get all files in directory ${msd.isoFilePath} failed: ${err.message}`);

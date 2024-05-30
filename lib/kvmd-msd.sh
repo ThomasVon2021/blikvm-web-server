@@ -305,7 +305,6 @@ case ${CMD} in
 
         #echo $PWD
 
-        echo "yueliang:"${FILE}
         if [ "${FILE}" != "*" ];then
                 file_name=${FILE}
                 echo "param correct"
@@ -319,7 +318,8 @@ case ${CMD} in
                 fi
                 sleep 3
                 echo "$iso_dir/${file_name}"
-                cp "$iso_dir/${file_name}" "$mount_dist_dir"
+                #cp "$iso_dir/${file_name}" "$mount_dist_dir"
+                rsync -a --progress "$iso_dir/${file_name}" "$mount_dist_dir"
                 if [ $? -ne 0 ]
                 then
                         echo "cp failed"
@@ -346,7 +346,8 @@ case ${CMD} in
                         fi
                         sleep 3
                         echo "${name} again!"
-                        cp -rf "${name}" "$mount_dist_dir";
+                        #cp -rf "${name}" "$mount_dist_dir";
+                        rsync -a --progress "${name}" "$mount_dist_dir"
                         if [ $? -ne 0 ]
                         then
                                 echo "default cp failed"
