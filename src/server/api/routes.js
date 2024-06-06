@@ -11,7 +11,9 @@ import {
   apiConnect,
   apiImages,
   apiRemoveMSD,
-  apiDeleteImage
+  apiDeleteImage,
+  apiGetUploadProgress,
+  apiGetMakeImageProgress
 } from './msd.route.js';
 import { apiLogin, apiChangeAccount } from './login.route.js';
 import { apiEnableSwitch, apiGetSwitchChannel, apiChangeChannel } from './switch.route.js';
@@ -33,7 +35,9 @@ const routes = [
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: hid, method: 'post' },
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
+  { path: '/api/msd/upload/progress', handler: apiGetUploadProgress, method: 'post' },
   { path: '/api/msd/create', handler: apiCreate, method: 'post' },
+  { path: '/api/msd/create/progress', handler: apiGetMakeImageProgress, method: 'post' },
   { path: '/api/msd/state', handler: apiState, method: 'post' },
   { path: '/api/msd/connect', handler: apiConnect, method: 'post' },
   { path: '/api/msd/images', handler: apiImages, method: 'post' },

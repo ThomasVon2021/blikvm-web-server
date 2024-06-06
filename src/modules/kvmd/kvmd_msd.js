@@ -3,6 +3,7 @@ import fs from 'fs';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import Logger from '../../log/logger.js';
 import { exec } from 'child_process';
+import progressStream from 'progress-stream';
 import {
   executeCMD,
   getSystemType,
@@ -22,6 +23,8 @@ class MSD {
   static _instance = null;
   _upload = null;
   _storage = null;
+  _uploadProgress = 0;
+  _makeImageProgress = 0;
 
   constructor() {
     if (!MSD._instance) {
@@ -49,7 +52,19 @@ class MSD {
     try {
       const returnObject = createApiObj();
 
-      this._upload(req, res, (err) => {
+      var progress = progressStream({length: '0'}); // 注意这里 length 设置为 '0'
+      req.pipe(progress);
+      progress.headers = req.headers;
+
+      this._uploadProgress = 0;
+
+      // 获取上传进度
+      progress.on('progress', obj => {		
+        this._uploadProgress = obj.percentage;
+        //logger.info(`update progress: ${this._uploadProgress}`);
+      });
+
+      this._upload(progress, res, (err) => {
         if (err instanceof multer.MulterError) {
           logger.error(`${this._name} error: ${err.message}`);
           returnObject.msg = 'File upload error.';
@@ -59,9 +74,10 @@ class MSD {
           logger.error(`${this._name} error: ${err.message}`);
           next(err);
         } else {
-          const uploadedFileName = req.file.originalname;
-          returnObject.msg = `File uploaded successfully: ${uploadedFileName}`;
+          // const uploadedFileName = req.file.originalname;
+          returnObject.msg = 'File uploaded successfully';
           returnObject.code = ApiCode.OK;
+          this._uploadProgress = 0;
           res.json(returnObject);
         }
       });
@@ -123,6 +139,15 @@ class MSD {
   createMSD(req, res, next) {
     try {
       const returnObject = createApiObj();
+      const state = this.getMSDState();
+      if (state.msd_img_created === 'created') {
+        returnObject.msg = "msd drive alreadly created!";
+        returnObject.code = ApiCode.ok;
+        returnObject.data = state;
+        res.json(returnObject);
+        return;
+      }
+
       if (!this._checkCreateParams(req)) {
         returnObject.msg = 'Invalid input parameters';
         returnObject.code = ApiCode.INVALID_INPUT_PARAM;
@@ -144,15 +169,19 @@ class MSD {
         }
       }
 
+      this._makeImageProgress = 0;
+
       const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
       const cmd = `bash ${msd.shell} -c make -s ${size} -n ${name} -t ${type} -f ${images}`;
       logger.info(`Create MSD: ${cmd}`);
       this._executeCmdCP(cmd, (progress) => {
-        logger.info(`progress: ${progress}`);
+        logger.info(`make msd image progress: ${progress}`);
+        this._makeImageProgress = progress;
       })
         .then(() => {
-          returnObject.msg = 'create msd image ok';
+          returnObject.msg = 'create msd drive ok';
           returnObject.code = ApiCode.ok;
+          this._makeImageProgress = 0;
           res.json(returnObject);
         })
         .catch((err) => {
@@ -173,9 +202,24 @@ class MSD {
 
   connectMSD(req, res, next) {
     const returnObject = createApiObj();
+    const state = this.getMSDState();
+    if (state.msd_img_created !== 'created') {
+      returnObject.msg = "usb drive not created, you can't exec conenct command";
+      returnObject.code = ApiCode.ok;
+      returnObject.data = state;
+      res.json(returnObject);
+      return;
+    }
     const action = req.query.action;
     const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     if (action === 'true') {
+      if( state.msd_status === 'connected' ){
+        returnObject.msg = "usb drive alreadly conected to host";
+        returnObject.code = ApiCode.ok;
+        returnObject.data = state;
+        res.json(returnObject);
+        return;
+      }
       logger.info('Connect MSD');
       const cmd = `bash ${msd.shell} -c conn`;
       executeCMD(cmd)
@@ -190,6 +234,13 @@ class MSD {
         });
     } else {
       logger.info('disconnect MSD');
+      if( state.msd_status === 'not_connected' ){
+        returnObject.msg = "usb drive alreadly disconected to host";
+        returnObject.code = ApiCode.ok;
+        returnObject.data = state;
+        res.json(returnObject);
+        return;
+      }
       const cmd = `bash ${msd.shell} -c disconn`;
       executeCMD(cmd)
         .then(() => {
@@ -207,8 +258,8 @@ class MSD {
   removeMSD(req, res, next) {
     const returnObject = createApiObj();
     const state = this.getMSDState();
-    if (state.status !== 'connected') {
-      returnObject.msg = "don't need to remove msd image";
+    if (state.msd_img_created !== 'created') {
+      returnObject.msg = "usb drive not created, you need to make first";
       returnObject.code = ApiCode.ok;
       returnObject.data = this.getMSDState();
       res.json(returnObject);
@@ -253,6 +304,26 @@ class MSD {
       });
     });
   }
+
+  getUploadProgress(req, res) {
+    const returnObject = createApiObj();
+    const progress = this._uploadProgress;
+    // logger.info(`getUploadProgress: ${progress}` );
+    returnObject.msg = 'get the uplaod progress';
+    returnObject.code = ApiCode.ok;
+    returnObject.data = progress;
+    res.json(returnObject);
+  }
+
+  getMakeImageProgress(req, res){
+    const returnObject = createApiObj();
+    const progress = this._makeImageProgress;
+    returnObject.msg = 'get the make image progress';
+    returnObject.code = ApiCode.ok;
+    returnObject.data = progress;
+    res.json(returnObject);
+  }
+
 }
 
 export default MSD;

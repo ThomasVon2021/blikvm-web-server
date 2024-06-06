@@ -20,6 +20,7 @@ without -n name           defaults name=ventoy -> ventoy.img
 #CMD=$1
 
 iso_file_name=()
+iso_files=()
 count_value=0
 ventoy_dir="/mnt/msd/ventoy"
 iso_dir="/mnt/msd/user"
@@ -32,9 +33,6 @@ msd_json="msd.json"
 
 while getopts "c:f:s:n:h:t:" opt; do
   case $opt in
-    f)
-                FILE="$OPTARG"
-                ;;
     s)
                 VENTOY_SIZE="$OPTARG"
                 ;;
@@ -47,10 +45,20 @@ while getopts "c:f:s:n:h:t:" opt; do
     t)
                 TYPE="$OPTARG"
                 ;;
+    f)
+                iso_files+=("$OPTARG")
+                ;;
     h|*)
                 usage
                 ;;
   esac
+done
+
+# Handle remaining arguments after -f option
+shift $((OPTIND-1))
+while [[ "$1" ]]; do
+    iso_files+=("$1")
+    shift
 done
 
 set -e
@@ -172,7 +180,7 @@ case ${CMD} in
                 done
 
                 umount -f $dev_name
-                sleep 3
+                sleep 1
                 losetup -d $dev_name
 
                 bash $usb_dis_gadget_sh
@@ -230,7 +238,7 @@ case ${CMD} in
                 fi
 
                 umount $mount_dist_dir 
-                sleep 3
+                sleep 1
                 losetup -d $dev_name
 
                 bash $usb_dis_gadget_sh
@@ -305,28 +313,59 @@ case ${CMD} in
 
         #echo $PWD
 
-        if [ "${FILE}" != "*" ];then
-                file_name=${FILE}
-                echo "param correct"
-                echo $mount_dist_dir${file_name##*/}
-                if [[ -f $mount_dist_dir${file_name##*/} && -f "$iso_dir/${file_name}" ]]
-                then
-                        echo "exist update file: ${file_name},rm it "
+        # if [ "${FILE}" != "*" ];then
+        #         file_name=${FILE}
+        #         echo "param correct"
+        #         echo $mount_dist_dir${file_name##*/}
+        #         if [[ -f $mount_dist_dir${file_name##*/} && -f "$iso_dir/${file_name}" ]]
+        #         then
+        #                 echo "exist update file: ${file_name},rm it "
 
-                        rm -f $mount_dist_dir${file_name##*/}
+        #                 rm -f $mount_dist_dir${file_name##*/}
+        #                 sync
+        #         fi
+        #         sleep 1
+        #         echo "$iso_dir/${file_name}"
+        #         #cp "$iso_dir/${file_name}" "$mount_dist_dir"
+        #         rsync -a --progress "$iso_dir/${file_name}" "$mount_dist_dir"
+        #         if [ $? -ne 0 ]
+        #         then
+        #                 echo "cp failed"
+        #         else
+        #                 echo "cp $iso_dir/${file_name} sucess!"
+        #         fi
+        #         sync
+
+        echo "ISO files: ${iso_files[@]}"
+        if [ ${#iso_files[@]} -ne 0 ]; then
+                echo "Making MSD with the following ISO files:"
+                temp_file_list=$(mktemp)
+                for file_name in "${iso_files[@]}"; do
+                if [ "$file_name" != "*" ]; then
+                        src_file="$iso_dir/$file_name"
+                        dest_file="$mount_dist_dir${file_name##*/}"
+                        if [[ -f "$dest_file" && -f "$src_file" ]]; then
+                        echo "exist update file: $file_name, rm it"
+                        rm -f "$dest_file"
                         sync
+                        fi
+                        echo "$src_file" >> "$temp_file_list"
                 fi
-                sleep 3
-                echo "$iso_dir/${file_name}"
-                #cp "$iso_dir/${file_name}" "$mount_dist_dir"
-                rsync -a --progress "$iso_dir/${file_name}" "$mount_dist_dir"
-                if [ $? -ne 0 ]
-                then
-                        echo "cp failed"
+                done
+
+                if [ -s "$temp_file_list" ]; then
+                rsync -a --progress --no-relative --files-from="$temp_file_list" / "$mount_dist_dir"
+                if [ $? -ne 0 ]; then
+                        echo "rsync failed"
                 else
-                        echo "cp $iso_dir/${file_name} sucess!"
+                        echo "rsync success!"
                 fi
                 sync
+                else
+                echo "No valid files to copy"
+                fi
+
+                rm -f "$temp_file_list"
         else
                 if [ ! -d  $iso_dir ]
                 then
@@ -344,7 +383,7 @@ case ${CMD} in
                                 rm -rf $mount_dist_dir${name##*/}
                                 sync
                         fi
-                        sleep 3
+                        sleep 1
                         echo "${name} again!"
                         #cp -rf "${name}" "$mount_dist_dir";
                         rsync -a --progress "${name}" "$mount_dist_dir"
@@ -363,7 +402,7 @@ case ${CMD} in
         else
                 umount -f $dev_name
         fi
-        sleep 3
+        sleep 1
         losetup -d $dev_name
 
         update_json  msd_img_created created
