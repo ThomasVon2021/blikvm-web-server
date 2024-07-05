@@ -1,7 +1,7 @@
 import { apiATXClick, apiATXState } from './atx.route.js';
 import deviceId from './device_id.route.js';
 import state from './state.route.js';
-import video from './video.route.js';
+import {apiVideoControl, apiVideoConfig} from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 import hid from './hid.route.js';
 import {
@@ -16,7 +16,7 @@ import {
   apiGetMakeImageProgress
 } from './msd.route.js';
 import { apiLogin, apiChangeAccount } from './login.route.js';
-import { apiEnableSwitch, apiGetSwitchChannel, apiChangeChannel } from './switch.route.js';
+import { apiEnableSwitch, apiGetSwitchState, apiChangeChannel, apiSetSwitchDevicePath, apiSetSwitchLable, apiGetSwitchList, apiSetSwitchModule } from './switch.route.js';
 
 /**
  * Array of route objects.
@@ -31,7 +31,8 @@ const routes = [
   { path: '/api/atx/click', handler: apiATXClick, method: 'post' },
   { path: '/api/device_id', handler: deviceId, method: 'post' },
   { path: '/api/state', handler: state, method: 'post' },
-  { path: '/api/video', handler: video, method: 'post' },
+  { path: '/api/video', handler: apiVideoControl, method: 'post' },
+  { path: '/api/video/config', handler: apiVideoConfig, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: hid, method: 'post' },
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
@@ -46,8 +47,12 @@ const routes = [
   { path: '/api/login', handler: apiLogin, method: 'post' },
   { path: '/api/changeaccount', handler: apiChangeAccount, method: 'post' },
   { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
-  { path: '/api/switch/state', handler: apiGetSwitchChannel, method: 'post' },
-  { path: '/api/switch/change', handler: apiChangeChannel, method: 'post' }
+  { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },
+  { path: '/api/switch/change', handler: apiChangeChannel, method: 'post' },
+  { path: '/api/switch/setpath', handler: apiSetSwitchDevicePath, method: 'post' },
+  { path: '/api/switch/setlable', handler: apiSetSwitchLable, method: 'post' },
+  { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
+  { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' }
 ];
 
 export default routes;

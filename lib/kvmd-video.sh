@@ -1,14 +1,18 @@
 #!/bin/bash
 
 # Check if the number of command line arguments is not equal to 2
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <ustreamer_bin_path> <port>"
+if [ "$#" -ne 6 ]; then
+  echo "Usage: $0 <ustreamer_bin_path> <port> <fps> <quality> <kbps> <gop>"
   exit 1
 fi
 
 # Set the path to the ustreamer binary and the port number
 ustreamer_bin=$1
 port=$2
+fps=$3
+quality=$4
+kbps=$5
+gop=$6
 ustreamer_pid=""
 
 # Define board type names
@@ -30,11 +34,11 @@ exec_cmd() {
 
 # Function to get the board type
 get_board_type() {
-  if [[ $(exec_cmd "cat /proc/cpuinfo") == *"$pi4b_board"* ]] || [[ $(exec_cmd "cat /run/machine.id") == *"$pi4b_board"* ]]; then
+  if [[ $(exec_cmd "tr -d '\0' < /proc/device-tree/model") == *"$pi4b_board"* ]] ; then
     type=$v2_hat
-  elif [[ $(exec_cmd "cat /proc/cpuinfo") == *"$cm4b_board"* ]] || [[ $(exec_cmd "cat /run/machine.id") == *"$cm4b_board"* ]]; then
+  elif [[ $(exec_cmd "tr -d '\0' < /proc/device-tree/model") == *"$cm4b_board"* ]] ; then
     type=$v3_pcie
-  elif [[ $(exec_cmd "cat /proc/cpuinfo") == *"$h616_board"* ]] || [[ $(exec_cmd "cat /run/machine.id") == *"$h616_board"* ]]; then
+  elif [[ $(exec_cmd "tr -d '\0' < /proc/device-tree/model") == *"$h616_board"* ]] ; then
     type=$v4_h616
   else
     type=$unknown
@@ -79,7 +83,7 @@ echo "Board type: $board_type"
 if [[ "$board_type" == "$v2_hat" ]] || [[ "$board_type" == "$v3_pcie" ]]; then
     v4l2-ctl --set-edid=file=/usr/bin/blikvm/edid.txt --fix-edid-checksums
     v4l2-ctl --set-dv-bt-timings query
-    $ustreamer_bin --device=/dev/video0 --host=0.0.0.0 --port=$port --persistent --dv-timings --format=uyvy --encoder=omx --workers=3 --quality=80 --desired-fps=30 --drop-same-frames=30 --last-as-blank=0 --h264-sink=demo::ustreamer::h264 &
+    $ustreamer_bin --device=/dev/video0 --host=0.0.0.0 --port=$port --persistent --dv-timings --format=uyvy --encoder=omx --workers=3 --quality=$quality --desired-fps=$fps --h264-bitrate=$kbps --h264-gop=$gop  --drop-same-frames=30 --last-as-blank=0 --h264-sink=demo::ustreamer::h264 &
     ustreamer_pid=$!
 elif [[ "$board_type" == "$v4_h616" ]]; then
   jpeg_supported_device=""
@@ -91,7 +95,7 @@ elif [[ "$board_type" == "$v4_h616" ]]; then
   done
   if [ -n "$jpeg_supported_device" ]; then
       echo "find support JPEG video divice: $jpeg_supported_device"
-      $ustreamer_bin --format=MJPEG --device=$jpeg_supported_device --resolution=1920x1080 --host=0.0.0.0 --port=$port --drop-same-frames=30 --desired-fps=20 &
+      $ustreamer_bin --format=MJPEG --device=$jpeg_supported_device --resolution=1920x1080 --host=0.0.0.0 --port=$port --drop-same-frames=30 --desired-fps=$fps --quality=$quality &
       ustreamer_pid=$!
   else
       echo "not find JPEG video device, use video1"

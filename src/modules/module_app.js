@@ -34,6 +34,7 @@ class ModuleApp extends Module {
       }
 
       // this._app = this._para ? spawn(this._bin, this._para) : spawn(this._bin);
+      // console.log("para:", this._para);
       this._app = spawn(this._bin, this._para);
 
       this._app.stdout.on('data', (data) => {
@@ -58,11 +59,19 @@ class ModuleApp extends Module {
       this._app.on('close', (code, signal) => {
         this._state = ModuleState.STOPPED;
         logger.info(`${this._name} API closed with code ${code} and signal ${signal}`);
+        if(code === 1)
+          {
+            this._state = ModuleState.ERROR;
+            this._error = ModuleAppStateCode.START_FAILED;
+            this._errorMsg = "input param not enough";
+            result.msg = "input param not enough";
+            reject(result);
+          }
       });
 
       this._state = ModuleState.STARTING;
       setTimeout(() => {
-        if (this._state === ModuleState.ERROR) {
+        if (this._state === ModuleState.ERROR || this._state === ModuleState.STOPPED) {
           return;
         }
         this._state = ModuleState.RUNNING;

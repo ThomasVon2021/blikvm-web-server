@@ -7,6 +7,7 @@ import KVMDMain from './modules/kvmd/kvmd_main.js';
 import ATX from './modules/kvmd/kvmd_atx.js';
 import Janus from './modules/kvmd/kvmd_janus.js';
 import HID from './modules/kvmd/kvmd_hid.js';
+import KVMSwitchFactory from './modules/kvmd/switch/kvmd_switch.js';
 
 const logger = new Logger();
 
@@ -22,11 +23,12 @@ httpServer.startService().then((result) => {
   kvmdmain.startService();
   const janus = new Janus();
   janus.startService();
+  startSwitch();
   const atx = new ATX();
   setTimeout(() => {
-    console.log('Start ATX service');
     atx.startService();
   }, 5000); // 5000 ms delay start ATX service
+  
 });
 
 
@@ -46,5 +48,14 @@ function createSecretFile() {
     };
     fs.writeFileSync(firmwareObject.firmwareFile, JSON.stringify(data));
     logger.info(`Secret file created at ${firmwareObject.firmwareFile}`);
+  }
+}
+
+// function start switch
+function startSwitch(){
+  const { kvmd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+  if( kvmd.switch.enabled == true){
+    const switchHandle = KVMSwitchFactory.getSwitchHandle(kvmd.switch.module);
+    switchHandle.enableSwitch();
   }
 }

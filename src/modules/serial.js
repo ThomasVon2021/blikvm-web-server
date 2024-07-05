@@ -28,6 +28,13 @@ class Serial extends Module {
       this._process.close();
     }
   }
+
+  write( str ){
+    if (this._process) {
+      this._process.write(str);
+    }
+  }
+
 }
 
 export default Serial;

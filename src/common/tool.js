@@ -234,7 +234,7 @@ async function getDiskSpace(path) {
     // 在磁盘信息中找到指定路径的磁盘
     const diskOnPath = disk.find(d => d.mount === path);
 
-    console.log('diskOnPath', diskOnPath);
+    //console.log('diskOnPath', diskOnPath);
 
     // 如果找到了指定路径的磁盘信息
     if (diskOnPath) {

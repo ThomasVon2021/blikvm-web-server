@@ -1,6 +1,8 @@
 import Video from '../../modules/video/video.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
+import Logger from '../../log/logger.js';
 
+const logger = new Logger();
 /**
  * Handles the API request to start the video service.
  * @param {Object} req - The request object.
@@ -8,7 +10,7 @@ import { ApiCode, createApiObj } from '../../common/api.js';
  * @param {Function} next - The next middleware function.
  * @private
  */
-function apiFunc(req, res, next) {
+function apiVideoControl(req, res, next) {
   try {
     const ret = createApiObj();
     const action = req.query.action;
@@ -49,4 +51,26 @@ function apiFunc(req, res, next) {
   }
 }
 
-export default apiFunc;
+// 
+function apiVideoConfig(req, res, next){
+  try {
+    const ret = createApiObj();
+    const video = new Video();
+    const action = req.query.action;
+    if(action === 'get'){
+      ret.data =  video.getVideoConfig();
+      ret.msg = 'get video param success';
+    } else if( action === 'set'){
+      video.setVideoConfig(req.body.data);
+      ret.msg = 'set video param success';
+    } else{
+      ret.msg = 'input invalid video command';
+      ret.code = ApiCode.INVALID_INPUT_PARAM;
+    }
+    res.json(ret);
+  } catch (error) {
+    next(err);
+  }
+}
+
+export {apiVideoControl, apiVideoConfig};
