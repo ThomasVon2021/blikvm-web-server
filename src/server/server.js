@@ -14,9 +14,11 @@ import { WebSocketServer, WebSocket } from 'ws';
 import handleMouse from './mouse.js';
 import handleKeyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
-import {CONFIG_PATH, UTF8} from "../common/constants.js"
+import {CONFIG_PATH, UTF8, JWT_SECRET} from "../common/constants.js"
 import { fileExists } from "../common/tool.js"
 import path from 'path';
+import { apiLogin } from "./api/login.route.js"
+import jwt from 'jsonwebtoken';
 
 
 const logger = new Logger();
@@ -186,8 +188,11 @@ class HttpServer {
 
     app.use(cors());
     app.use(bodyParser.json());
+
+    app.post('/api/login', apiLogin);
+
     app.use(this._httpRecorderMiddle);
-    // app.use(this._httpVerityMiddle);
+    app.use(this._httpVerityMiddle);
 
     routes.forEach((route) => {
       if (route.method === 'get') {
@@ -342,7 +347,8 @@ class HttpServer {
   _httpRecorderMiddle(req, res, next) {
     const requestType = req.method;
     const requestUrl = req.url;
-    logger.info(`http api request ${requestType} ${requestUrl}`);
+    const username = req.headers['username']; 
+    logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
     next();
   }
 
@@ -354,26 +360,26 @@ class HttpServer {
    * @private
    */
   _httpVerityMiddle(req, res, next) {
-    const ret = createApiObj();
-    const authHeader = req.headers.authorization;
-    if (authHeader) {
-      const auth = authHeader.split(' ')[1];
-      const credentials = Buffer.from(auth, 'base64').toString();
-      const [user, pwd] = credentials.split(':');
-      const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, UTF8));
-      if (user && user === data.user && pwd && pwd === data.pwd) {
-        next();
-      } else {
-        ret.code = ApiCode.INVALID_CREDENTIALS;
-        ret.msg = 'invalid credentials';
-        res.status(400).json(ret);
-      }
-    } else {
-      ret.code = ApiCode.INVALID_CREDENTIALS;
-      ret.msg = 'invalid credentials';
-      res.status(400).json(ret);
-    }
+    const returnObject = createApiObj();
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+  
+    if (token == null){
+      returnObject.code = ApiCode.NULL_TOKEN;
+      returnObject.msg = 'token is null';
+      res.json(returnObject);
+      return; 
+    } 
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err){
+        returnObject.code = ApiCode.INVALID_TOKEN;
+        returnObject.msg = 'token is error';
+        res.json(returnObject);
+        return; 
+      } 
+      next();
+    });
   }
 
   /**

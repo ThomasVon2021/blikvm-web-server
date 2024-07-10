@@ -4,7 +4,6 @@ import fsExtra from 'fs-extra';
 
 const directory = 'build';
 
-// 递归遍历目录并重命名文件
 const renameFiles = (dir) => {
   fs.readdirSync(dir).forEach(file => {
     const filePath = path.join(dir, file);
