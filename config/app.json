@@ -17,7 +17,8 @@
     "firmwareFile": "./config/firmware.json"
   },
   "server": {
-    "port": 10001
+    "port": 10001,
+    "rootPath": "/mnt/tmp/shangbb/blikvm/web_src/web-server"
   },
   "video": {
     "port": 10004,

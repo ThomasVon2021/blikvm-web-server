@@ -14,6 +14,10 @@ import { WebSocketServer, WebSocket } from 'ws';
 import handleMouse from './mouse.js';
 import handleKeyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
+import {CONFIG_PATH, UTF8} from "../common/constants.js"
+import { fileExists } from "../common/tool.js"
+import path from 'path';
+
 
 const logger = new Logger();
 
@@ -175,7 +179,7 @@ class HttpServer {
    * @private
    */
   _init() {
-    const { server } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     this._option = server;
 
     const app = express();
@@ -183,7 +187,7 @@ class HttpServer {
     app.use(cors());
     app.use(bodyParser.json());
     app.use(this._httpRecorderMiddle);
-    app.use(this._httpVerityMiddle);
+    // app.use(this._httpVerityMiddle);
 
     routes.forEach((route) => {
       if (route.method === 'get') {
@@ -194,6 +198,16 @@ class HttpServer {
     });
 
     app.use(this._httpErrorMiddle);
+    let root_path;
+    if(process.env.NODE_ENV === 'development'){
+      const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      root_path = server.rootPath;
+    }else{
+      root_path = __dirname;
+    }
+
+    app.use(express.static(path.join(root_path, 'dist')));
+    app.get("*", this._otherRoute);
 
     this._server = http.createServer(app);
     this._httpServerEvents();
@@ -203,6 +217,32 @@ class HttpServer {
     });
 
     this._wss.on('connection', this._websocketServerConnectionEvent.bind(this));
+  }
+
+  _otherRoute(req, res) {
+    try {
+      let root_path;
+      if(process.env.NODE_ENV === 'development')
+      {
+        const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+        root_path = server.rootPath;
+      }
+      const distDir = process.env.NODE_ENV === 'development' ? `${root_path}/dist`: `${__dirname}/dist`;
+      if (req.url === "/") {
+        res.sendFile(`${distDir}/index.html`);
+        return;
+      }
+      const path = distDir + req.url;
+      if (fileExists(path)) {
+        logger.info(`path:${path}`);
+        res.sendFile(path);
+      } else {
+        res.sendFile(`${distDir}/index.html`);
+      }
+    } catch (err) {
+      logger.error(`route[*]: ${err.message}`);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 
   /**
@@ -267,8 +307,8 @@ class HttpServer {
     const { headers } = req;
     const user = headers.user;
     const pwd = headers.pwd;
-    const { firmwareObject } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-    const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, 'utf8'));
+    const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, UTF8));
     if (user && user === data.user && pwd && pwd === data.pwd) {
       return true;
     } else {
@@ -320,8 +360,8 @@ class HttpServer {
       const auth = authHeader.split(' ')[1];
       const credentials = Buffer.from(auth, 'base64').toString();
       const [user, pwd] = credentials.split(':');
-      const { firmwareObject } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
-      const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, 'utf8'));
+      const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, UTF8));
       if (user && user === data.user && pwd && pwd === data.pwd) {
         next();
       } else {
