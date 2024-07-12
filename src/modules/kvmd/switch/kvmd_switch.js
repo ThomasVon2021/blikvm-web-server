@@ -14,7 +14,7 @@ class KVMSwitchFactory {
 
   static getSwitchHandle(type) {
     if( this._instance !== null){
-      if( type === this._instance.getChannel() ){
+      if( type === this._instance.getName() ){
         return this._instance;
       }else{
         this._instance.disableSwitch();

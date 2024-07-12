@@ -4,6 +4,7 @@ import Serial from '../../serial.js';
 import { ModuleState } from '../../../common/enums.js';
 import { CONFIG_PATH, UTF8, BliKVMSwitchV1ModuleName } from '../../../common/constants.js';
 import KVMSwitchBase from "./kvmd_switch_base.js"
+import { isDeviceFile } from "../../../common/tool.js"
 
 const logger = new Logger();
 
@@ -17,9 +18,9 @@ const ChannelCode = {
 
 const ChannelCommand = {
   Channel1: 'SW1\r\nG01gA',
-  Channel2: 'SW1\r\nG01gA',
-  Channel3: 'SW1\r\nG01gA',
-  Channel4: 'SW1\r\nG01gA'
+  Channel2: 'SW1\r\nG02gA',
+  Channel3: 'SW1\r\nG03gA',
+  Channel4: 'SW1\r\nG04gA'
 };
 
 class KVMDBliSwitchV1 extends  KVMSwitchBase{
@@ -48,7 +49,15 @@ class KVMDBliSwitchV1 extends  KVMSwitchBase{
           });
           return;
         }
-
+        
+        if( isDeviceFile(this._path) === false){
+          logger.error(`Switch path ${this._path} is not exist`);
+          resolve({
+            result: false,
+            msg: `Switch path ${this._path} is not exist`
+          });
+          return;
+        }
         this._serialHandle = new Serial(this._path, this._baudRate);
         this._serialHandle.startService();
 
@@ -77,17 +86,21 @@ class KVMDBliSwitchV1 extends  KVMSwitchBase{
         });
 
         this._serialHandle._process.on('data', (data) => {
-          logger.debug(`${this._name} data: ${data}`);
-          if (data.includes(ChannelCode.Channel1)) {
-            this._channel = ChannelCode.Channel1;
-          } else if (data.includes(ChannelCode.Channel2)) {
-            this._channel = ChannelCode.Channel2;
-          } else if (data.includes(ChannelCode.Channel3)) {
-            this._channel = ChannelCode.Channel3;
-          } else if (data.includes(ChannelCode.Channel4)) {
-            this._channel = ChannelCode.Channel4;
-          } else {
-            this._channel = ChannelCode.ChannelNone;
+          const current_data = data.toString().trim();
+          if( this._last_data !== current_data){
+            logger.info(`${this._name} data: ${data}`);
+            this._last_data = current_data;
+            if (data.includes(ChannelCode.Channel1)) {
+              this._channel = this.getLable()[0];
+            } else if (data.includes(ChannelCode.Channel2)) {
+              this._channel = this.getLable()[1];
+            } else if (data.includes(ChannelCode.Channel3)) {
+              this._channel = this.getLable()[2];
+            } else if (data.includes(ChannelCode.Channel4)) {
+              this._channel = this.getLable()[3];
+            } else {
+              this._channel = ChannelCode.ChannelNone;
+            }
           }
         });
       } catch (error) {

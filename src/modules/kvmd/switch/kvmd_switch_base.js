@@ -8,6 +8,7 @@ class KVMSwitchBase {
   _name = 'None';
   _channel = 'None';
   _state = ModuleState.STOPPED;
+  _last_data ='';
 
   enableSwitch() {
     throw new Error('must overwrite by children class');
