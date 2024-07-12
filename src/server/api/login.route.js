@@ -32,14 +32,19 @@ function apiLogin(req, res, next) {
       returnObject.code = ApiCode.INVALID_CREDENTIALS;
       return res.json(returnObject);
     }
-
-    const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '12h' });
+    let expiresTime = 12;  //h
+    const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: `${expiresTime}h` });
     returnObject.msg = 'Login sucessful';
     returnObject.code = ApiCode.OK;
     returnObject.data = {
       token: token,
       username: username
     };
+    const expiresDate = new Date(Date.now() + expiresTime*60*60*1000);
+    res.cookie('token', token, {
+      httpOnly: true,
+      expires: expiresDate
+    });
     res.json(returnObject);
   } catch (err) {
     next(err);

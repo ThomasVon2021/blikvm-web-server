@@ -19,6 +19,7 @@ import { fileExists } from "../common/tool.js"
 import path from 'path';
 import { apiLogin } from "./api/login.route.js"
 import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 
 
 const logger = new Logger();
@@ -176,6 +177,17 @@ class HttpServer {
     });
   }
 
+  _getRootPath() {
+    let root_path;
+    if(process.env.NODE_ENV === 'development'){
+      const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      root_path = server.rootPath;
+    }else{
+      root_path = __dirname;
+    }
+    return root_path;
+  }
+
   /**
    * Initializes the HTTP API server.
    * @private
@@ -185,14 +197,17 @@ class HttpServer {
     this._option = server;
 
     const app = express();
-
-    app.use(cors());
+    app.use(cookieParser());
+    app.use(cors({
+      origin: true,
+      credentials: true
+    }));
     app.use(bodyParser.json());
-
+    app.use(express.static(path.join(this._getRootPath(), 'dist')));
     app.post('/api/login', apiLogin);
-
-    app.use(this._httpRecorderMiddle);
     app.use(this._httpVerityMiddle);
+    app.use(this._httpRecorderMiddle);
+    
 
     routes.forEach((route) => {
       if (route.method === 'get') {
@@ -203,15 +218,9 @@ class HttpServer {
     });
 
     app.use(this._httpErrorMiddle);
-    let root_path;
-    if(process.env.NODE_ENV === 'development'){
-      const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      root_path = server.rootPath;
-    }else{
-      root_path = __dirname;
-    }
 
-    app.use(express.static(path.join(root_path, 'dist')));
+
+    
     app.get("*", this._otherRoute);
 
     this._server = http.createServer(app);
@@ -226,13 +235,7 @@ class HttpServer {
 
   _otherRoute(req, res) {
     try {
-      let root_path;
-      if(process.env.NODE_ENV === 'development')
-      {
-        const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-        root_path = server.rootPath;
-      }
-      const distDir = process.env.NODE_ENV === 'development' ? `${root_path}/dist`: `${__dirname}/dist`;
+      const distDir = `${this._getRootPath()}/dist`;
       if (req.url === "/") {
         res.sendFile(`${distDir}/index.html`);
         return;
@@ -347,7 +350,9 @@ class HttpServer {
   _httpRecorderMiddle(req, res, next) {
     const requestType = req.method;
     const requestUrl = req.url;
-    const username = req.headers['username']; 
+    const token = req.cookies?.token;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const username = decoded.username;
     logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
     next();
   }
@@ -361,22 +366,20 @@ class HttpServer {
    */
   _httpVerityMiddle(req, res, next) {
     const returnObject = createApiObj();
-
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-  
-    if (token == null){
-      returnObject.code = ApiCode.NULL_TOKEN;
-      returnObject.msg = 'token is null';
-      res.json(returnObject);
+    returnObject.code = ApiCode.INVALID_CREDENTIALS;
+    const token = req.cookies?.token;
+    if (!token){
+      logger.error('token is null');
+      returnObject.msg = 'token is null!';
+      res.status(401).json(returnObject);
       return; 
     } 
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err){
-        returnObject.code = ApiCode.INVALID_TOKEN;
-        returnObject.msg = 'token is error';
-        res.json(returnObject);
-        return; 
+        logger.error('token is error');
+        returnObject.msg = 'token is error!';
+        res.status(401).json(returnObject);
+        return;
       } 
       next();
     });
