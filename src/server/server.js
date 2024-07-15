@@ -197,7 +197,6 @@ class HttpServer {
     this._option = server;
 
     const app = express();
-    app.use(cookieParser());
     app.use(cors({
       origin: true,
       credentials: true
@@ -207,8 +206,6 @@ class HttpServer {
     app.post('/api/login', apiLogin);
     app.use(this._httpVerityMiddle);
     app.use(this._httpRecorderMiddle);
-    
-
     routes.forEach((route) => {
       if (route.method === 'get') {
         app.get(route.path, route.handler);
@@ -350,7 +347,8 @@ class HttpServer {
   _httpRecorderMiddle(req, res, next) {
     const requestType = req.method;
     const requestUrl = req.url;
-    const token = req.cookies?.token;
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     const username = decoded.username;
     logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
@@ -367,7 +365,10 @@ class HttpServer {
   _httpVerityMiddle(req, res, next) {
     const returnObject = createApiObj();
     returnObject.code = ApiCode.INVALID_CREDENTIALS;
-    const token = req.cookies?.token;
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
     if (!token){
       logger.error('token is null');
       returnObject.msg = 'token is null!';
@@ -394,7 +395,7 @@ class HttpServer {
    * @private
    */
   _httpErrorMiddle(err, req, res, next) {
-    logger.error(`Error handling HTTP request: ${err.message}`);
+    logger.error(`Error handling HTTP request: ${err}`);
     const ret = createApiObj();
     ret.code = ApiCode.INTERNAL_SERVER_ERROR;
     ret.msg = err.message;

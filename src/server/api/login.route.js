@@ -41,10 +41,6 @@ function apiLogin(req, res, next) {
       username: username
     };
     const expiresDate = new Date(Date.now() + expiresTime*60*60*1000);
-    res.cookie('token', token, {
-      httpOnly: true,
-      expires: expiresDate
-    });
     res.json(returnObject);
   } catch (err) {
     next(err);
