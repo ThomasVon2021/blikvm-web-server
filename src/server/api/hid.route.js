@@ -1,7 +1,7 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import HID from '../../modules/kvmd/kvmd_hid.js';
 
-function api(req, res, next) {
+function apiEnable(req, res, next) {
   try {
     const returnObject = createApiObj();
     const action = req.query.action;
@@ -40,4 +40,38 @@ function api(req, res, next) {
   }
 }
 
-export default api;
+function apiChangeMode(req, res, next) {
+  try{
+    const returnObject = createApiObj();
+    const absolute = req.query.absolute;
+    const hid = new HID();
+    hid.changeMode(absolute)
+    .then(() => {
+      returnObject.code = ApiCode.OK;
+      returnObject.msg = `hid change mode to absolute:${absolute} successful`;
+      res.json(returnObject);
+    })
+    .catch((err) => {
+      returnObject.msg = err.message;
+      returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+      res.json(returnObject);
+    });
+  }catch(err){
+    next(err);
+  }
+}
+
+function apiGetStatus(req, res, next) {
+  try{
+    const returnObject = createApiObj();
+    const hid = new HID();
+    returnObject.data = hid.getStatus();
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = `hid get status ok`;
+    res.json(returnObject);
+  }catch(err){
+    next(err);
+  }
+}
+
+export {apiEnable, apiChangeMode, apiGetStatus};

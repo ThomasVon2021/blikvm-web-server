@@ -1,9 +1,9 @@
 import { apiATXClick, apiATXState } from './atx.route.js';
 import deviceId from './device_id.route.js';
 import state from './state.route.js';
-import {apiVideoControl, apiVideoConfig} from './video.route.js';
+import { apiVideoControl, apiVideoConfig } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
-import hid from './hid.route.js';
+import { apiEnable, apiChangeMode, apiGetStatus } from './hid.route.js';
 import {
   apiUpload,
   apiCreate,
@@ -17,6 +17,7 @@ import {
 } from './msd.route.js';
 import { apiLogin, apiChangeAccount } from './login.route.js';
 import { apiEnableSwitch, apiGetSwitchState, apiChangeChannel, apiSetSwitchDevicePath, apiSetSwitchLable, apiGetSwitchList, apiSetSwitchModule } from './switch.route.js';
+import { apiReboot } from './system.routes.js'
 
 /**
  * Array of route objects.
@@ -34,7 +35,9 @@ const routes = [
   { path: '/api/video', handler: apiVideoControl, method: 'post' },
   { path: '/api/video/config', handler: apiVideoConfig, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
-  { path: '/api/hid', handler: hid, method: 'post' },
+  { path: '/api/hid', handler: apiEnable, method: 'post' },
+  { path: '/api/hid/mode', handler: apiChangeMode, method: 'post' },
+  { path: '/api/hid/status', handler: apiGetStatus, method: 'post' },
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
   { path: '/api/msd/upload/progress', handler: apiGetUploadProgress, method: 'post' },
   { path: '/api/msd/create', handler: apiCreate, method: 'post' },
@@ -52,7 +55,8 @@ const routes = [
   { path: '/api/switch/setpath', handler: apiSetSwitchDevicePath, method: 'post' },
   { path: '/api/switch/setlable', handler: apiSetSwitchLable, method: 'post' },
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
-  { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' }
+  { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
+  { path: '/api/reboot', handler: apiReboot, method: 'post' }
 ];
 
 export default routes;

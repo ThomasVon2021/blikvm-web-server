@@ -11,8 +11,8 @@ import Logger from '../log/logger.js';
 import fs from 'fs';
 import routes from './api/routes.js';
 import { WebSocketServer, WebSocket } from 'ws';
-import handleMouse from './mouse.js';
-import handleKeyboard from './keyboard.js';
+import Mouse from './mouse.js';
+import Keyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
 import {CONFIG_PATH, UTF8, JWT_SECRET} from "../common/constants.js"
 import { fileExists } from "../common/tool.js"
@@ -20,6 +20,7 @@ import path from 'path';
 import { apiLogin } from "./api/login.route.js"
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
+import HID from '../modules/kvmd/kvmd_hid.js';
 
 
 const logger = new Logger();
@@ -264,14 +265,18 @@ class HttpServer {
 
       logger.info(`WebSocket Client connected, total clients: ${this._wss.clients.size}`);
 
-      ws.send('Welcome to the blikvm server!');
-
+      const mouse = new Mouse();
+      const keyboard = new Keyboard();
+      const hid = new HID();
       const heartbeatInterval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
           const ret = createApiObj();
           ret.data.type = 'heartbeat';
           ret.data.timestamp = new Date().toISOString();
           ret.data.serverStatus = this._state;
+          ret.data.mouseStatus = mouse.getStatus();
+          ret.data.keyboardStatus = keyboard.getStatus();
+          ret.data.hidStatus = hid.getStatus();
           ws.send(JSON.stringify(ret));
         }
       }, 2000);
@@ -280,9 +285,9 @@ class HttpServer {
         const obj = JSON.parse(message);
         const keys = Object.keys(obj);
         if (keys.includes('m')) {
-          handleMouse(obj.m);
+          mouse.handleEvent(obj.m);
         } else if (keys.includes('k')) {
-          handleKeyboard(obj.k);
+          keyboard.handleEvent(obj.k);
         }
       });
 

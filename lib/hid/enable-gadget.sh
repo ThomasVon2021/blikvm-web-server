@@ -118,47 +118,88 @@ echo 0 > "${USB_MOUSE_FUNCTIONS_DIR}/protocol"
 echo 0 > "${USB_MOUSE_FUNCTIONS_DIR}/subclass"
 echo 7 > "${USB_MOUSE_FUNCTIONS_DIR}/report_length"
 
-# Write the report descriptor
-D=$(mktemp)
-{
-echo -ne \\x05\\x01      # USAGE_PAGE (Generic Desktop)
-echo -ne \\x09\\x02      # USAGE (Mouse)
-echo -ne \\xA1\\x01      # COLLECTION (Application)
-                         #   8-buttons
-echo -ne \\x05\\x09      #   USAGE_PAGE (Button)
-echo -ne \\x19\\x01      #   USAGE_MINIMUM (Button 1)
-echo -ne \\x29\\x08      #   USAGE_MAXIMUM (Button 8)
-echo -ne \\x15\\x00      #   LOGICAL_MINIMUM (0)
-echo -ne \\x25\\x01      #   LOGICAL_MAXIMUM (1)
-echo -ne \\x95\\x08      #   REPORT_COUNT (8)
-echo -ne \\x75\\x01      #   REPORT_SIZE (1)
-echo -ne \\x81\\x02      #   INPUT (Data,Var,Abs)
-                         #   x,y absolute coordinates
-echo -ne \\x05\\x01      #   USAGE_PAGE (Generic Desktop)
-echo -ne \\x09\\x30      #   USAGE (X)
-echo -ne \\x09\\x31      #   USAGE (Y)
-echo -ne \\x16\\x00\\x00 #   LOGICAL_MINIMUM (0)
-echo -ne \\x26\\xFF\\x7F #   LOGICAL_MAXIMUM (32767)
-echo -ne \\x75\\x10      #   REPORT_SIZE (16)
-echo -ne \\x95\\x02      #   REPORT_COUNT (2)
-echo -ne \\x81\\x02      #   INPUT (Data,Var,Abs)
-                         #   vertical wheel
-echo -ne \\x09\\x38      #   USAGE (wheel)
-echo -ne \\x15\\x81      #   LOGICAL_MINIMUM (-127)
-echo -ne \\x25\\x7F      #   LOGICAL_MAXIMUM (127)
-echo -ne \\x75\\x08      #   REPORT_SIZE (8)
-echo -ne \\x95\\x01      #   REPORT_COUNT (1)
-echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
-                         #   horizontal wheel
-echo -ne \\x05\\x0C      #   USAGE_PAGE (Consumer Devices)
-echo -ne \\x0A\\x38\\x02 #   USAGE (AC Pan)
-echo -ne \\x15\\x81      #   LOGICAL_MINIMUM (-127)
-echo -ne \\x25\\x7F      #   LOGICAL_MAXIMUM (127)
-echo -ne \\x75\\x08      #   REPORT_SIZE (8)
-echo -ne \\x95\\x01      #   REPORT_COUNT (1)
-echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
-echo -ne \\xC0           # END_COLLECTION
-} >> "$D"
+# Determine the absolute mode
+absolute=${1:-true}
+
+if [[ $absolute == true ]]; then
+  # Write the report descriptor
+  D=$(mktemp)
+  {
+  echo -ne \\x05\\x01      # USAGE_PAGE (Generic Desktop)
+  echo -ne \\x09\\x02      # USAGE (Mouse)
+  echo -ne \\xA1\\x01      # COLLECTION (Application)
+                          #   8-buttons
+  echo -ne \\x05\\x09      #   USAGE_PAGE (Button)
+  echo -ne \\x19\\x01      #   USAGE_MINIMUM (Button 1)
+  echo -ne \\x29\\x08      #   USAGE_MAXIMUM (Button 8)
+  echo -ne \\x15\\x00      #   LOGICAL_MINIMUM (0)
+  echo -ne \\x25\\x01      #   LOGICAL_MAXIMUM (1)
+  echo -ne \\x95\\x08      #   REPORT_COUNT (8)
+  echo -ne \\x75\\x01      #   REPORT_SIZE (1)
+  echo -ne \\x81\\x02      #   INPUT (Data,Var,Abs)
+                          #   x,y absolute coordinates
+  echo -ne \\x05\\x01      #   USAGE_PAGE (Generic Desktop)
+  echo -ne \\x09\\x30      #   USAGE (X)
+  echo -ne \\x09\\x31      #   USAGE (Y)
+  echo -ne \\x16\\x00\\x00 #   LOGICAL_MINIMUM (0)
+  echo -ne \\x26\\xFF\\x7F #   LOGICAL_MAXIMUM (32767)
+  echo -ne \\x75\\x10      #   REPORT_SIZE (16)
+  echo -ne \\x95\\x02      #   REPORT_COUNT (2)
+  echo -ne \\x81\\x02      #   INPUT (Data,Var,Abs)
+                          #   vertical wheel
+  echo -ne \\x09\\x38      #   USAGE (wheel)
+  echo -ne \\x15\\x81      #   LOGICAL_MINIMUM (-127)
+  echo -ne \\x25\\x7F      #   LOGICAL_MAXIMUM (127)
+  echo -ne \\x75\\x08      #   REPORT_SIZE (8)
+  echo -ne \\x95\\x01      #   REPORT_COUNT (1)
+  echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
+                          #   horizontal wheel
+  echo -ne \\x05\\x0C      #   USAGE_PAGE (Consumer Devices)
+  echo -ne \\x0A\\x38\\x02 #   USAGE (AC Pan)
+  echo -ne \\x15\\x81      #   LOGICAL_MINIMUM (-127)
+  echo -ne \\x25\\x7F      #   LOGICAL_MAXIMUM (127)
+  echo -ne \\x75\\x08      #   REPORT_SIZE (8)
+  echo -ne \\x95\\x01      #   REPORT_COUNT (1)
+  echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
+  echo -ne \\xC0           # END_COLLECTION
+  } >> "$D"
+else
+  D=$(mktemp)
+  {
+    echo -ne \\x05\\x01      # USAGE_PAGE (Generic Desktop)
+    echo -ne \\x09\\x02      # USAGE (Mouse)
+    echo -ne \\xA1\\x01      # COLLECTION (Application)
+                             #   8-buttons
+    echo -ne \\x05\\x09      #   USAGE_PAGE (Button)
+    echo -ne \\x19\\x01      #   USAGE_MINIMUM (Button 1)
+    echo -ne \\x29\\x08      #   USAGE_MAXIMUM (Button 8)
+    echo -ne \\x15\\x00      #   LOGICAL_MINIMUM (0)
+    echo -ne \\x25\\x01      #   LOGICAL_MAXIMUM (1)
+    echo -ne \\x95\\x08      #   REPORT_COUNT (8)
+    echo -ne \\x75\\x01      #   REPORT_SIZE (1)
+    echo -ne \\x81\\x02      #   INPUT (Data,Var,Abs)
+                             #   x,y relative coordinates
+    echo -ne \\x05\\x01      #   USAGE_PAGE (Generic Desktop)
+    echo -ne \\x09\\x30      #   USAGE (X)
+    echo -ne \\x09\\x31      #   USAGE (Y)
+                             #   vertical wheel
+    echo -ne \\x09\\x38      #   USAGE (wheel)
+    echo -ne \\x15\\x81      #   LOGICAL_MINIMUM (-127)
+    echo -ne \\x25\\x7F      #   LOGICAL_MAXIMUM (127)
+    echo -ne \\x75\\x08      #   REPORT_SIZE (8)
+    echo -ne \\x95\\x03      #   REPORT_COUNT (1)
+    echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
+                             #   horizontal wheel
+    echo -ne \\x05\\x0C      #   USAGE_PAGE (Consumer Devices)
+    echo -ne \\x0A\\x38\\x02 #   USAGE (AC Pan)
+    echo -ne \\x15\\x81      #   LOGICAL_MINIMUM (-127)
+    echo -ne \\x25\\x7F      #   LOGICAL_MAXIMUM (127)
+    echo -ne \\x75\\x08      #   REPORT_SIZE (8)
+    echo -ne \\x95\\x01      #   REPORT_COUNT (1)
+    echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
+    echo -ne \\xC0           # END_COLLECTION
+  } >> "$D"
+fi
 cp "$D" "${USB_MOUSE_FUNCTIONS_DIR}/report_desc"
 
 if [[ -f "${USB_MOUSE_FUNCTIONS_DIR}/no_out_endpoint" ]]; then

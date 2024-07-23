@@ -132,12 +132,12 @@ function getHardwareType() {
   return hardwareSysType;
 }
 
-function executeScriptAtPath(scriptPath) {
-  const bashCommand = `bash ${scriptPath}`;
+function executeScriptAtPath(scriptPath, args = []) {
+  const bashCommand = `bash ${scriptPath} ${args.join(' ')}`;  
   return new Promise((resolve, reject) => {
     exec(bashCommand, (error, stdout, stderr) => {
       if (error) {
-        reject(error);
+        reject({ error, stderr });
       } else {
         resolve(stdout);
       }

@@ -15,8 +15,7 @@ createSecretFile();
 
 const httpServer = new HttpServer();
 httpServer.startService().then((result) => {
-  const hid = new HID();
-  hid.startService();
+  startHid();
   const video = new Video();
   video.startService();
   const kvmdmain = new KVMDMain();
@@ -57,5 +56,14 @@ function startSwitch(){
   if( kvmd.switch.enabled == true){
     const switchHandle = KVMSwitchFactory.getSwitchHandle(kvmd.switch.module);
     switchHandle.enableSwitch();
+  }
+}
+
+function startHid(){
+  const { hid } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+  if( hid.enable === true){
+    const hidHandle = new HID();
+    const mode = hid.absoluteMode ? "true" : "false";
+    hidHandle.startService(mode);
   }
 }

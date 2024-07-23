@@ -32,8 +32,6 @@
   "kvmd": {
     "bin": "./lib/pi/kvmd-main",
     "janusBin": "./lib/pi/janus",
-    "hidEnable": "./lib/hid/enable-gadget.sh",
-    "hidDisable": "./lib/hid/disable-gadget.sh",
     "switch": {
       "enabled": false,
       "devicePath": "/dev/ttyUSB0",
@@ -68,5 +66,11 @@
     "isoFilePath": "/mnt/msd/user",
     "shell": "./lib/kvmd-msd.sh",
     "stateFilePath": "/mnt/msd/config/msd.json"
+  },
+  "hid": {
+    "hidEnable": "./lib/hid/enable-gadget.sh",
+    "hidDisable": "./lib/hid/disable-gadget.sh",
+    "enable": true,
+    "absoluteMode": true
   }
 }
