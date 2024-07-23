@@ -4,6 +4,7 @@ import Serial from '../../serial.js';
 import { ModuleState } from '../../../common/enums.js';
 import { CONFIG_PATH, UTF8, BliKVMSwitchV2ModuleName } from '../../../common/constants.js';
 import KVMSwitchBase from "./kvmd_switch_base.js"
+import { isDeviceFile } from "../../../common/tool.js"
 
 const logger = new Logger();
 
@@ -35,7 +36,6 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
   _serialHandle = null;
   _channel = ChannelCode.ChannelNone;
   _state = ModuleState.STOPPED;
-
   constructor() {
     super(); 
     this._init();
@@ -59,7 +59,14 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
           });
           return;
         }
-
+        if( isDeviceFile(this._path) === false){
+          logger.error(`Switch path ${this._path} is not exist`);
+          resolve({
+            result: false,
+            msg: `Switch path ${this._path} is not exist`
+          });
+          return;
+        }
         this._serialHandle = new Serial(this._path, this._baudRate);
         this._serialHandle.startService();
 
@@ -86,19 +93,30 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
           this._state = ModuleState.STOPPED;
           logger.info(`${this._name} closed`);
         });
-
         this._serialHandle._process.on('data', (data) => {
-          logger.debug(`${this._name} data: ${data}`);
-          if (data.includes(ChannelCode.Channel1)) {
-            this._channel = ChannelCode.Channel1;
-          } else if (data.includes(ChannelCode.Channel2)) {
-            this._channel = ChannelCode.Channel2;
-          } else if (data.includes(ChannelCode.Channel3)) {
-            this._channel = ChannelCode.Channel3;
-          } else if (data.includes(ChannelCode.Channel4)) {
-            this._channel = ChannelCode.Channel4;
-          } else {
-            this._channel = ChannelCode.ChannelNone;
+          const current_data = data.toString().trim();
+          if( this._last_data !== current_data){
+            logger.info(`${this._name} data: ${data}`);
+            this._last_data = current_data;
+            if (data.includes(ChannelCode.Channel1)) {
+              this._channel = this.getLable()[0];
+            } else if (data.includes(ChannelCode.Channel2)) {
+              this._channel = this.getLable()[1];
+            } else if (data.includes(ChannelCode.Channel3)) {
+              this._channel = this.getLable()[2];
+            } else if (data.includes(ChannelCode.Channel4)) {
+              this._channel = this.getLable()[3];
+            }else if (data.includes(ChannelCode.Channel5)) {
+              this._channel = this.getLable()[4];
+            } else if (data.includes(ChannelCode.Channel6)) {
+              this._channel = this.getLable()[5];
+            } else if (data.includes(ChannelCode.Channel7)) {
+              this._channel = this.getLable()[6];
+            }else if (data.includes(ChannelCode.Channel8)) {
+              this._channel = this.getLable()[7];
+            }else {
+              this._channel = ChannelCode.ChannelNone;
+            }
           }
         });
       } catch (error) {
@@ -146,14 +164,28 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
         msg: 'Switch is not in enabled state'
       };
     }
-    if (channel === ChannelCode.Channel1) {
+    const {kvmd} = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    if (channel === kvmd.switch.blikvm_switch_v2_lable[0]) {
       this._serialHandle.write(ChannelCommand.Channel1);
-    } else if (channel === ChannelCode.Channel2) {
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[1]) {
       this._serialHandle.write(ChannelCommand.Channel2);
-    } else if (channel === ChannelCode.Channel3) {
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[2]) {
       this._serialHandle.write(ChannelCommand.Channel3);
-    } else if (channel === ChannelCode.Channel4) {
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[3]) {
       this._serialHandle.write(ChannelCommand.Channel4);
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[4]) {
+      this._serialHandle.write(ChannelCommand.Channel5);
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[5]) {
+      this._serialHandle.write(ChannelCommand.Channel6);
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[6]) {
+      this._serialHandle.write(ChannelCommand.Channel7);
+    } else if (channel === kvmd.switch.blikvm_switch_v2_lable[7]) {
+      this._serialHandle.write(ChannelCommand.Channel8);
+    }else{
+      return {
+        result: false,
+        msg: 'input error channel'
+      };
     }
     return {
       result: true,

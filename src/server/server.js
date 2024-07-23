@@ -11,12 +11,16 @@ import Logger from '../log/logger.js';
 import fs from 'fs';
 import routes from './api/routes.js';
 import { WebSocketServer, WebSocket } from 'ws';
-import handleMouse from './mouse.js';
-import handleKeyboard from './keyboard.js';
+import Mouse from './mouse.js';
+import Keyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
-import {CONFIG_PATH, UTF8} from "../common/constants.js"
+import {CONFIG_PATH, UTF8, JWT_SECRET} from "../common/constants.js"
 import { fileExists } from "../common/tool.js"
 import path from 'path';
+import { apiLogin } from "./api/login.route.js"
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import HID from '../modules/kvmd/kvmd_hid.js';
 
 
 const logger = new Logger();
@@ -174,6 +178,17 @@ class HttpServer {
     });
   }
 
+  _getRootPath() {
+    let root_path;
+    if(process.env.NODE_ENV === 'development'){
+      const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      root_path = server.rootPath;
+    }else{
+      root_path = __dirname;
+    }
+    return root_path;
+  }
+
   /**
    * Initializes the HTTP API server.
    * @private
@@ -183,12 +198,15 @@ class HttpServer {
     this._option = server;
 
     const app = express();
-
-    app.use(cors());
+    app.use(cors({
+      origin: true,
+      credentials: true
+    }));
     app.use(bodyParser.json());
+    app.use(express.static(path.join(this._getRootPath(), 'dist')));
+    app.post('/api/login', apiLogin);
+    app.use(this._httpVerityMiddle);
     app.use(this._httpRecorderMiddle);
-    // app.use(this._httpVerityMiddle);
-
     routes.forEach((route) => {
       if (route.method === 'get') {
         app.get(route.path, route.handler);
@@ -198,15 +216,9 @@ class HttpServer {
     });
 
     app.use(this._httpErrorMiddle);
-    let root_path;
-    if(process.env.NODE_ENV === 'development'){
-      const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      root_path = server.rootPath;
-    }else{
-      root_path = __dirname;
-    }
 
-    app.use(express.static(path.join(root_path, 'dist')));
+
+    
     app.get("*", this._otherRoute);
 
     this._server = http.createServer(app);
@@ -221,13 +233,7 @@ class HttpServer {
 
   _otherRoute(req, res) {
     try {
-      let root_path;
-      if(process.env.NODE_ENV === 'development')
-      {
-        const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-        root_path = server.rootPath;
-      }
-      const distDir = process.env.NODE_ENV === 'development' ? `${root_path}/dist`: `${__dirname}/dist`;
+      const distDir = `${this._getRootPath()}/dist`;
       if (req.url === "/") {
         res.sendFile(`${distDir}/index.html`);
         return;
@@ -259,14 +265,18 @@ class HttpServer {
 
       logger.info(`WebSocket Client connected, total clients: ${this._wss.clients.size}`);
 
-      ws.send('Welcome to the blikvm server!');
-
+      const mouse = new Mouse();
+      const keyboard = new Keyboard();
+      const hid = new HID();
       const heartbeatInterval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
           const ret = createApiObj();
           ret.data.type = 'heartbeat';
           ret.data.timestamp = new Date().toISOString();
           ret.data.serverStatus = this._state;
+          ret.data.mouseStatus = mouse.getStatus();
+          ret.data.keyboardStatus = keyboard.getStatus();
+          ret.data.hidStatus = hid.getStatus();
           ws.send(JSON.stringify(ret));
         }
       }, 2000);
@@ -275,9 +285,9 @@ class HttpServer {
         const obj = JSON.parse(message);
         const keys = Object.keys(obj);
         if (keys.includes('m')) {
-          handleMouse(obj.m);
+          mouse.handleEvent(obj.m);
         } else if (keys.includes('k')) {
-          handleKeyboard(obj.k);
+          keyboard.handleEvent(obj.k);
         }
       });
 
@@ -342,7 +352,11 @@ class HttpServer {
   _httpRecorderMiddle(req, res, next) {
     const requestType = req.method;
     const requestUrl = req.url;
-    logger.info(`http api request ${requestType} ${requestUrl}`);
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const username = decoded.username;
+    logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
     next();
   }
 
@@ -354,26 +368,27 @@ class HttpServer {
    * @private
    */
   _httpVerityMiddle(req, res, next) {
-    const ret = createApiObj();
-    const authHeader = req.headers.authorization;
-    if (authHeader) {
-      const auth = authHeader.split(' ')[1];
-      const credentials = Buffer.from(auth, 'base64').toString();
-      const [user, pwd] = credentials.split(':');
-      const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, UTF8));
-      if (user && user === data.user && pwd && pwd === data.pwd) {
-        next();
-      } else {
-        ret.code = ApiCode.INVALID_CREDENTIALS;
-        ret.msg = 'invalid credentials';
-        res.status(400).json(ret);
-      }
-    } else {
-      ret.code = ApiCode.INVALID_CREDENTIALS;
-      ret.msg = 'invalid credentials';
-      res.status(400).json(ret);
-    }
+    const returnObject = createApiObj();
+    returnObject.code = ApiCode.INVALID_CREDENTIALS;
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token){
+      logger.error('token is null');
+      returnObject.msg = 'token is null!';
+      res.status(401).json(returnObject);
+      return; 
+    } 
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err){
+        logger.error('token is error');
+        returnObject.msg = 'token is error!';
+        res.status(401).json(returnObject);
+        return;
+      } 
+      next();
+    });
   }
 
   /**
@@ -385,7 +400,7 @@ class HttpServer {
    * @private
    */
   _httpErrorMiddle(err, req, res, next) {
-    logger.error(`Error handling HTTP request: ${err.message}`);
+    logger.error(`Error handling HTTP request: ${err}`);
     const ret = createApiObj();
     ret.code = ApiCode.INTERNAL_SERVER_ERROR;
     ret.msg = err.message;
