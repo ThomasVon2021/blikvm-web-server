@@ -15,7 +15,7 @@ import Mouse from './mouse.js';
 import Keyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
 import {CONFIG_PATH, UTF8, JWT_SECRET} from "../common/constants.js"
-import { fileExists } from "../common/tool.js"
+import { fileExists, processPing } from "../common/tool.js"
 import path from 'path';
 import { apiLogin } from "./api/login.route.js"
 import jwt from 'jsonwebtoken';
@@ -288,6 +288,8 @@ class HttpServer {
           mouse.handleEvent(obj.m);
         } else if (keys.includes('k')) {
           keyboard.handleEvent(obj.k);
+        } else if( keys.includes('ping') ){
+          processPing(ws,obj.ping );
         }
       });
 

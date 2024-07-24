@@ -11,6 +11,7 @@ import { HardwareType } from './enums.js';
 import { execSync, exec } from 'child_process';
 import si from 'systeminformation';
 import Logger from '../log/logger.js';
+import { createApiObj } from './api.js';
 
 const logger = new Logger();
 
@@ -297,6 +298,12 @@ async function readVentoyDirectory(ventoyDirectory) {
   }
 }
 
+function processPing( ws,ping ){
+  const ret = createApiObj();
+  ret.data.pong = ping;
+  ws.send(JSON.stringify(ret));
+}
+
 export {
   dirExists,
   fileExists,
@@ -313,5 +320,6 @@ export {
   changetoROSystem,
   getAllFilesInDirectory,
   sleep,
-  readVentoyDirectory
+  readVentoyDirectory,
+  processPing
 };
