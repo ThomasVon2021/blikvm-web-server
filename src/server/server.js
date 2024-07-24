@@ -14,14 +14,12 @@ import { WebSocketServer, WebSocket } from 'ws';
 import Mouse from './mouse.js';
 import Keyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
-import {CONFIG_PATH, UTF8, JWT_SECRET} from "../common/constants.js"
-import { fileExists, processPing } from "../common/tool.js"
+import { CONFIG_PATH, UTF8, JWT_SECRET } from '../common/constants.js';
+import { fileExists, processPing } from '../common/tool.js';
 import path from 'path';
-import { apiLogin } from "./api/login.route.js"
+import { apiLogin } from './api/login.route.js';
 import jwt from 'jsonwebtoken';
-import cookieParser from 'cookie-parser';
 import HID from '../modules/kvmd/kvmd_hid.js';
-
 
 const logger = new Logger();
 
@@ -179,14 +177,14 @@ class HttpServer {
   }
 
   _getRootPath() {
-    let root_path;
-    if(process.env.NODE_ENV === 'development'){
+    let rootPath;
+    if (process.env.NODE_ENV === 'development') {
       const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      root_path = server.rootPath;
-    }else{
-      root_path = __dirname;
+      rootPath = server.rootPath;
+    } else {
+      rootPath = __dirname;
     }
-    return root_path;
+    return rootPath;
   }
 
   /**
@@ -198,10 +196,12 @@ class HttpServer {
     this._option = server;
 
     const app = express();
-    app.use(cors({
-      origin: true,
-      credentials: true
-    }));
+    app.use(
+      cors({
+        origin: true,
+        credentials: true
+      })
+    );
     app.use(bodyParser.json());
     app.use(express.static(path.join(this._getRootPath(), 'dist')));
     app.post('/api/login', apiLogin);
@@ -217,9 +217,7 @@ class HttpServer {
 
     app.use(this._httpErrorMiddle);
 
-
-    
-    app.get("*", this._otherRoute);
+    app.get('*', this._otherRoute);
 
     this._server = http.createServer(app);
     this._httpServerEvents();
@@ -234,7 +232,7 @@ class HttpServer {
   _otherRoute(req, res) {
     try {
       const distDir = `${this._getRootPath()}/dist`;
-      if (req.url === "/") {
+      if (req.url === '/') {
         res.sendFile(`${distDir}/index.html`);
         return;
       }
@@ -288,8 +286,8 @@ class HttpServer {
           mouse.handleEvent(obj.m);
         } else if (keys.includes('k')) {
           keyboard.handleEvent(obj.k);
-        } else if( keys.includes('ping') ){
-          processPing(ws,obj.ping );
+        } else if (keys.includes('ping')) {
+          processPing(ws, obj.ping);
         }
       });
 
@@ -329,7 +327,7 @@ class HttpServer {
       ret.msg = 'user or pwd is missing or wrong';
       ws.send(JSON.stringify(ret));
       ws.close();
-      logger.error("user or pwd is missing or wrong");
+      logger.error('user or pwd is missing or wrong');
       return false;
     }
   }
@@ -354,7 +352,7 @@ class HttpServer {
   _httpRecorderMiddle(req, res, next) {
     const requestType = req.method;
     const requestUrl = req.url;
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     const username = decoded.username;
@@ -373,22 +371,22 @@ class HttpServer {
     const returnObject = createApiObj();
     returnObject.code = ApiCode.INVALID_CREDENTIALS;
 
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token){
+    if (!token) {
       logger.error('token is null');
       returnObject.msg = 'token is null!';
       res.status(401).json(returnObject);
-      return; 
-    } 
+      return;
+    }
     jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err){
+      if (err) {
         logger.error('token is error');
         returnObject.msg = 'token is error!';
         res.status(401).json(returnObject);
         return;
-      } 
+      }
       next();
     });
   }

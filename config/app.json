@@ -1,4 +1,5 @@
 {
+  "device": "./config/device.json",
   "log": {
     "console": {
       "enabled": true,

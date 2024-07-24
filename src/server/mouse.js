@@ -9,9 +9,7 @@ import fs from 'fs';
 
 const logger = new Logger();
 
-
 class Mouse {
-
   static _instance = null;
   _onlineStatus = true;
 
@@ -21,12 +19,21 @@ class Mouse {
     }
     return Mouse._instance;
   }
+
   /**
    * Handles the mouse event and writes the data to /dev/hidg1.
    * @param {MouseEvent} event - The mouse event object.
    */
   handleEvent(event) {
-    const { buttons, relativeX, relativeY, verticalWheelDelta, horizontalWheelDelta, isAbsoluteMode, sensitivity } = event;
+    const {
+      buttons,
+      relativeX,
+      relativeY,
+      verticalWheelDelta,
+      horizontalWheelDelta,
+      isAbsoluteMode,
+      sensitivity
+    } = event;
     let data = null;
     if (isAbsoluteMode === true) {
       data = this._prepareAbsoluteMouseEvent(
@@ -53,7 +60,7 @@ class Mouse {
         if (error) {
           this._onlineStatus = false;
           logger.info(`Error writing to /dev/hidg1: ${error.message}`);
-        }else{
+        } else {
           this._onlineStatus = true;
         }
       });
@@ -63,10 +70,9 @@ class Mouse {
     }
   }
 
-  getStatus(){
+  getStatus() {
     return this._onlineStatus;
   }
-
 
   /**
    * Prepares a relative mouse event buffer based on the provided parameters.
@@ -78,7 +84,14 @@ class Mouse {
    * @returns {Buffer} - The relative mouse event buffer.
    * @private`
    */
-  _prepareRelativeMouseEvent(buttons, movementX, movementY, verticalWheelDelta, horizontalWheelDelta, sensitivity) {
+  _prepareRelativeMouseEvent(
+    buttons,
+    movementX,
+    movementY,
+    verticalWheelDelta,
+    horizontalWheelDelta,
+    sensitivity
+  ) {
     const x = Math.min(Math.max(-127, Math.floor(movementX * sensitivity)), 127);
     const y = Math.min(Math.max(-127, Math.floor(movementY * sensitivity)), 127);
     logger.info(`relativeX:${x} relativeY:${y}`);
@@ -146,12 +159,9 @@ class Mouse {
     return -value;
   }
 
-  setRelativeSens(value){
+  setRelativeSens(value) {
     this._relative_sens = value;
   }
 }
-
-
-
 
 export default Mouse;

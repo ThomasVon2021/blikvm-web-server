@@ -29,12 +29,11 @@ class Serial extends Module {
     }
   }
 
-  write( str ){
+  write(str) {
     if (this._process) {
       this._process.write(str);
     }
   }
-
 }
 
 export default Serial;

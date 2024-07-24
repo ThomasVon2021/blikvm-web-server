@@ -59,14 +59,13 @@ class ModuleApp extends Module {
       this._app.on('close', (code, signal) => {
         this._state = ModuleState.STOPPED;
         logger.info(`${this._name} API closed with code ${code} and signal ${signal}`);
-        if(code === 1)
-          {
-            this._state = ModuleState.ERROR;
-            this._error = ModuleAppStateCode.START_FAILED;
-            this._errorMsg = "input param not enough";
-            result.msg = "input param not enough";
-            reject(result);
-          }
+        if (code === 1) {
+          this._state = ModuleState.ERROR;
+          this._error = ModuleAppStateCode.START_FAILED;
+          this._errorMsg = 'input param not enough';
+          result.msg = 'input param not enough';
+          reject(result);
+        }
       });
 
       this._state = ModuleState.STARTING;

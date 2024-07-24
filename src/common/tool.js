@@ -134,11 +134,13 @@ function getHardwareType() {
 }
 
 function executeScriptAtPath(scriptPath, args = []) {
-  const bashCommand = `bash ${scriptPath} ${args.join(' ')}`;  
+  const bashCommand = `bash ${scriptPath} ${args.join(' ')}`;
   return new Promise((resolve, reject) => {
     exec(bashCommand, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stderr });
+        const err = new Error(`Script execution failed: ${stderr}`);
+        err.code = error.code;
+        reject(err);
       } else {
         resolve(stdout);
       }
@@ -233,9 +235,9 @@ async function getDiskSpace(path) {
     // 获取磁盘信息
     const disk = await si.fsSize();
     // 在磁盘信息中找到指定路径的磁盘
-    const diskOnPath = disk.find(d => d.mount === path);
+    const diskOnPath = disk.find((d) => d.mount === path);
 
-    //console.log('diskOnPath', diskOnPath);
+    // console.log('diskOnPath', diskOnPath);
 
     // 如果找到了指定路径的磁盘信息
     if (diskOnPath) {
@@ -263,7 +265,7 @@ async function readVentoyDirectory(ventoyDirectory) {
     const files = await fsPromises.readdir(ventoyDirectory);
 
     const fileInformation = await Promise.all(
-      files.map(async file => {
+      files.map(async (file) => {
         const filePath = path.join(ventoyDirectory, file);
         try {
           const stats = await fsPromises.stat(filePath);
@@ -282,23 +284,23 @@ async function readVentoyDirectory(ventoyDirectory) {
           console.error(`Error reading file stats for ${file}:`, error);
         }
       })
-    )
+    );
 
     // Filter out undefined values (directories or non-regular files)
-    const filteredFileInformation = fileInformation.filter(info => info);
-    const capacity = ((size - used) / size * 100).toFixed(2);
+    const filteredFileInformation = fileInformation.filter((info) => info);
+    const capacity = (((size - used) / size) * 100).toFixed(2);
     return {
       size,
       used,
       capacity,
       files: filteredFileInformation
-    }
+    };
   } catch (error) {
     console.error('Error reading directory:', error);
   }
 }
 
-function processPing( ws,ping ){
+function processPing(ws, ping) {
   const ret = createApiObj();
   ret.data.pong = ping;
   ws.send(JSON.stringify(ret));

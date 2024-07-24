@@ -1,14 +1,10 @@
-import fs from 'fs';
-import Logger from '../../../log/logger.js';
 import { ModuleState } from '../../../common/enums.js';
-
-const logger = new Logger();
 
 class KVMSwitchBase {
   _name = 'None';
   _channel = 'None';
   _state = ModuleState.STOPPED;
-  _last_data ='';
+  _last_data = '';
 
   enableSwitch() {
     throw new Error('must overwrite by children class');
@@ -18,15 +14,15 @@ class KVMSwitchBase {
     throw new Error('must overwrite by children class');
   }
 
-  getLable(){
+  getLable() {
     throw new Error('must overwrite by children class');
   }
 
-  setLable(){
+  setLable() {
     throw new Error('must overwrite by children class');
   }
 
-  getName(){
+  getName() {
     return this._name;
   }
 

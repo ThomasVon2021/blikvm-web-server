@@ -17,11 +17,11 @@ class Video extends ModuleApp {
   _init() {
     const { video } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     this._bin = video.shell;
-    this._para = [video.bin, video.port,video.fps,video.quality,video.kbps,video.gop];
+    this._para = [video.bin, video.port, video.fps, video.quality, video.kbps, video.gop];
     this._name = 'video';
   }
 
-  getVideoConfig(){
+  getVideoConfig() {
     const { video } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     const videoConfig = {
       port: video.port,
@@ -33,7 +33,7 @@ class Video extends ModuleApp {
     return videoConfig;
   }
 
-  setVideoConfig(videoConfig){
+  setVideoConfig(videoConfig) {
     const configPath = 'config/app.json';
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     config.video.fps = videoConfig.fps;

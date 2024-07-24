@@ -19,6 +19,7 @@ class Keyboard {
     }
     return Keyboard._instance;
   }
+
   /**
    * Handles the keyboard event and writes the keyboard data to /dev/hidg0.
    * @param {Event} event - The keyboard event.
@@ -44,6 +45,7 @@ class Keyboard {
   getStatus() {
     return this._onlineStatus;
   }
+
   /**
    * Packs the given data into a binary format.
    * @param {string[]} data - The array of keycodes to be packed.
@@ -253,10 +255,6 @@ class Keyboard {
 
     return bCode;
   }
-
 }
-
-
-
 
 export default Keyboard;

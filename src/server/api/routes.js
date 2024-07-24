@@ -16,8 +16,16 @@ import {
   apiGetMakeImageProgress
 } from './msd.route.js';
 import { apiLogin, apiChangeAccount } from './login.route.js';
-import { apiEnableSwitch, apiGetSwitchState, apiChangeChannel, apiSetSwitchDevicePath, apiSetSwitchLable, apiGetSwitchList, apiSetSwitchModule } from './switch.route.js';
-import { apiReboot } from './system.routes.js'
+import {
+  apiEnableSwitch,
+  apiGetSwitchState,
+  apiChangeChannel,
+  apiSetSwitchDevicePath,
+  apiSetSwitchLable,
+  apiGetSwitchList,
+  apiSetSwitchModule
+} from './switch.route.js';
+import { apiReboot, apiGetDevice } from './system.routes.js';
 
 /**
  * Array of route objects.
@@ -56,7 +64,8 @@ const routes = [
   { path: '/api/switch/setlable', handler: apiSetSwitchLable, method: 'post' },
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
   { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
-  { path: '/api/reboot', handler: apiReboot, method: 'post' }
+  { path: '/api/reboot', handler: apiReboot, method: 'post' },
+  { path: '/api/device', handler: apiGetDevice, method: 'post' }
 ];
 
 export default routes;

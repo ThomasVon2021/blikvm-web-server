@@ -91,14 +91,24 @@ function apiDeleteImage(req, res, next) {
     });
 }
 
-function apiGetUploadProgress(req, res, next){
+function apiGetUploadProgress(req, res, next) {
   const msd = new MSD();
   msd.getUploadProgress(req, res, next);
 }
 
-function apiGetMakeImageProgress(req, res, next){
+function apiGetMakeImageProgress(req, res, next) {
   const msd = new MSD();
   msd.getMakeImageProgress(req, res, next);
 }
 
-export { apiUpload, apiCreate, apiState, apiConnect, apiImages, apiRemoveMSD, apiDeleteImage, apiGetUploadProgress, apiGetMakeImageProgress };
+export {
+  apiUpload,
+  apiCreate,
+  apiState,
+  apiConnect,
+  apiImages,
+  apiRemoveMSD,
+  apiDeleteImage,
+  apiGetUploadProgress,
+  apiGetMakeImageProgress
+};

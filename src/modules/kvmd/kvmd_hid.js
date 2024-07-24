@@ -5,7 +5,6 @@ import { ModuleState } from '../../common/enums.js';
 import { executeScriptAtPath, isDeviceFile } from '../../common/tool.js';
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 
-
 const logger = new Logger();
 
 class HID extends Module {
@@ -34,21 +33,21 @@ class HID extends Module {
     this._enable = hid.enable;
   }
 
-  startService(absolute=true) {
+  startService(absolute = true) {
     return new Promise((resolve, reject) => {
       if (!isDeviceFile(this._hidkeyboard) && !isDeviceFile(this._hidmouse)) {
         logger.info(this._hidEnablePath);
         executeScriptAtPath(this._hidEnablePath, [absolute])
           .then(() => {
-            if( absolute === true){
+            if (absolute === true) {
               this._absoluteMode = true;
-            }else{
+            } else {
               this._absoluteMode = false;
             }
             this._state = ModuleState.RUNNING;
             logger.info(`${this._name} start success`);
-            let config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-            if( config.hid.enable != true){
+            const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+            if (config.hid.enable !== true) {
               config.hid.enable = true;
               fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
             }
@@ -72,7 +71,7 @@ class HID extends Module {
         .then(() => {
           this._state = ModuleState.STOPPED;
           const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-          if( config.hid.enable != false){
+          if (config.hid.enable !== false) {
             config.hid.enable = false;
             fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
           }
@@ -86,11 +85,10 @@ class HID extends Module {
   }
 
   changeMode(absolute) {
-
-    let absoluteBool = absolute === "true" ? true : false;
+    const absoluteBool = absolute === 'true';
     return new Promise((resolve, reject) => {
-      let config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      if(config.hid.absoluteMode === absoluteBool ){
+      const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      if (config.hid.absoluteMode === absoluteBool) {
         resolve(`the absolute is alreadly ${config.hid.absoluteMode}`);
       }
       if (this._state === ModuleState.RUNNING) {
@@ -123,17 +121,15 @@ class HID extends Module {
       }
     });
   }
-  
-  getStatus(){
-    const {hid} = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+
+  getStatus() {
+    const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     return {
       status: this._state,
       enable: hid.enable,
       absolute: hid.absoluteMode
     };
   }
-
-
 }
 
 export default HID;

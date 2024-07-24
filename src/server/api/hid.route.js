@@ -41,37 +41,38 @@ function apiEnable(req, res, next) {
 }
 
 function apiChangeMode(req, res, next) {
-  try{
+  try {
     const returnObject = createApiObj();
     const absolute = req.query.absolute;
     const hid = new HID();
-    hid.changeMode(absolute)
-    .then(() => {
-      returnObject.code = ApiCode.OK;
-      returnObject.msg = `hid change mode to absolute:${absolute} successful`;
-      res.json(returnObject);
-    })
-    .catch((err) => {
-      returnObject.msg = err.message;
-      returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
-      res.json(returnObject);
-    });
-  }catch(err){
+    hid
+      .changeMode(absolute)
+      .then(() => {
+        returnObject.code = ApiCode.OK;
+        returnObject.msg = `hid change mode to absolute:${absolute} successful`;
+        res.json(returnObject);
+      })
+      .catch((err) => {
+        returnObject.msg = err.message;
+        returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+        res.json(returnObject);
+      });
+  } catch (err) {
     next(err);
   }
 }
 
 function apiGetStatus(req, res, next) {
-  try{
+  try {
     const returnObject = createApiObj();
     const hid = new HID();
     returnObject.data = hid.getStatus();
     returnObject.code = ApiCode.OK;
-    returnObject.msg = `hid get status ok`;
+    returnObject.msg = 'hid get status ok';
     res.json(returnObject);
-  }catch(err){
+  } catch (err) {
     next(err);
   }
 }
 
-export {apiEnable, apiChangeMode, apiGetStatus};
+export { apiEnable, apiChangeMode, apiGetStatus };

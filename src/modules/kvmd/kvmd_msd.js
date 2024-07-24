@@ -52,16 +52,16 @@ class MSD {
     try {
       const returnObject = createApiObj();
 
-      var progress = progressStream({length: '0'}); // 注意这里 length 设置为 '0'
+      const progress = progressStream({ length: '0' }); // 注意这里 length 设置为 '0'
       req.pipe(progress);
       progress.headers = req.headers;
 
       this._uploadProgress = 0;
 
       // 获取上传进度
-      progress.on('progress', obj => {		
+      progress.on('progress', (obj) => {
         this._uploadProgress = obj.percentage;
-        //logger.info(`update progress: ${this._uploadProgress}`);
+        // logger.info(`update progress: ${this._uploadProgress}`);
       });
 
       this._upload(progress, res, (err) => {
@@ -141,7 +141,7 @@ class MSD {
       const returnObject = createApiObj();
       const state = this.getMSDState();
       if (state.msd_img_created === 'created') {
-        returnObject.msg = "msd drive alreadly created!";
+        returnObject.msg = 'msd drive alreadly created!';
         returnObject.code = ApiCode.ok;
         returnObject.data = state;
         res.json(returnObject);
@@ -213,8 +213,8 @@ class MSD {
     const action = req.query.action;
     const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     if (action === 'true') {
-      if( state.msd_status === 'connected' ){
-        returnObject.msg = "usb drive alreadly conected to host";
+      if (state.msd_status === 'connected') {
+        returnObject.msg = 'usb drive alreadly conected to host';
         returnObject.code = ApiCode.ok;
         returnObject.data = state;
         res.json(returnObject);
@@ -234,8 +234,8 @@ class MSD {
         });
     } else {
       logger.info('disconnect MSD');
-      if( state.msd_status === 'not_connected' ){
-        returnObject.msg = "usb drive alreadly disconected to host";
+      if (state.msd_status === 'not_connected') {
+        returnObject.msg = 'usb drive alreadly disconected to host';
         returnObject.code = ApiCode.ok;
         returnObject.data = state;
         res.json(returnObject);
@@ -259,7 +259,7 @@ class MSD {
     const returnObject = createApiObj();
     const state = this.getMSDState();
     if (state.msd_img_created !== 'created') {
-      returnObject.msg = "usb drive not created, you need to make first";
+      returnObject.msg = 'usb drive not created, you need to make first';
       returnObject.code = ApiCode.ok;
       returnObject.data = this.getMSDState();
       res.json(returnObject);
@@ -315,7 +315,7 @@ class MSD {
     res.json(returnObject);
   }
 
-  getMakeImageProgress(req, res){
+  getMakeImageProgress(req, res) {
     const returnObject = createApiObj();
     const progress = this._makeImageProgress;
     returnObject.msg = 'get the make image progress';
@@ -323,7 +323,6 @@ class MSD {
     returnObject.data = progress;
     res.json(returnObject);
   }
-
 }
 
 export default MSD;

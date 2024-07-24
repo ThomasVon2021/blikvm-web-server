@@ -3,8 +3,8 @@ import Logger from '../../../log/logger.js';
 import Serial from '../../serial.js';
 import { ModuleState } from '../../../common/enums.js';
 import { CONFIG_PATH, UTF8, BliKVMSwitchV2ModuleName } from '../../../common/constants.js';
-import KVMSwitchBase from "./kvmd_switch_base.js"
-import { isDeviceFile } from "../../../common/tool.js"
+import KVMSwitchBase from './kvmd_switch_base.js';
+import { isDeviceFile } from '../../../common/tool.js';
 
 const logger = new Logger();
 
@@ -31,13 +31,12 @@ const ChannelCommand = {
   Channel8: 'SW8\r\nG08gA'
 };
 
-class KVMDBliSwitchV2 extends  KVMSwitchBase{
-
+class KVMDBliSwitchV2 extends KVMSwitchBase {
   _serialHandle = null;
   _channel = ChannelCode.ChannelNone;
   _state = ModuleState.STOPPED;
   constructor() {
-    super(); 
+    super();
     this._init();
   }
 
@@ -59,7 +58,7 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
           });
           return;
         }
-        if( isDeviceFile(this._path) === false){
+        if (isDeviceFile(this._path) === false) {
           logger.error(`Switch path ${this._path} is not exist`);
           resolve({
             result: false,
@@ -94,10 +93,10 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
           logger.info(`${this._name} closed`);
         });
         this._serialHandle._process.on('data', (data) => {
-          const current_data = data.toString().trim();
-          if( this._last_data !== current_data){
+          const currentData = data.toString().trim();
+          if (this._last_data !== currentData) {
             logger.info(`${this._name} data: ${data}`);
-            this._last_data = current_data;
+            this._last_data = currentData;
             if (data.includes(ChannelCode.Channel1)) {
               this._channel = this.getLable()[0];
             } else if (data.includes(ChannelCode.Channel2)) {
@@ -106,15 +105,15 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
               this._channel = this.getLable()[2];
             } else if (data.includes(ChannelCode.Channel4)) {
               this._channel = this.getLable()[3];
-            }else if (data.includes(ChannelCode.Channel5)) {
+            } else if (data.includes(ChannelCode.Channel5)) {
               this._channel = this.getLable()[4];
             } else if (data.includes(ChannelCode.Channel6)) {
               this._channel = this.getLable()[5];
             } else if (data.includes(ChannelCode.Channel7)) {
               this._channel = this.getLable()[6];
-            }else if (data.includes(ChannelCode.Channel8)) {
+            } else if (data.includes(ChannelCode.Channel8)) {
               this._channel = this.getLable()[7];
-            }else {
+            } else {
               this._channel = ChannelCode.ChannelNone;
             }
           }
@@ -164,7 +163,7 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
         msg: 'Switch is not in enabled state'
       };
     }
-    const {kvmd} = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     if (channel === kvmd.switch.blikvm_switch_v2_lable[0]) {
       this._serialHandle.write(ChannelCommand.Channel1);
     } else if (channel === kvmd.switch.blikvm_switch_v2_lable[1]) {
@@ -181,7 +180,7 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
       this._serialHandle.write(ChannelCommand.Channel7);
     } else if (channel === kvmd.switch.blikvm_switch_v2_lable[7]) {
       this._serialHandle.write(ChannelCommand.Channel8);
-    }else{
+    } else {
       return {
         result: false,
         msg: 'input error channel'
@@ -193,14 +192,14 @@ class KVMDBliSwitchV2 extends  KVMSwitchBase{
     };
   }
 
-  getLable(){
+  getLable() {
     const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     const lable = kvmd.switch.blikvm_switch_v2_lable;
     return lable;
   }
 
-  setLable(lable){
-    const config  = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  setLable(lable) {
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     config.kvmd.switch.blikvm_switch_v2_lable = lable;
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
   }

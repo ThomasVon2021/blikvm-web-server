@@ -1,17 +1,17 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
-import { CONFIG_PATH, JWT_SECRET} from '../../common/constants.js';
+import { CONFIG_PATH, JWT_SECRET } from '../../common/constants.js';
 import Logger from '../../log/logger.js';
 import jwt from 'jsonwebtoken';
 
 const logger = new Logger();
 
 function getUsers() {
-  const {firmwareObject} = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
   const users = fs.readFileSync(firmwareObject.firmwareFile, 'utf8');
   return JSON.parse(users);
-};
+}
 
 function apiLogin(req, res, next) {
   try {
@@ -25,22 +25,23 @@ function apiLogin(req, res, next) {
     }
 
     const users = getUsers();
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find((u) => u.username === username && u.password === password);
 
     if (!user) {
       returnObject.msg = 'The username or password is incorrect!';
       returnObject.code = ApiCode.INVALID_CREDENTIALS;
       return res.json(returnObject);
     }
-    let expiresTime = 12;  //h
-    const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: `${expiresTime}h` });
+    const expiresTime = 12; // h
+    const token = jwt.sign({ username: user.username }, JWT_SECRET, {
+      expiresIn: `${expiresTime}h`
+    });
     returnObject.msg = 'Login sucessful';
     returnObject.code = ApiCode.OK;
     returnObject.data = {
-      token: token,
-      username: username
+      token,
+      username
     };
-    const expiresDate = new Date(Date.now() + expiresTime*60*60*1000);
     res.json(returnObject);
   } catch (err) {
     next(err);
@@ -51,13 +52,13 @@ async function changeAccount(oriUsername, newUsername, newPassword) {
     // Read the configuration file to get the firmware object path
     const configData = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     const firmwareFilePath = configData.firmwareObject.firmwareFile;
-    
+
     // Read the firmware file content
     const firmwareContent = await fsPromises.readFile(firmwareFilePath, 'utf8');
     const usersArray = JSON.parse(firmwareContent);
 
     // Find the user object by oriUsername
-    const user = usersArray.find(user => user.username === oriUsername);
+    const user = usersArray.find((user) => user.username === oriUsername);
 
     if (!user) {
       logger.error('Error: User not found');
@@ -84,8 +85,8 @@ async function changeAccount(oriUsername, newUsername, newPassword) {
 async function apiChangeAccount(req, res, next) {
   try {
     const { newUsername, newPassword } = req.body;
-    const oriUsername = req.headers['username']; 
-    const response = await changeAccount(oriUsername,newUsername, newPassword);
+    const oriUsername = req.headers.username;
+    const response = await changeAccount(oriUsername, newUsername, newPassword);
     if (response) {
       res.json({
         code: ApiCode.OK,

@@ -1,6 +1,6 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import KVMSwitchFactory from '../../modules/kvmd/switch/kvmd_switch.js';
-import { CONFIG_PATH} from '../../common/constants.js';
+import { CONFIG_PATH } from '../../common/constants.js';
 import fs from 'fs';
 
 function _enableSwitch(req, res, next) {
@@ -8,7 +8,7 @@ function _enableSwitch(req, res, next) {
     const returnObject = createApiObj();
     const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
 
-    if(kvmdSwitch === null){
+    if (kvmdSwitch === null) {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = `input error module: ${req.query.module}`;
       res.json(returnObject);
@@ -36,7 +36,7 @@ function _disableSwitch(req, res, next) {
     const returnObject = createApiObj();
     const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
 
-    if(kvmdSwitch === null){
+    if (kvmdSwitch === null) {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = `input error module: ${req.query.module}`;
       res.json(returnObject);
@@ -80,21 +80,21 @@ function apiGetSwitchState(req, res, next) {
 
     const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
 
-    if(kvmdSwitch === null){
+    if (kvmdSwitch === null) {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = `input error module: ${req.query.module}`;
       res.json(returnObject);
       return;
     }
-    
+
     const lable = kvmdSwitch.getLable();
     const channel = kvmdSwitch.getChannel();
     const state = kvmdSwitch.getState();
-    
+
     returnObject.data = {
-      state: state,
+      state,
       enabled: kvmd.switch.enabled,
-      channel: channel,
+      channel,
       module: kvmd.switch.module,
       devicePath: kvmd.switch.devicePath,
       channelLable: lable
@@ -109,11 +109,11 @@ function apiGetSwitchState(req, res, next) {
 function apiSetSwitchDevicePath(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const config  = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     config.kvmd.switch.devicePath = req.body.devicePath;
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
     returnObject.code = ApiCode.OK;
-    returnObject.msg = "set switch device path";
+    returnObject.msg = 'set switch device path';
     res.json(returnObject);
   } catch (err) {
     next(err);
@@ -126,7 +126,7 @@ function apiSetSwitchLable(req, res, next) {
 
     const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.body.module);
 
-    if(kvmdSwitch === null){
+    if (kvmdSwitch === null) {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = `input error module: ${req.body.module}`;
       res.json(returnObject);
@@ -136,7 +136,7 @@ function apiSetSwitchLable(req, res, next) {
     kvmdSwitch.setLable(req.body.channelLable);
 
     returnObject.code = ApiCode.OK;
-    returnObject.msg = "set switch lable ok";
+    returnObject.msg = 'set switch lable ok';
     res.json(returnObject);
   } catch (err) {
     next(err);
@@ -149,7 +149,7 @@ function apiChangeChannel(req, res, next) {
 
     const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
 
-    if(kvmdSwitch === null){
+    if (kvmdSwitch === null) {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = `input error module: ${req.query.module}`;
       res.json(returnObject);
@@ -178,7 +178,7 @@ function apiGetSwitchList(req, res, next) {
     const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     returnObject.data = {
       module: kvmd.switch.module,
-      list: list
+      list
     };
     res.json(returnObject);
   } catch (err) {
@@ -190,11 +190,11 @@ function apiSetSwitchModule(req, res, next) {
   try {
     const returnObject = createApiObj();
     const result = KVMSwitchFactory.setSwitchModle(req.query.module);
-    if( result === true ){
+    if (result === true) {
       KVMSwitchFactory.getSwitchHandle(req.query.module);
       returnObject.code = ApiCode.OK;
       returnObject.msg = 'set switch modle success';
-    }else{
+    } else {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = `input error modle: ${req.query.module}`;
     }
@@ -205,5 +205,12 @@ function apiSetSwitchModule(req, res, next) {
   }
 }
 
-
-export { apiEnableSwitch, apiGetSwitchState, apiChangeChannel, apiSetSwitchDevicePath, apiSetSwitchLable, apiGetSwitchList, apiSetSwitchModule};
+export {
+  apiEnableSwitch,
+  apiGetSwitchState,
+  apiChangeChannel,
+  apiSetSwitchDevicePath,
+  apiSetSwitchLable,
+  apiGetSwitchList,
+  apiSetSwitchModule
+};
