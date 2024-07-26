@@ -1,12 +1,11 @@
 import { apiATXClick, apiATXState } from './atx.route.js';
-import deviceId from './device_id.route.js';
 import state from './state.route.js';
 import { apiVideoControl, apiVideoConfig, apiGetVideoState } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
-import { apiEnable, apiChangeMode, apiGetStatus } from './hid.route.js';
+import { apiEnableHID, apiChangeMode, apiGetStatus } from './hid.route.js';
 import {
   apiUpload,
-  apiCreate,
+  apiCreateMSD,
   apiState,
   apiConnect,
   apiImages,
@@ -21,7 +20,7 @@ import {
   apiGetSwitchState,
   apiChangeChannel,
   apiSetSwitchDevicePath,
-  apiSetSwitchLable,
+  apiSetSwitchLabel,
   apiGetSwitchList,
   apiSetSwitchModule
 } from './switch.route.js';
@@ -38,18 +37,17 @@ import { apiReboot, apiGetDevice } from './system.routes.js';
 const routes = [
   { path: '/api/atx/state', handler: apiATXState, method: 'post' },
   { path: '/api/atx/click', handler: apiATXClick, method: 'post' },
-  { path: '/api/device_id', handler: deviceId, method: 'post' },
   { path: '/api/state', handler: state, method: 'post' },
   { path: '/api/video', handler: apiVideoControl, method: 'post' },
   { path: '/api/video/config', handler: apiVideoConfig, method: 'post' },
   { path: '/api/video/state', handler: apiGetVideoState, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
-  { path: '/api/hid', handler: apiEnable, method: 'post' },
+  { path: '/api/hid', handler: apiEnableHID, method: 'post' },
   { path: '/api/hid/mode', handler: apiChangeMode, method: 'post' },
   { path: '/api/hid/status', handler: apiGetStatus, method: 'post' },
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
   { path: '/api/msd/upload/progress', handler: apiGetUploadProgress, method: 'post' },
-  { path: '/api/msd/create', handler: apiCreate, method: 'post' },
+  { path: '/api/msd/create', handler: apiCreateMSD, method: 'post' },
   { path: '/api/msd/create/progress', handler: apiGetMakeImageProgress, method: 'post' },
   { path: '/api/msd/state', handler: apiState, method: 'post' },
   { path: '/api/msd/connect', handler: apiConnect, method: 'post' },
@@ -62,7 +60,7 @@ const routes = [
   { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },
   { path: '/api/switch/change', handler: apiChangeChannel, method: 'post' },
   { path: '/api/switch/setpath', handler: apiSetSwitchDevicePath, method: 'post' },
-  { path: '/api/switch/setlable', handler: apiSetSwitchLable, method: 'post' },
+  { path: '/api/switch/setlabel', handler: apiSetSwitchLabel, method: 'post' },
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
   { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
   { path: '/api/reboot', handler: apiReboot, method: 'post' },

@@ -120,7 +120,7 @@ function apiSetSwitchDevicePath(req, res, next) {
   }
 }
 
-function apiSetSwitchLable(req, res, next) {
+function apiSetSwitchLabel(req, res, next) {
   try {
     const returnObject = createApiObj();
 
@@ -210,7 +210,7 @@ export {
   apiGetSwitchState,
   apiChangeChannel,
   apiSetSwitchDevicePath,
-  apiSetSwitchLable,
+  apiSetSwitchLabel,
   apiGetSwitchList,
   apiSetSwitchModule
 };

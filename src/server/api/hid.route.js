@@ -1,7 +1,7 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import HID from '../../modules/kvmd/kvmd_hid.js';
 
-function apiEnable(req, res, next) {
+function apiEnableHID(req, res, next) {
   try {
     const returnObject = createApiObj();
     const action = req.query.action;
@@ -75,4 +75,4 @@ function apiGetStatus(req, res, next) {
   }
 }
 
-export { apiEnable, apiChangeMode, apiGetStatus };
+export { apiEnableHID, apiChangeMode, apiGetStatus };

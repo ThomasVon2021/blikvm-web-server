@@ -13,7 +13,7 @@ const ModuleAppStateCode = {
 class ModuleApp extends Module {
   _bin = null;
 
-  _para = [];
+  _param = [];
 
   _app = null;
 
@@ -33,9 +33,9 @@ class ModuleApp extends Module {
         return;
       }
 
-      // this._app = this._para ? spawn(this._bin, this._para) : spawn(this._bin);
-      // console.log("para:", this._para);
-      this._app = spawn(this._bin, this._para);
+      // this._app = this._param ? spawn(this._bin, this._param) : spawn(this._bin);
+      // console.log("para:", this._param);
+      this._app = spawn(this._bin, this._param);
 
       this._app.stdout.on('data', (data) => {
         logger.trace(`${this._name} API stdout: ${data}`);

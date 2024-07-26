@@ -24,7 +24,7 @@ function apiUpload(req, res, next) {
   }
 }
 
-function apiCreate(req, res, next) {
+function apiCreateMSD(req, res, next) {
   try {
     const msd = new MSD();
     msd.createMSD(req, res, next);
@@ -103,7 +103,7 @@ function apiGetMakeImageProgress(req, res, next) {
 
 export {
   apiUpload,
-  apiCreate,
+  apiCreateMSD,
   apiState,
   apiConnect,
   apiImages,
