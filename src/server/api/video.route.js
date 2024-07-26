@@ -49,7 +49,6 @@ function apiVideoControl(req, res, next) {
   }
 }
 
-//
 function apiVideoConfig(req, res, next) {
   try {
     const ret = createApiObj();
@@ -71,4 +70,23 @@ function apiVideoConfig(req, res, next) {
   }
 }
 
-export { apiVideoControl, apiVideoConfig };
+function apiGetVideoState(req, res, next) {
+  const ret = createApiObj();
+  const video = new Video();
+  video.getVideoState()
+    .then(response => {
+      ret.msg = 'get video state ok';
+      ret.data = {
+        width: response.result.source.resolution.width,
+        height: response.result.source.resolution.height,
+        capturedFps: response.result.source.captured_fps,
+        queuedFps: response.result.stream.queued_fps
+      };
+      res.json(ret);
+    })
+    .catch(error => {
+      next(error);
+    });
+}
+
+export { apiVideoControl, apiVideoConfig, apiGetVideoState };

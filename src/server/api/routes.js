@@ -1,7 +1,7 @@
 import { apiATXClick, apiATXState } from './atx.route.js';
 import deviceId from './device_id.route.js';
 import state from './state.route.js';
-import { apiVideoControl, apiVideoConfig } from './video.route.js';
+import { apiVideoControl, apiVideoConfig, apiGetVideoState } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 import { apiEnable, apiChangeMode, apiGetStatus } from './hid.route.js';
 import {
@@ -42,6 +42,7 @@ const routes = [
   { path: '/api/state', handler: state, method: 'post' },
   { path: '/api/video', handler: apiVideoControl, method: 'post' },
   { path: '/api/video/config', handler: apiVideoConfig, method: 'post' },
+  { path: '/api/video/state', handler: apiGetVideoState, method: 'post' },
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: apiEnable, method: 'post' },
   { path: '/api/hid/mode', handler: apiChangeMode, method: 'post' },

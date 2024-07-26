@@ -1,5 +1,6 @@
 import fs from 'fs';
 import ModuleApp from '../module_app.js';
+import { getRequest } from "../../common/http.js"
 
 class Video extends ModuleApp {
   static _instance = null;
@@ -32,6 +33,24 @@ class Video extends ModuleApp {
     };
     return videoConfig;
   }
+
+  getVideoState() {
+    return new Promise((resolve, reject) => {
+      getRequest(`http://127.0.0.1:${this._para[1]}/state`)
+        .then(response => {
+          try {
+            const jsonData = JSON.parse(response);
+            resolve(jsonData);
+          } catch (error) {
+            reject(`error: ${error.message}`);
+          }
+        })
+        .catch(error => {
+          reject(`error: ${error}`); 
+        });
+    });
+  }
+  
 
   setVideoConfig(videoConfig) {
     const configPath = 'config/app.json';
