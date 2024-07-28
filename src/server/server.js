@@ -317,8 +317,8 @@ class HttpServer {
     const { headers } = req;
     const user = headers.user;
     const pwd = headers.pwd;
-    const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    const data = JSON.parse(fs.readFileSync(firmwareObject.firmwareFile, UTF8));
+    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const data = JSON.parse(fs.readFileSync(userManager.userFile, UTF8));
     if (user && user === data.user && pwd && pwd === data.pwd) {
       return true;
     } else {

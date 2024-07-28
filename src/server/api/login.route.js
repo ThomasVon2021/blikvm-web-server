@@ -8,8 +8,8 @@ import jwt from 'jsonwebtoken';
 const logger = new Logger();
 
 function getUsers() {
-  const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-  const users = fs.readFileSync(firmwareObject.firmwareFile, 'utf8');
+  const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  const users = fs.readFileSync(userManager.userFile, 'utf8');
   return JSON.parse(users);
 }
 
@@ -51,7 +51,7 @@ async function changeAccount(oriUsername, newUsername, newPassword) {
   try {
     // Read the configuration file to get the firmware object path
     const configData = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const firmwareFilePath = configData.firmwareObject.firmwareFile;
+    const firmwareFilePath = configData.userManager.userFile;
 
     // Read the firmware file content
     const firmwareContent = await fsPromises.readFile(firmwareFilePath, 'utf8');

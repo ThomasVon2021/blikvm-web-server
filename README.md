@@ -44,24 +44,7 @@ The call hierarchy is divided into six layers, where upper layers can call lower
 
 (4) The HTTP API object, and video stream API object start only when the service is started.
 
-## 4. To-Do Items
-
-The following are the unfinished parts of the project and future development plans:
-
-- Auto-startup solution
-- ~~Generate device code and key on startup~~
-- ~~Validate key and one-time password when requesting API~~
-- ~~Start service API and return one-time password~~
-- ~~Close service API and invalidate one-time password~~
-- ~~Keyboard API~~
-- ~~Mouse API~~
-- ~~Video API~~
-- Remote power on/off API
-- Adjust image resolution ratio
-- ~~Packaging~~
-- Configuration file validation
-
-## 5. Naming Conventions
+## 4. Naming Conventions
 
 In programming, there are several common naming conventions:
 
@@ -94,7 +77,7 @@ Constant Case: All letters are capitalized, and words are connected with undersc
 | Function Name | Camel Case | runServer() |
 | File Name | Snake Case | http_server.js |
 
-## 6. Commit Guidelines
+## 5. Commit Guidelines
 
 The recommended format is as follows:
 ```
