@@ -14,8 +14,8 @@
       "backups": 3
     }
   },
-  "firmwareObject": {
-    "firmwareFile": "./config/firmware.json"
+  "userManager": {
+    "userFile": "./config/user.json"
   },
   "server": {
     "port": 10001,

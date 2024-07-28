@@ -35,16 +35,16 @@ httpServer.startService().then((result) => {
  * @private
  */
 function createSecretFile() {
-  const { firmwareObject } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-  if (!fileExists(firmwareObject.firmwareFile)) {
-    createFile(firmwareObject.firmwareFile);
+  const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+  if (!fileExists(userManager.userFile)) {
+    createFile(userManager.userFile);
     const data = {
       user: 'admin',
       pwd: 'admin',
       id: generateUniqueCode()
     };
-    fs.writeFileSync(firmwareObject.firmwareFile, JSON.stringify(data));
-    logger.info(`Secret file created at ${firmwareObject.firmwareFile}`);
+    fs.writeFileSync(userManager.userFile, JSON.stringify(data));
+    logger.info(`Secret file created at ${userManager.userFile}`);
   }
 }
 
