@@ -15,7 +15,7 @@ import Mouse from './mouse.js';
 import Keyboard from './keyboard.js';
 import { ApiCode, createApiObj } from '../common/api.js';
 import { CONFIG_PATH, UTF8, JWT_SECRET } from '../common/constants.js';
-import { fileExists, processPing } from '../common/tool.js';
+import { fileExists, processPing, getSystemInfo } from '../common/tool.js';
 import path from 'path';
 import { apiLogin } from './api/login.route.js';
 import jwt from 'jsonwebtoken';
@@ -266,8 +266,9 @@ class HttpServer {
       const mouse = new Mouse();
       const keyboard = new Keyboard();
       const hid = new HID();
-      const heartbeatInterval = setInterval(() => {
+      const heartbeatInterval = setInterval(async() => {
         if (ws.readyState === WebSocket.OPEN) {
+          const systemInfo = await getSystemInfo();
           const ret = createApiObj();
           ret.data.type = 'heartbeat';
           ret.data.timestamp = new Date().toISOString();
@@ -275,6 +276,7 @@ class HttpServer {
           ret.data.mouseStatus = mouse.getStatus();
           ret.data.keyboardStatus = keyboard.getStatus();
           ret.data.hidStatus = hid.getStatus();
+          ret.data.systemInfo = systemInfo;
           ws.send(JSON.stringify(ret));
         }
       }, 2000);
