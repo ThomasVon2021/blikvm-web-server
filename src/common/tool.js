@@ -306,6 +306,37 @@ function processPing(ws, ping) {
   ws.send(JSON.stringify(ret));
 }
 
+
+
+async function getSystemInfo() {
+  try {
+    const [load, uptime, temp] = await Promise.all([
+      si.currentLoad(),
+      si.time(),
+      si.cpuTemperature()
+    ]);
+
+    const cpuLoad = load.currentLoad.toFixed(2);
+    const temperature = temp.main.toFixed(2);
+    const uptimeSeconds = uptime.uptime;
+    const days = Math.floor(uptimeSeconds / (24 * 3600));
+    const hours = Math.floor((uptimeSeconds % (24 * 3600)) / 3600);
+    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+    const seconds = Math.floor(uptimeSeconds % 60);
+    const formattedUptime = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+
+    const resJson = {
+      cpuLoad: parseFloat(cpuLoad),
+      uptime: formattedUptime,
+      temperature: parseFloat(temperature)
+    };
+    return resJson;
+  } catch (err) {
+    logger.error(`getSystemInfo Error: ${err.message}`);
+  }
+}
+
 export {
   dirExists,
   fileExists,
@@ -323,5 +354,6 @@ export {
   getAllFilesInDirectory,
   sleep,
   readVentoyDirectory,
-  processPing
+  processPing,
+  getSystemInfo
 };
