@@ -12,6 +12,7 @@ const logger = new Logger();
 class Keyboard {
   static _instance = null;
   _onlineStatus = true;
+  _deviceName = '/dev/hidg0';
 
   constructor() {
     if (!Keyboard._instance) {
@@ -26,25 +27,55 @@ class Keyboard {
    */
   handleEvent(event) {
     const keyboardData = this._packData(event);
-    const fileName = '/dev/hidg0';
-    if (isDeviceFile(fileName)) {
-      fs.writeFile('/dev/hidg0', keyboardData, (error) => {
+    this._writeDataToHID(keyboardData);
+  }
+
+  pasteData(data) {
+    let index = 0;
+  
+    const processNextChar = () => {
+      if (index < data.length) {
+        const char = data[index];
+        const keyboardData = this._char2hid(char);
+        this._writeDataToHID(keyboardData);
+        const zeroData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
+        this._writeDataToHID(zeroData);
+        // Move to the next character and schedule the next processing
+        index++;
+        setTimeout(processNextChar, 50);
+      } else {
+        // After processing all characters, send the release data
+        setTimeout(() => {
+          const releaseData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
+          this._writeDataToHID(releaseData);
+        }, 50);
+      }
+    };
+  
+    // Start processing the first character
+    processNextChar();
+  }
+
+  getStatus() {
+    return this._onlineStatus;
+  }
+
+  _writeDataToHID(keyboardData){
+    if (isDeviceFile(this._deviceName)) {
+      fs.writeFile(this._deviceName, keyboardData, (error) => {
         if (error) {
           this._onlineStatus = false;
-          logger.info(`Error writing to /dev/hidg0: ${error.message}`);
+          logger.info(`Error writing to ${this._deviceName}: ${error.message}`);
         } else {
           this._onlineStatus = true;
         }
       });
     } else {
       this._onlineStatus = false;
-      logger.info('File /dev/hidg0 does not exist');
+      logger.error(`File ${this._deviceName} does not exist`);
     }
   }
 
-  getStatus() {
-    return this._onlineStatus;
-  }
 
   /**
    * Packs the given data into a binary format.
@@ -255,6 +286,62 @@ class Keyboard {
 
     return bCode;
   }
+
+  _charKeyCodeMapping(char) {
+    const mapping = {
+      'a': 4, 'b': 5, 'c': 6, 'd': 7, 'e': 8, 'f': 9, 'g': 10, 'h': 11, 'i': 12,
+      'j': 13, 'k': 14, 'l': 15, 'm': 16, 'n': 17, 'o': 18, 'p': 19, 'q': 20,
+      'r': 21, 's': 22, 't': 23, 'u': 24, 'v': 25, 'w': 26, 'x': 27, 'y': 28, 'z': 29,
+      '1': 30, '2': 31, '3': 32, '4': 33, '5': 34, '6': 35, '7': 36, '8': 37, '9': 38, '0': 39,
+      '\n': 40, '\t': 43, ' ': 44, '-': 45, '=': 46, '[': 47, ']': 48, '\\': 49,
+      ';': 51, "'": 52, '`': 53, ',': 54, '.': 55, '/': 56
+    };
+  
+    const shiftMapping = {
+      'A': 4, 'B': 5, 'C': 6, 'D': 7, 'E': 8, 'F': 9, 'G': 10, 'H': 11, 'I': 12,
+      'J': 13, 'K': 14, 'L': 15, 'M': 16, 'N': 17, 'O': 18, 'P': 19, 'Q': 20,
+      'R': 21, 'S': 22, 'T': 23, 'U': 24, 'V': 25, 'W': 26, 'X': 27, 'Y': 28, 'Z': 29,
+      '!': 30, '@': 31, '#': 32, '$': 33, '%': 34, '^': 35, '&': 36, '*': 37,
+      '(': 38, ')': 39, '_': 45, '+': 46, '{': 47, '}': 48, '|': 49, ':': 51,
+      '"': 52, '~': 53, '<': 54, '>': 55, '?': 56
+    };
+  
+    if (mapping.hasOwnProperty(char)) {
+      return [false, mapping[char]];
+    }
+  
+    if (shiftMapping.hasOwnProperty(char)) {
+      return [true, shiftMapping[char]];
+    }
+  
+    return [false, 0];
+  }
+
+  _char2hid(char) {
+    let d1 = 0;
+    let dn = [];
+    const [needShift, code] = this._charKeyCodeMapping(char);
+  
+    if (needShift) {
+      d1 |= 0x02;
+    }
+  
+    dn[0] = code;
+  
+    // Node.js uses Buffer for binary data
+    const buffer = Buffer.alloc(8);
+    buffer.writeUInt8(d1, 0);
+    buffer.writeUInt8(0, 1);
+    buffer.writeUInt8(dn[0], 2);
+    buffer.writeUInt8(0, 3);
+    buffer.writeUInt8(0, 4);
+    buffer.writeUInt8(0, 5);
+    buffer.writeUInt8(0, 6);
+    buffer.writeUInt8(0, 7);
+  
+    return buffer;
+  }
+
 }
 
 export default Keyboard;

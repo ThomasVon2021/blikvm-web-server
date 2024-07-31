@@ -1,5 +1,6 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import HID from '../../modules/kvmd/kvmd_hid.js';
+import Keyboard from '../keyboard.js';
 
 function apiEnableHID(req, res, next) {
   try {
@@ -75,4 +76,24 @@ function apiGetStatus(req, res, next) {
   }
 }
 
-export { apiEnableHID, apiChangeMode, apiGetStatus };
+function apiKeyboardPaste(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const text = req.body;
+    if (typeof text !== 'string') {
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      returnObject.msg = 'input data is not string';
+      res.json(returnObject);
+      return;
+    }
+    const keyboard = new Keyboard();
+    keyboard.pasteData(text);
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = 'paste data ok';
+    res.json(returnObject);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste };

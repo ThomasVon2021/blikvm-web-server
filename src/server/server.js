@@ -204,6 +204,7 @@ class HttpServer {
     );
     app.use(bodyParser.json());
     app.use(express.static(path.join(this._getRootPath(), 'dist')));
+    app.use(express.text());
     app.post('/api/login', apiLogin);
     app.use(this._httpVerityMiddle);
     app.use(this._httpRecorderMiddle);
