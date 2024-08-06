@@ -62,6 +62,11 @@ class Video extends ModuleApp {
     config.video.gop = videoConfig.gop;
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2), UTF8);
   }
+
+  getSnapshotUrl(){
+    return `http://127.0.0.1:${this._param[1]}/snapshot`;
+  }
+  
 }
 
 export default Video;

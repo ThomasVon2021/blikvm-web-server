@@ -25,6 +25,7 @@ import {
   apiSetSwitchModule
 } from './switch.route.js';
 import { apiReboot, apiGetDevice, apiGetSystemInfo } from './system.routes.js';
+import { apiOcr } from './ocr.route.js';
 
 /**
  * Array of route objects.
@@ -66,7 +67,8 @@ const routes = [
   { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
-  { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' }
+  { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
+  { path: '/api/ocr', handler: apiOcr, method: 'post' }
 ];
 
 export default routes;
