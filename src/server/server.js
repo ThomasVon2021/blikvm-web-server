@@ -57,6 +57,17 @@ const HttpServerState = {
   ERROR: 'ERROR'
 };
 
+function getRootPath() {
+  let rootPath;
+  if (process.env.NODE_ENV === 'development') {
+    const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    rootPath = server.rootPath;
+  } else {
+    rootPath = __dirname;
+  }
+  return rootPath;
+}
+
 /**
  * Represents an HTTP API server.
  * @class
@@ -198,17 +209,6 @@ class HttpServer {
     });
   }
 
-  _getRootPath() {
-    let rootPath;
-    if (process.env.NODE_ENV === 'development') {
-      const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      rootPath = server.rootPath;
-    } else {
-      rootPath = __dirname;
-    }
-    return rootPath;
-  }
-
   /**
    * Initializes the HTTP API server.
    * @private
@@ -225,7 +225,7 @@ class HttpServer {
       })
     );
     app.use(bodyParser.json());
-    app.use(express.static(path.join(this._getRootPath(), 'dist')));
+    app.use(express.static(path.join(getRootPath(), 'dist')));
     app.use(express.text());
     app.post('/api/login', apiLogin);
     app.use(this._httpVerityMiddle);
@@ -254,7 +254,7 @@ class HttpServer {
 
   _otherRoute(req, res) {
     try {
-      const distDir = `${this._getRootPath()}/dist`;
+      const distDir = `${getRootPath()}/dist`;
       if (req.url === '/') {
         res.sendFile(`${distDir}/index.html`);
         return;
@@ -376,6 +376,10 @@ class HttpServer {
    * @private
    */
   _httpRecorderMiddle(req, res, next) {
+    if( req.url === '/main'){
+      next();
+      return;
+    }
     const requestType = req.method;
     const requestUrl = req.url;
     const authHeader = req.headers.authorization;
@@ -394,6 +398,10 @@ class HttpServer {
    * @private
    */
   _httpVerityMiddle(req, res, next) {
+    if( req.url === '/main'){
+      next();
+      return;
+    }
     const returnObject = createApiObj();
     returnObject.code = ApiCode.INVALID_CREDENTIALS;
 
