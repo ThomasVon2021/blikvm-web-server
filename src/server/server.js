@@ -41,6 +41,7 @@ import path from 'path';
 import { apiLogin } from './api/login.route.js';
 import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
+import {wsGetVideoState} from './api/video.route.js'
 
 const logger = new Logger();
 
@@ -299,6 +300,7 @@ class HttpServer {
           ret.data.keyboardStatus = keyboard.getStatus();
           ret.data.hidStatus = hid.getStatus();
           ret.data.systemInfo = systemInfo;
+          ret.data.videoStatus = await wsGetVideoState();
           ws.send(JSON.stringify(ret));
         }
       }, 2000);

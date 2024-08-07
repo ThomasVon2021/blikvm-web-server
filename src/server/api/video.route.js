@@ -21,6 +21,9 @@
 *****************************************************************************/
 import Video from '../../modules/video/video.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
+import Logger from '../../log/logger.js';
+
+const logger = new Logger();
 
 /**
  * Handles the API request to start the video service.
@@ -110,4 +113,19 @@ function apiGetVideoState(req, res, next) {
     });
 }
 
-export { apiVideoControl, apiVideoConfig, apiGetVideoState };
+async function wsGetVideoState() {
+  try {
+    const response = await new Video().getVideoState();
+    const ret = {
+      width: response.result.source.resolution.width,
+      height: response.result.source.resolution.height,
+      capturedFps: response.result.source.captured_fps,
+      queuedFps: response.result.stream.queued_fps
+    };
+    return ret;
+  } catch (error) {
+    logger.error(`get video state error: ${error}`);
+  }
+}
+
+export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState };
