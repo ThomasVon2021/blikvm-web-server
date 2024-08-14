@@ -41,7 +41,9 @@ import path from 'path';
 import { apiLogin } from './api/login.route.js';
 import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
-import {wsGetVideoState} from './api/video.route.js'
+import {wsGetVideoState} from './api/video.route.js';
+import startTusServer from './tusServer.js';
+// import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const logger = new Logger();
 
@@ -230,6 +232,7 @@ class HttpServer {
     app.post('/api/login', apiLogin);
     app.use(this._httpVerityMiddle);
     app.use(this._httpRecorderMiddle);
+    startTusServer();  // start tus server
     routes.forEach((route) => {
       if (route.method === 'get') {
         app.get(route.path, route.handler);
