@@ -154,7 +154,10 @@ class MSD {
   getMSDState() {
     const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
     const state = JSON.parse(fs.readFileSync(msd.stateFilePath, 'utf8'));
-    return state;
+    return {
+      ...state,   
+      tusPort: msd.tusPort
+    };
   }
 
   createMSD(req, res, next) {
