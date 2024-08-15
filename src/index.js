@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -30,8 +29,10 @@ import Janus from './modules/kvmd/kvmd_janus.js';
 import HID from './modules/kvmd/kvmd_hid.js';
 import KVMSwitchFactory from './modules/kvmd/switch/kvmd_switch.js';
 import { CONFIG_PATH, UTF8 } from './common/constants.js';
+import {NotificationType, Notification } from './modules/notification.js';
 
 const logger = new Logger();
+const notification = new Notification();
 
 createSecretFile();
 
@@ -49,6 +50,10 @@ httpServer.startService().then((result) => {
   setTimeout(() => {
     atx.startService();
   }, 5000); // 5000 ms delay start ATX service
+})
+.finally(() => {
+  logger.info("All services have been started.");
+  notification.addMessage(NotificationType.INFO, 'All services have been started.');
 });
 
 /**

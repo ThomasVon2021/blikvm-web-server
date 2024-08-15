@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -44,6 +43,7 @@ import HID from '../modules/kvmd/kvmd_hid.js';
 import {wsGetVideoState} from './api/video.route.js';
 import startTusServer from './tusServer.js';
 import CreateSshServer from './sshServer.js';
+import {Notification} from '../modules/notification.js';
 // import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const logger = new Logger();
@@ -281,8 +281,6 @@ class HttpServer {
       }
     });
 
-
-
   }
 
   _otherRoute(req, res) {
@@ -316,6 +314,8 @@ class HttpServer {
       // if (!this._wssVerifyClient(ws, req)) {
       //   return;
       // }
+      const notification = new Notification();
+      notification.initWebSocket(ws); 
 
       logger.info(`WebSocket Client connected, total clients: ${this._wss.clients.size}`);
 
