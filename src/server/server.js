@@ -43,6 +43,7 @@ import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
 import {wsGetVideoState} from './api/video.route.js';
 import startTusServer from './tusServer.js';
+import CreateSshServer from './sshServer.js';
 // import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const logger = new Logger();
@@ -103,6 +104,8 @@ class HttpServer {
    * @private
    */
   _wss = null;
+
+  _wsTerminal = null;
 
   /**
    * Represents the options for the HTTP API.
@@ -249,10 +252,37 @@ class HttpServer {
     this._httpServerEvents();
 
     this._wss = new WebSocketServer({
-      server: this._server
+      noServer: true
+    });
+
+    this._wsTerminal = new WebSocketServer({
+      noServer: true
     });
 
     this._wss.on('connection', this._websocketServerConnectionEvent.bind(this));
+
+    this._wsTerminal.on('connection', (ws) => {
+      CreateSshServer(ws);
+    });
+
+    this._server.on('upgrade', (request, socket, head) => {
+      const pathname = request.url;
+    
+      if (pathname === '/wss') {
+        this._wss.handleUpgrade(request, socket, head, (ws) => {
+          this._wss.emit('connection', ws, request);
+        });
+      } else if (pathname === '/ssh') {
+          this._wsTerminal.handleUpgrade(request, socket, head, (ws) => {
+          this._wsTerminal.emit('connection', ws, request);
+        });
+      } else {
+        socket.destroy();
+      }
+    });
+
+
+
   }
 
   _otherRoute(req, res) {
@@ -379,7 +409,7 @@ class HttpServer {
    * @private
    */
   _httpRecorderMiddle(req, res, next) {
-    if( req.url === '/main'){
+    if( req.url === '/main' || req.url === '/terminal'){
       next();
       return;
     }
@@ -401,7 +431,7 @@ class HttpServer {
    * @private
    */
   _httpVerityMiddle(req, res, next) {
-    if( req.url === '/main'){
+    if( req.url === '/main' || req.url === '/terminal'){
       next();
       return;
     }

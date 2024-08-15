@@ -19,7 +19,9 @@
   },
   "server": {
     "port": 10001,
-    "rootPath": "/mnt/tmp/shangbb/blikvm/web_src/web-server"
+    "rootPath": "/mnt/tmp/shangbb/blikvm/web_src/web-server",
+    "sshUser": "blikvm",
+    "sshPassword": "blikvm"
   },
   "video": {
     "port": 10004,
