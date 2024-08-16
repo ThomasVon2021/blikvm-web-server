@@ -47,6 +47,7 @@ import {
 } from './switch.route.js';
 import { apiReboot, apiGetDevice, apiGetSystemInfo } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
+import { apiWakeOnLan} from './wol.route.js'; 
 
 /**
  * Array of route objects.
@@ -89,7 +90,8 @@ const routes = [
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
-  { path: '/api/ocr', handler: apiOcr, method: 'post' }
+  { path: '/api/ocr', handler: apiOcr, method: 'post' },
+  { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
 ];
 
 export default routes;

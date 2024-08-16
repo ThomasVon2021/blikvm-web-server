@@ -71,7 +71,9 @@ class Notification {
         this.messages[type].push(message);
 
         this._newNotification = true; 
-
+        if(type === NotificationType.ERROR) {
+            this.sendAlert(text);
+        }
         this.sendMessage();
     }
 
@@ -89,6 +91,15 @@ class Notification {
             this._newNotification = false;
         } else {
             logger.warn('Notification WebSocket is not initialized.');
+        }
+    }
+
+    sendAlert(text) {
+        if(this.ws) {
+            const ret = createApiObj();
+            ret.data.alert = text;
+            const jsonMessage = JSON.stringify(ret);
+            this.ws.send(jsonMessage);
         }
     }
 }

@@ -43,7 +43,7 @@ import HID from '../modules/kvmd/kvmd_hid.js';
 import {wsGetVideoState} from './api/video.route.js';
 import startTusServer from './tusServer.js';
 import CreateSshServer from './sshServer.js';
-import {Notification} from '../modules/notification.js';
+import {NotificationType, Notification} from '../modules/notification.js';
 // import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const logger = new Logger();
@@ -468,6 +468,8 @@ class HttpServer {
    */
   _httpErrorMiddle(err, req, res, next) {
     logger.error(`Error handling HTTP request: ${err}`);
+    const notification = new Notification();
+    notification.addMessage(NotificationType.ERROR, `Error handling HTTP request: ${err}`);
     const ret = createApiObj();
     ret.code = ApiCode.INTERNAL_SERVER_ERROR;
     ret.msg = err.message;
