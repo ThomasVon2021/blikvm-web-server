@@ -27,6 +27,7 @@
 import fs from 'fs';
 import Logger from '../log/logger.js';
 import { isDeviceFile } from '../common/tool.js';
+import Mouse from './mouse.js';
 
 const logger = new Logger();
 
@@ -38,6 +39,7 @@ class Keyboard {
   constructor() {
     if (!Keyboard._instance) {
       Keyboard._instance = this;
+      this._mouse = new Mouse();
     }
     return Keyboard._instance;
   }
@@ -47,6 +49,7 @@ class Keyboard {
    * @param {Event} event - The keyboard event.
    */
   handleEvent(event) {
+    this._mouse.updateUserInteraction();
     const keyboardData = this._packData(event);
     this._writeDataToHID(keyboardData);
   }

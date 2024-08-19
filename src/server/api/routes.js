@@ -48,6 +48,7 @@ import {
 import { apiReboot, apiGetDevice, apiGetSystemInfo } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
+import { apiMouseJiggler } from './mouse.route.js';
 
 /**
  * Array of route objects.
@@ -92,6 +93,7 @@ const routes = [
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
   { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
+  { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'post' },
 ];
 
 export default routes;

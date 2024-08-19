@@ -148,7 +148,8 @@ class HID extends Module {
     return {
       status: this._state,
       enable: hid.enable,
-      absolute: hid.absoluteMode
+      absolute: hid.absoluteMode,
+      mouseJiggler: hid.mouseJiggler
     };
   }
 }

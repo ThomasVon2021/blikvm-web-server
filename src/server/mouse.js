@@ -27,18 +27,34 @@
 import Logger from '../log/logger.js';
 import { isDeviceFile } from '../common/tool.js';
 import fs from 'fs';
+import { CONFIG_PATH, UTF8 } from '../common/constants.js';
 
 const logger = new Logger();
 
 class Mouse {
   static _instance = null;
   _onlineStatus = true;
-
+  _lastUserInteraction = Date.now();
+  _jigglerActive = false;
+  _jigglerTimeDiff = 60000;  //uint: ms
+  _devicePath = '/dev/hidg1';
   constructor() {
     if (!Mouse._instance) {
       Mouse._instance = this;
     }
+    this._init();
     return Mouse._instance;
+  }
+
+  _init() {
+    const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    this._absoluteMode = hid.absoluteMode;
+    this._jigglerActive = hid.mouseJiggler;
+    this._jigglerLoop();
+  }
+
+  updateUserInteraction(){
+    this._lastUserInteraction = Date.now();
   }
 
   /**
@@ -46,6 +62,9 @@ class Mouse {
    * @param {MouseEvent} event - The mouse event object.
    */
   handleEvent(event) {
+
+    this._lastUserInteraction = Date.now();
+    
     const {
       buttons,
       relativeX,
@@ -75,19 +94,18 @@ class Mouse {
       );
     }
 
-    const fileName = '/dev/hidg1';
-    if (isDeviceFile(fileName)) {
-      fs.writeFile('/dev/hidg1', data, (error) => {
+    if (isDeviceFile(this._devicePath)) {
+      fs.writeFile(this._devicePath, data, (error) => {
         if (error) {
           this._onlineStatus = false;
-          logger.info(`Error writing to /dev/hidg1: ${error.message}`);
+          logger.info(`Error writing to ${this._devicePath}: ${error.message}`);
         } else {
           this._onlineStatus = true;
         }
       });
     } else {
       this._onlineStatus = false;
-      logger.info('File /dev/hidg1 does not exist');
+      logger.error(`File ${this._devicePath} does not exist`);
     }
   }
 
@@ -115,7 +133,7 @@ class Mouse {
   ) {
     const x = Math.min(Math.max(-127, Math.floor(movementX * sensitivity)), 127);
     const y = Math.min(Math.max(-127, Math.floor(movementY * sensitivity)), 127);
-    logger.info(`relativeX:${x} relativeY:${y}`);
+    // logger.info(`relativeX:${x} relativeY:${y}`);
     const buf = [0, 0, 0, 0, 0];
     buf[0] = buttons;
     buf[1] = x & 0xff;
@@ -182,6 +200,74 @@ class Mouse {
 
   setRelativeSens(value) {
     this._relative_sens = value;
+  }
+
+  startJiggler() {
+    this._jigglerActive = true;
+    this._jigglerLoop();
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    config.hid.mouseJiggler = true;
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+  }
+
+  _jigglerLoop() {
+    if (!this._jigglerActive) return;
+
+    const currentTime = Date.now();
+    const timeSinceLastInteraction = currentTime - this._lastUserInteraction;
+    
+    if (timeSinceLastInteraction >= this._jigglerTimeDiff) {
+      logger.info('No user interaction detected for 60 seconds, activating mouse jiggler.');
+
+      if (this._absoluteMode) {
+        this._performAbsoluteJiggle();
+      } else {
+        this._performRelativeJiggle();
+      }
+
+      this._lastUserInteraction = Date.now(); 
+    }
+
+    setTimeout(() => this._jigglerLoop(), this._jigglerTimeDiff);
+  }
+
+  _performAbsoluteJiggle() {
+    const jiggleSequence = [
+      { x: 0.1, y: 0.1 },
+      { x: 0.5, y: 0.5 }
+    ];
+
+    jiggleSequence.forEach(({ x, y }) => {
+      const buf = this._prepareAbsoluteMouseEvent(0, x, y, 0, 0);
+      fs.writeFile(this._devicePath, buf, (error) => {
+        if (error) {
+          logger.info(`Error performing absolute jiggle: ${error.message}`);
+        }
+      });
+    });
+  }
+
+  _performRelativeJiggle() {
+    const jiggleSequence = [
+      { x: -10, y: -10 },
+      { x: 10, y: 10 }
+    ];
+
+    jiggleSequence.forEach(({ x, y }) => {
+      const buf = this._prepareRelativeMouseEvent(0, x, y, 0, 0, 1);
+      fs.writeFile(this._devicePath, buf, (error) => {
+        if (error) {
+          logger.info(`Error performing relative jiggle: ${error.message}`);
+        }
+      });
+    });
+  }
+
+  stopJiggler() {
+    this._jigglerActive = false;
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    config.hid.mouseJiggler = false;
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
   }
 }
 
