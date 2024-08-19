@@ -40,9 +40,9 @@ class Mouse {
   _devicePath = '/dev/hidg1';
   constructor() {
     if (!Mouse._instance) {
+      this._init();
       Mouse._instance = this;
     }
-    this._init();
     return Mouse._instance;
   }
 
@@ -64,7 +64,6 @@ class Mouse {
   handleEvent(event) {
 
     this._lastUserInteraction = Date.now();
-    
     const {
       buttons,
       relativeX,
