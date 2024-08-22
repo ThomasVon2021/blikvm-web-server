@@ -45,7 +45,7 @@ import {
   apiGetSwitchList,
   apiSetSwitchModule
 } from './switch.route.js';
-import { apiReboot, apiGetDevice, apiGetSystemInfo } from './system.routes.js';
+import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
 import { apiMouseJiggler } from './mouse.route.js';
@@ -94,6 +94,8 @@ const routes = [
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
   { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
   { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'post' },
+  { path: '/api/logs', handler: apiGetLogs, method: 'post' }
+  
 ];
 
 export default routes;

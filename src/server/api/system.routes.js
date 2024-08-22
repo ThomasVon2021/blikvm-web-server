@@ -24,6 +24,11 @@ import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import { getSystemInfo } from '../../common/tool.js';
 import fs from 'fs';
+import path from 'path';
+import { exec } from 'child_process';
+import {Notification, NotificationType} from '../../modules/notification.js';
+
+const notification = new Notification();
 
 function apiReboot(req, res, next) {
   try {
@@ -63,4 +68,46 @@ async function apiGetSystemInfo(req, res, next) {
   }
 }
 
-export { apiReboot, apiGetDevice, apiGetSystemInfo };
+const apiGetLogs = async (req, res, next) => {
+  try {
+    const { log } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const returnObject = createApiObj();
+
+    const logDir = path.dirname(log.file.fileName);
+    const logBaseName = path.basename(log.file.fileName);
+    const logFiles = [
+      path.join(logDir, logBaseName),
+      path.join(logDir, `${logBaseName}.1`),
+      path.join(logDir, `${logBaseName}.2`)
+    ];
+
+    const latestLogFile = logFiles
+      .map(logFile => {
+        if (fs.existsSync(logFile)) {
+          return { file: logFile, mtime: fs.statSync(logFile).mtimeMs };
+        }
+        return null;
+      })
+      .filter(Boolean) 
+      .sort((a, b) => b.mtime - a.mtime)[0]?.file;
+
+    if (!latestLogFile) {
+      notification.addMessage(NotificationType.ERROR, 'No log files found');
+      return;
+    }
+
+    exec(`tail -n 20 ${latestLogFile}`, (err, stdout, stderr) => {
+      if (err) {
+        return next(err);
+      }
+
+      returnObject.code = ApiCode.OK;
+      returnObject.data = stdout;
+      res.json(returnObject);
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs };
