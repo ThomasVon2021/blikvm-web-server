@@ -19,10 +19,10 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-import { executeCMD } from '../../common/tool.js';
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
-import { getSystemInfo } from '../../common/tool.js';
+import { getSystemInfo, executeCMD, getHardwareType } from '../../common/tool.js';
+import { HardwareType } from '../../common/enums.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
@@ -44,9 +44,17 @@ function apiGetDevice(req, res, next) {
     const { deviceinfo, deviceType, manufacturer } = JSON.parse(fs.readFileSync(device, UTF8));
     const returnObject = createApiObj();
     returnObject.code = ApiCode.OK;
+    const hardwareType = getHardwareType();
+    let type = '';
+    if( hardwareType === HardwareType.MangoPi){
+      type ='mangoPi';
+    }else if(hardwareType === HardwareType.PI4B || hardwareType === HardwareType.CM4){
+      type = 'pi';
+    }
     returnObject.data = {
       device: deviceinfo,
       deviceType: deviceType,
+      hardwareType: type,
       manufacturer: manufacturer
     };
     res.json(returnObject);

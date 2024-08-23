@@ -106,13 +106,15 @@ const updateConfigFile = async (hardwareSysType) => {
   const configPath = path.join(releaseDir, 'config', 'app.json');
   try {
     let content = await fs.readFile(configPath, 'utf8');
+
     if (hardwareSysType === 'h616') {
-      content = content.replace('./lib/pi/', './lib/h616/');
-      await fs.writeFile(configPath, content, 'utf8');
-      console.log(`Updated ${configPath} for hardware type h616`);
-    } else {
-      console.log(`No update needed for ${configPath}`);
+      content = content.replace(/\.\/lib\/pi\//g, './lib/h616/');
+    } else if (hardwareSysType === 'pi') {
+      content = content.replace(/\.\/lib\/h616\//g, './lib/pi/');
     }
+
+    await fs.writeFile(configPath, content, 'utf8');
+    console.log(`Updated ${configPath} for hardware type ${hardwareSysType}`);
   } catch (error) {
     console.error(`Error updating config file: ${configPath}`, error);
   }
@@ -123,6 +125,7 @@ const copyFiles = async () => {
   await createDirectoryIfNotExists(releaseDir);
 
   const hardwareSysType = getHardwareType();
+  //const hardwareSysType = 'h616';
   await copyLibDirectory(hardwareSysType);
 
   await Promise.all(itemsToCopy.map(async (item) => {

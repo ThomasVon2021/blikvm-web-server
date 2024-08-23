@@ -75,7 +75,7 @@
     "hidEnable": "./lib/hid/enable-gadget.sh",
     "hidDisable": "./lib/hid/disable-gadget.sh",
     "enable": true,
-    "absoluteMode": false,
+    "absoluteMode": true,
     "mouseJiggler": false
   }
 }

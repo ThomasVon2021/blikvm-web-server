@@ -18,7 +18,7 @@ ustreamer_pid=""
 # Define board type names
 pi4b_board="Raspberry Pi 4 Model B"
 cm4b_board="Raspberry Pi Compute Module 4"
-h616_board="Mango Pi Mcore"
+h616_board="MangoPi Mcore"
 
 # Define board type values
 v2_hat="V2_HAT"
