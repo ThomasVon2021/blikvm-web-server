@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -23,6 +22,7 @@ import fs from 'fs';
 import Logger from '../../log/logger.js';
 import Module from '../module.js';
 import { ModuleState } from '../../common/enums.js';
+import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 
 const logger = new Logger();
 
@@ -49,12 +49,22 @@ class ATX extends Module {
   }
 
   _init() {
-    const { atx } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { atx } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     this._socketPath = atx.stateSockFilePath;
     this._name = 'ATX';
   }
 
   startService() {
+
+    this._readFileContent()
+    .then((content) => {
+        this._ledPwr = !!(content[0] & ATXState.LED_PWR);
+        this._ledHDD = !!(content[0] & ATXState.LED_HDD);
+    })
+    .catch((err) => {
+        logger.error(`${this._name} initial read error: ${err.message}`);
+    });
+
     this.watcher = fs.watch(this._socketPath, { encoding: 'utf-8' }, (eventType, filename) => {
       if (filename) {
         this._readFileContent()
@@ -80,7 +90,6 @@ class ATX extends Module {
   }
 
   closeService() {
-    // 停止监听文件变化
     if (this.watcher) {
       this.watcher.close();
       this._state = ModuleState.STOPPED;

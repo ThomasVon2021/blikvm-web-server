@@ -44,6 +44,7 @@ import {wsGetVideoState} from './api/video.route.js';
 import startTusServer from './tusServer.js';
 import CreateSshServer from './sshServer.js';
 import {NotificationType, Notification} from '../modules/notification.js';
+import ATX from '../modules/kvmd/kvmd_atx.js';
 // import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const logger = new Logger();
@@ -322,6 +323,7 @@ class HttpServer {
       const mouse = new Mouse();
       const keyboard = new Keyboard();
       const hid = new HID();
+      const atx = new ATX();
       const heartbeatInterval = setInterval(async() => {
         if (ws.readyState === WebSocket.OPEN) {
           const systemInfo = await getSystemInfo();
@@ -334,6 +336,7 @@ class HttpServer {
           ret.data.hidStatus = hid.getStatus();
           ret.data.systemInfo = systemInfo;
           ret.data.videoStatus = await wsGetVideoState();
+          ret.data.atxStatus = atx.getATXState();
           ws.send(JSON.stringify(ret));
         }
       }, 2000);
