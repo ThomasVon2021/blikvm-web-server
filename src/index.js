@@ -19,7 +19,8 @@
 #                                                                            #
 *****************************************************************************/
 import Logger from './log/logger.js';
-import { fileExists, createFile, generateUniqueCode } from './common/tool.js';
+import { fileExists, createFile, generateUniqueCode, getHardwareType } from './common/tool.js';
+import { HardwareType } from './common/enums.js';
 import fs from 'fs';
 import HttpServer from './server/server.js';
 import Video from './modules/video/video.js';
@@ -44,8 +45,7 @@ httpServer.startService().then((result) => {
   video.startService();
   const kvmdmain = new KVMDMain();
   kvmdmain.startService();
-  const janus = new Janus();
-  janus.startService();
+  startJanus();
   startSwitch();
   const atx = new ATX();
   setTimeout(() => {
@@ -91,5 +91,13 @@ function startHid() {
     const mode = hid.absoluteMode ? 'true' : 'false';
     hidHandle.startService(mode);
     const mouse = new Mouse();
+  }
+}
+
+function startJanus(){
+  const hardwareType = getHardwareType();
+  if(hardwareType === HardwareType.CM4 ||  hardwareType === HardwareType.PI4B ){
+    const janus = new Janus();
+    janus.startService();
   }
 }

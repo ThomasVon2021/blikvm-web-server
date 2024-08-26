@@ -83,7 +83,7 @@ const routes = [
   { path: '/api/changeaccount', handler: apiChangeAccount, method: 'post' },
   { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
   { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },
-  { path: '/api/switch/change', handler: apiChangeChannel, method: 'post' },
+  { path: '/api/switch/setchannel', handler: apiChangeChannel, method: 'post' },
   { path: '/api/switch/setpath', handler: apiSetSwitchDevicePath, method: 'post' },
   { path: '/api/switch/setlabel', handler: apiSetSwitchLabel, method: 'post' },
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },

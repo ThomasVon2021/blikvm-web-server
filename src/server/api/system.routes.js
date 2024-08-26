@@ -41,15 +41,21 @@ function apiReboot(req, res, next) {
 function apiGetDevice(req, res, next) {
   try {
     const { device } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    const { deviceinfo, deviceType, manufacturer } = JSON.parse(fs.readFileSync(device, UTF8));
+    const { deviceinfo, manufacturer } = JSON.parse(fs.readFileSync(device, UTF8));
     const returnObject = createApiObj();
     returnObject.code = ApiCode.OK;
     const hardwareType = getHardwareType();
     let type = '';
+    let deviceType = '';
     if( hardwareType === HardwareType.MangoPi){
       type ='mangoPi';
-    }else if(hardwareType === HardwareType.PI4B || hardwareType === HardwareType.CM4){
+      deviceType = "BliKVM v4 Allwinner";
+    }else if(hardwareType === HardwareType.PI4B ){
       type = 'pi';
+      deviceType = "BliKVM v3 HAT";
+    }else if( hardwareType === HardwareType.CM4 ){
+      type = 'pi';
+      deviceType = "BliKVM CM4";
     }
     returnObject.data = {
       device: deviceinfo,
