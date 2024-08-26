@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -20,6 +19,9 @@
 #                                                                            #
 *****************************************************************************/
 import { ModuleState } from '../../../common/enums.js';
+import {Notification, NotificationType} from '../../notification.js';
+import fs from 'fs';
+import { CONFIG_PATH, UTF8 } from '../../../common/constants.js';
 
 class KVMSwitchBase {
   _name = 'None';
@@ -57,6 +59,19 @@ class KVMSwitchBase {
 
   switchChannel() {
     throw new Error('must overwrite by children class');
+  }
+
+  _setConfigDisable(){
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    if (config.kvmd.switch.enabled === true) {
+      config.kvmd.switch.enabled = false;
+      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+    }
+  }
+
+  sendErrorNotification(text) {
+    const notification = new Notification();
+    notification.addMessage(NotificationType.ERROR, text);
   }
 }
 

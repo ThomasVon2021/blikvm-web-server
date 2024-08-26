@@ -19,7 +19,7 @@
   },
   "server": {
     "port": 80,
-    "rootPath": "/mnt/tmp/shangbb/blikvm/web_src/web-server",
+    "rootPath": "/mnt/blikvm/web_src/web-server",
     "sshUser": "blikvm",
     "sshPassword": "blikvm"
   },

@@ -72,7 +72,10 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
         }
 
         if (isDeviceFile(this._path) === false) {
-          logger.error(`Switch path ${this._path} is not exist`);
+          const text = `Switch path ${this._path} is not exist`;
+          logger.error(text);
+          this.sendErrorNotification(text);
+          this._setConfigDisable();
           resolve({
             result: false,
             msg: `Switch path ${this._path} is not exist`
@@ -140,11 +143,7 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
       }
       this._serialHandle.closeService();
 
-      const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      if (config.kvmd.switch.enabled === true) {
-        config.kvmd.switch.enabled = false;
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
-      }
+      this._setConfigDisable();
 
       this._serialHandle = null;
       resolve({
