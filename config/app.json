@@ -3,7 +3,7 @@
   "log": {
     "console": {
       "enabled": true,
-      "level": "info"
+      "level": "trace"
     },
     "file": {
       "enabled": true,
@@ -19,7 +19,7 @@
   },
   "server": {
     "port": 80,
-    "rootPath": "/mnt/blikvm/web_src/web-server",
+    "rootPath": "/mnt/blikvm/web_src/web_server",
     "sshUser": "blikvm",
     "sshPassword": "blikvm"
   },
@@ -38,7 +38,7 @@
     "switch": {
       "enabled": false,
       "devicePath": "/dev/ttyUSB0",
-      "module": "BliKVM_switch_v2",
+      "module": "BliKVM_switch_v1",
       "list": [
         "BliKVM_switch_v1",
         "BliKVM_switch_v2"
