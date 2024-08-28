@@ -88,7 +88,18 @@ class ModuleApp extends Module {
           reject(result);
         }
       });
-
+      process.on('exit', () => {
+        this._app.kill(); 
+      });
+      process.on('SIGINT', () => {
+        this._app.kill('SIGINT'); 
+        process.exit(); 
+      });
+      process.on('SIGTERM', () => {
+        this._app.kill('SIGINT'); 
+        process.exit();
+      });
+      
       this._state = ModuleState.STARTING;
       setTimeout(() => {
         if (this._state === ModuleState.ERROR || this._state === ModuleState.STOPPED) {

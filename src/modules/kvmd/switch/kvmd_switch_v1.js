@@ -155,6 +155,7 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
 
   switchChannel(channel) {
     if (this._state !== ModuleState.RUNNING) {
+      logger.warn("Switch is not in running state");
       return {
         result: false,
         msg: 'Switch is not in running state'

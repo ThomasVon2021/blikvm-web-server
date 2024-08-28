@@ -28,13 +28,14 @@ import fs from 'fs';
 import Logger from '../log/logger.js';
 import { isDeviceFile } from '../common/tool.js';
 import Mouse from './mouse.js';
+import { constants } from 'fs';
 
 const logger = new Logger();
 
 class Keyboard {
   static _instance = null;
   _onlineStatus = true;
-  _deviceName = '/dev/hidg0';
+  _devicePath = '/dev/hidg0';
 
   constructor() {
     if (!Keyboard._instance) {
@@ -84,19 +85,34 @@ class Keyboard {
     return this._onlineStatus;
   }
 
-  _writeDataToHID(keyboardData){
-    if (isDeviceFile(this._deviceName)) {
-      fs.writeFile(this._deviceName, keyboardData, (error) => {
-        if (error) {
+  _writeDataToHID(data){
+    if (isDeviceFile(this._devicePath)) {
+      fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
+        if (err) {
+          logger.error(`Error opening file: ${err}`);
           this._onlineStatus = false;
-          logger.info(`Error writing to ${this._deviceName}: ${error.message}`);
-        } else {
-          this._onlineStatus = true;
+          return;
         }
+      
+        const dataBuffer = Buffer.from(data);
+      
+        fs.write(fd, dataBuffer, (err, written) => {
+          if (err) {
+            this._onlineStatus = false;
+            logger.warn(`Error writing to ${this._devicePath}: ${err}`);
+          } else{
+            this._onlineStatus = true;
+          }
+          fs.close(fd, (err) => {
+            if (err) {
+              logger.error(`Error closing file: ${err}`);
+            }
+          });
+        });
       });
     } else {
       this._onlineStatus = false;
-      logger.error(`File ${this._deviceName} does not exist`);
+      logger.error(`File ${this._devicePath} does not exist`);
     }
   }
 

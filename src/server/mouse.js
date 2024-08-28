@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -28,6 +27,7 @@ import Logger from '../log/logger.js';
 import { isDeviceFile } from '../common/tool.js';
 import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
+import { constants } from 'fs';
 
 const logger = new Logger();
 
@@ -94,18 +94,34 @@ class Mouse {
     }
 
     if (isDeviceFile(this._devicePath)) {
-      fs.writeFile(this._devicePath, data, (error) => {
-        if (error) {
+      this._writeData(data);
+    }
+  }
+
+  _writeData(data) {
+    fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
+      if (err) {
+        logger.error(`Error opening file: ${err}`);
+        this._onlineStatus = false;
+        return;
+      }
+    
+      const dataBuffer = Buffer.from(data);
+    
+      fs.write(fd, dataBuffer, (err, written) => {
+        if (err) {
+          logger.warn(`Error writing to ${this._devicePath}: ${err}`);
           this._onlineStatus = false;
-          logger.info(`Error writing to ${this._devicePath}: ${error.message}`);
-        } else {
+        }else{
           this._onlineStatus = true;
         }
+        fs.close(fd, (err) => {
+          if (err) {
+            logger.error(`Error closing file: ${err}`);
+          }
+        });
       });
-    } else {
-      this._onlineStatus = false;
-      logger.error(`File ${this._devicePath} does not exist`);
-    }
+    });
   }
 
   getStatus() {
@@ -238,11 +254,7 @@ class Mouse {
 
     jiggleSequence.forEach(({ x, y }) => {
       const buf = this._prepareAbsoluteMouseEvent(0, x, y, 0, 0);
-      fs.writeFile(this._devicePath, buf, (error) => {
-        if (error) {
-          logger.info(`Error performing absolute jiggle: ${error.message}`);
-        }
-      });
+      this._writeData(buf);
     });
   }
 
@@ -254,6 +266,7 @@ class Mouse {
 
     jiggleSequence.forEach(({ x, y }) => {
       const buf = this._prepareRelativeMouseEvent(0, x, y, 0, 0, 1);
+
       fs.writeFile(this._devicePath, buf, (error) => {
         if (error) {
           logger.info(`Error performing relative jiggle: ${error.message}`);

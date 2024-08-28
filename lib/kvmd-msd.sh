@@ -22,11 +22,13 @@ without -n name           defaults name=ventoy -> ventoy.img
 iso_file_name=()
 iso_files=()
 count_value=0
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 ventoy_dir="/mnt/msd/ventoy"
+ventoy_bin_dir="&=$SCRIPT_DIR/ventoy-1.0.97"
 iso_dir="/mnt/msd/user"
 mount_dist_dir="/media/blikvm/ventoy/"
-usb_gadget_sh="/usr/bin/blikvm/enable-gadget.sh"
-usb_dis_gadget_sh="/usr/bin/blikvm/disable-gadget.sh"
+usb_gadget_sh="$SCRIPT_DIR/hid/enable-gadget.sh"
+usb_dis_gadget_sh="$SCRIPT_DIR/hid/disable-gadget.sh"
 msd_config_dir="/mnt/msd/config/"
 msd_shm_dir="/dev/shm/blikvm/"
 msd_json="msd.json"
