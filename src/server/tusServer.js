@@ -32,10 +32,10 @@ const logger = new Logger();
 function createTusServer() {
     const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     const server = new Server({
-        path: msd.isoFilePath,
+        path: `/tus${msd.isoFilePath}`,
+        respectForwardedHeaders: true,
         datastore: new FileStore({ directory: msd.isoFilePath }),
         namingFunction(req, metadata) {
-            logger.info("metadata: ", metadata);
             return `${metadata.filename}`;
         },
     });

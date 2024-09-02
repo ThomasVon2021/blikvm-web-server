@@ -20,7 +20,7 @@
 *****************************************************************************/
 
 import Logger from '../log/logger.js';
-import { ApiCode, createApiObj } from '../common/api.js';
+import { createApiObj } from '../common/api.js';
 
 const logger = new Logger();
 

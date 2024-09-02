@@ -24,6 +24,7 @@
  */
 
 import http from 'http';
+import https from 'https';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -45,7 +46,8 @@ import startTusServer from './tusServer.js';
 import CreateSshServer from './sshServer.js';
 import {NotificationType, Notification} from '../modules/notification.js';
 import ATX from '../modules/kvmd/kvmd_atx.js';
-// import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import httpProxy from 'http-proxy';
 
 const logger = new Logger();
 
@@ -220,7 +222,7 @@ class HttpServer {
    * @private
    */
   _init() {
-    const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const { server, video, msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     this._option = server;
 
     const app = express();
@@ -233,6 +235,32 @@ class HttpServer {
     app.use(bodyParser.json());
     app.use(express.static(path.join(getRootPath(), 'dist')));
     app.use(express.text());
+   
+    app.use('/video', createProxyMiddleware({
+      target: `http://127.0.0.1:${video.port}`,
+      changeOrigin: true,
+      secure: false, 
+    }));
+
+    app.use('/tus', createProxyMiddleware({
+      target: `http://127.0.0.1:${msd.tusPort}/`,
+      changeOrigin: false,
+      secure: false,
+      on: {
+        proxyReq: (proxyReq, req, res) => {
+          proxyReq.setHeader('X-Forwarded-Proto', server.protocol);
+        },
+      },
+    }));
+
+    const janus_server = server.protocol === 'http' ? 'http://127.0.0.1:8188' : 'https://127.0.0.1:8989';
+    this._proxy = httpProxy.createProxyServer({
+      target: janus_server, // Janus server address
+      ws: true,
+      changeOrigin: true,
+      secure: false,
+    });
+    
     app.post('/api/login', apiLogin);
     app.use(this._httpVerityMiddle);
     app.use(this._httpRecorderMiddle);
@@ -249,7 +277,15 @@ class HttpServer {
 
     app.get('*', this._otherRoute);
 
-    this._server = http.createServer(app);
+    if( server.protocol === 'http' ){
+      this._server = http.createServer(app);
+    }else{
+      this._server = https.createServer({
+        key: fs.readFileSync(server.ssl.key),
+        cert: fs.readFileSync(server.ssl.cert)
+      }, app);
+    }
+
     this._httpServerEvents();
 
     this._wss = new WebSocketServer({
@@ -277,6 +313,8 @@ class HttpServer {
           this._wsTerminal.handleUpgrade(request, socket, head, (ws) => {
           this._wsTerminal.emit('connection', ws, request);
         });
+      } else if(pathname === '/janus') {
+          this._proxy.ws(request, socket, head);
       } else {
         socket.destroy();
       }
@@ -445,7 +483,7 @@ class HttpServer {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      logger.error('token is null');
+      logger.error(`token is null:${req.url}`);
       returnObject.msg = 'token is null!';
       res.status(401).json(returnObject);
       return;

@@ -3,7 +3,7 @@
   "log": {
     "console": {
       "enabled": true,
-      "level": "trace"
+      "level": "info"
     },
     "file": {
       "enabled": true,
@@ -18,7 +18,12 @@
     "userFile": "./config/user.json"
   },
   "server": {
-    "port": 80,
+    "protocol": "http",
+    "port":40,
+    "ssl": {
+      "key": "./lib/https/key.pem",
+      "cert": "./lib/https/cert.pem"
+    },
     "rootPath": "/mnt/blikvm/web_src/web_server",
     "sshUser": "blikvm",
     "sshPassword": "blikvm"
