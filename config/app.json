@@ -19,7 +19,7 @@
   },
   "server": {
     "protocol": "http",
-    "port":40,
+    "port":80,
     "ssl": {
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"
