@@ -81,6 +81,14 @@ class Keyboard {
     processNextChar();
   }
 
+  shortcuts(data) {
+    this.handleEvent(data);
+    setTimeout(() => {
+      const releaseData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
+      this._writeDataToHID(releaseData);
+    }, 50);
+  }
+
   getStatus() {
     return this._onlineStatus;
   }

@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -22,6 +21,8 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import HID from '../../modules/kvmd/kvmd_hid.js';
 import Keyboard from '../keyboard.js';
+import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
+import fs from 'fs';
 
 function apiEnableHID(req, res, next) {
   try {
@@ -117,4 +118,34 @@ function apiKeyboardPaste(req, res, next) {
   }
 }
 
-export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste };
+function apiKeyboardShortcuts(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const keycode = req.body.shortcuts;
+    const keyboard = new Keyboard();
+    keyboard.shortcuts(keycode);
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = 'shortcuts ok';
+    res.json(returnObject);
+  } catch (err) {
+    next(err);
+  }
+}
+
+function apiGetShortcutsConfig(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = 'shortcuts ok';
+    returnObject.data = hid.shortcuts;
+    res.json(returnObject);
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+
+
+export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig };
