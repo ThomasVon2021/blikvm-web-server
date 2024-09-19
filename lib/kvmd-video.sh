@@ -73,7 +73,7 @@ do
 done
 
 # Wait for the video device to be ready
-sleep 5
+# sleep 5
 
 # Get the board type
 board_type=$(get_board_type)
