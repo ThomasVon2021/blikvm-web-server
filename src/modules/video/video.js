@@ -73,7 +73,6 @@ class Video extends ModuleApp {
     });
   }
   
-
   setVideoConfig(videoConfig) {
     const configPath = CONFIG_PATH;
     const config = JSON.parse(fs.readFileSync(configPath, UTF8));
@@ -81,7 +80,9 @@ class Video extends ModuleApp {
     config.video.quality = videoConfig.quality;
     config.video.kbps = videoConfig.kbps;
     config.video.gop = videoConfig.gop;
+    this._param = [config.video.bin, config.video.port, config.video.fps, config.video.quality, config.video.kbps, config.video.gop];
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2), UTF8);
+
   }
 
   getSnapshotUrl(){
