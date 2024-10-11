@@ -23,6 +23,7 @@ import { createSocket } from 'unix-dgram';
 import { createApiObj, ApiCode } from '../../common/api.js';
 import fs from 'fs';
 import ATX from '../../modules/kvmd/kvmd_atx.js';
+import { CONFIG_PATH } from '../../common/constants.js';
 
 /**
  * Handles ATX API request.
@@ -107,7 +108,7 @@ function writeToSocket(cmd) {
       client.close();
       reject(err);
     });
-    const { atx } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { atx } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     client.send(message, 0, message.length, atx.controlSockFilePath, (err) => {
       if (err) {
         client.close();

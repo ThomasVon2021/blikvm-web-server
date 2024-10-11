@@ -124,8 +124,13 @@ const copyFiles = async () => {
   await deleteDirectoryIfExists(releaseDir);
   await createDirectoryIfNotExists(releaseDir);
 
-  const hardwareSysType = getHardwareType();
-  //const hardwareSysType = 'h616';
+  const hardwareSysType = process.env.HARDWARE_TYPE || getHardwareType();
+
+  if (hardwareSysType !== 'pi' && hardwareSysType !== 'h616') {
+    console.error('Invalid hardware type. Use "pi" or "h616".');
+    process.exit(1);
+  }
+
   await copyLibDirectory(hardwareSysType);
 
   await Promise.all(itemsToCopy.map(async (item) => {

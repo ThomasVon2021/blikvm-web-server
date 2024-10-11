@@ -21,6 +21,7 @@
 *****************************************************************************/
 import fs from 'fs';
 import ModuleApp from '../module_app.js';
+import { CONFIG_PATH } from '../../common/constants.js';
 
 class Janus extends ModuleApp {
   static _instance = null;
@@ -36,7 +37,7 @@ class Janus extends ModuleApp {
   }
 
   _init() {
-    const { kvmd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     this._bin = kvmd.janusBin;
     this._name = 'janus';
   }

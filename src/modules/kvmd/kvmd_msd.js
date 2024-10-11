@@ -32,6 +32,7 @@ import {
   changetoROSystem,
   readVentoyDirectory
 } from '../../common/tool.js';
+import { CONFIG_PATH } from '../../common/constants.js';
 
 const logger = new Logger();
 
@@ -59,7 +60,7 @@ class MSD {
     this._name = 'MSD';
     this._storage = multer.diskStorage({
       destination: function (req, file, cb) {
-        const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+        const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
         cb(null, msd.isoFilePath);
       },
       filename: function (req, file, cb) {
@@ -152,7 +153,7 @@ class MSD {
   }
 
   getMSDState() {
-    const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     const state = JSON.parse(fs.readFileSync(msd.stateFilePath, 'utf8'));
     return {
       ...state,   
@@ -195,7 +196,7 @@ class MSD {
 
       this._makeImageProgress = 0;
 
-      const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+      const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
       const cmd = `bash ${msd.shell} -c make -s ${size} -n ${name} -t ${type} -f ${images}`;
       logger.info(`Create MSD: ${cmd}`);
       this._executeCmdCP(cmd, (progress) => {
@@ -235,7 +236,7 @@ class MSD {
       return;
     }
     const action = req.query.action;
-    const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     if (action === 'true') {
       if (state.msd_status === 'connected') {
         returnObject.msg = 'usb drive alreadly conected to host';
@@ -289,7 +290,7 @@ class MSD {
       res.json(returnObject);
       return;
     }
-    const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     const cmd = `bash ${msd.shell} -c clean`;
     logger.info(`Remove MSD: ${cmd}`);
     executeCMD(cmd)
@@ -305,7 +306,7 @@ class MSD {
   }
 
   async getImages(dir) {
-    const { msd } = JSON.parse(fs.readFileSync('config/app.json', 'utf8'));
+    const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     try {
       const isos = await readVentoyDirectory(msd.isoFilePath);
       return isos;
