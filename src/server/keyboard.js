@@ -36,11 +36,14 @@ class Keyboard {
   static _instance = null;
   _onlineStatus = true;
   _devicePath = '/dev/hidg0';
+  eventQueue = []; 
+  isProcessing = false;
 
   constructor() {
     if (!Keyboard._instance) {
       Keyboard._instance = this;
       this._mouse = new Mouse();
+      setInterval(() => this.processQueue(), 50);
     }
     return Keyboard._instance;
   }
@@ -52,7 +55,23 @@ class Keyboard {
   handleEvent(event) {
     this._mouse.updateUserInteraction();
     const keyboardData = this._packData(event);
+    this.eventQueue.push(keyboardData); 
+  }
+
+  /**
+   * Processes the queued events, one every 50ms.
+   */
+  processQueue() {
+    if (this.isProcessing || this.eventQueue.length === 0) {
+      return;
+    }
+
+    this.isProcessing = true;
+
+    const keyboardData = this.eventQueue.shift(); 
     this._writeDataToHID(keyboardData);
+
+    this.isProcessing = false;
   }
 
   pasteData(data) {
