@@ -38,12 +38,38 @@ class Mouse {
   _jigglerActive = false;
   _jigglerTimeDiff = 60000;  //uint: ms
   _devicePath = '/dev/hidg1';
+  eventQueue = []; 
+  isProcessing = false;
+
   constructor() {
     if (!Mouse._instance) {
       this._init();
       Mouse._instance = this;
+      this._openFile();
+      setInterval(() => this.processQueue(), 50);
     }
     return Mouse._instance;
+  }
+
+  _openFile() {
+    fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
+      if (err) {
+        logger.error(`Error opening file: ${err}`);
+        this._onlineStatus = false;
+        return;
+      }
+      this._fd = fd;
+    });
+  }
+
+  close() {
+    if (this._fd) {
+      fs.close(this._fd, (err) => {
+        if (err) {
+          logger.error(`Error closing file: ${err}`);
+        }
+      });
+    }
   }
 
   _init() {
@@ -94,34 +120,41 @@ class Mouse {
     }
 
     if (isDeviceFile(this._devicePath)) {
-      this._writeData(data);
+      //this._writeData(data);
+      this.eventQueue.push(data);
     }
   }
 
-  _writeData(data) {
-    fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
-      if (err) {
-        logger.error(`Error opening file: ${err}`);
-        this._onlineStatus = false;
+    /**
+   * Processes the queued events, one every 50ms.
+   */
+    processQueue() {
+      if (this.isProcessing || this.eventQueue.length === 0) {
         return;
       }
-    
+  
+      this.isProcessing = true;
+  
+      const data = this.eventQueue.shift(); 
+      this._writeData(data);
+  
+      this.isProcessing = false;
+    }
+
+  _writeData(data) {
+    if (this._fd) {
       const dataBuffer = Buffer.from(data);
-    
-      fs.write(fd, dataBuffer, (err, written) => {
+      fs.write(this._fd, dataBuffer, (err, written) => {
         if (err) {
-          logger.warn(`Error writing to ${this._devicePath}: ${err}`);
           this._onlineStatus = false;
+          logger.warn(`Error writing to ${this._devicePath}: ${err}`);
         }else{
           this._onlineStatus = true;
         }
-        fs.close(fd, (err) => {
-          if (err) {
-            logger.error(`Error closing file: ${err}`);
-          }
-        });
       });
-    });
+    } else {
+      logger.error(`File ${this._devicePath} is not open or does not exist`);
+    }
   }
 
   getStatus() {

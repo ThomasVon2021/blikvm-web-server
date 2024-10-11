@@ -43,9 +43,31 @@ class Keyboard {
     if (!Keyboard._instance) {
       Keyboard._instance = this;
       this._mouse = new Mouse();
+      this._openFile();
       setInterval(() => this.processQueue(), 50);
     }
     return Keyboard._instance;
+  }
+
+  _openFile() {
+    fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
+      if (err) {
+        logger.error(`Error opening file: ${err}`);
+        this._onlineStatus = false;
+        return;
+      }
+      this._fd = fd;
+    });
+  }
+
+  close() {
+    if (this._fd) {
+      fs.close(this._fd, (err) => {
+        if (err) {
+          logger.error(`Error closing file: ${err}`);
+        }
+      });
+    }
   }
 
   /**
@@ -112,34 +134,19 @@ class Keyboard {
     return this._onlineStatus;
   }
 
-  _writeDataToHID(data){
-    if (isDeviceFile(this._devicePath)) {
-      fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
+  _writeDataToHID(data) {
+    if (this._fd) {
+      const dataBuffer = Buffer.from(data);
+      fs.write(this._fd, dataBuffer, (err, written) => {
         if (err) {
-          logger.error(`Error opening file: ${err}`);
           this._onlineStatus = false;
-          return;
+          logger.warn(`Error writing to ${this._devicePath}: ${err}`);
+        }else{
+          this._onlineStatus = true;
         }
-      
-        const dataBuffer = Buffer.from(data);
-      
-        fs.write(fd, dataBuffer, (err, written) => {
-          if (err) {
-            this._onlineStatus = false;
-            logger.warn(`Error writing to ${this._devicePath}: ${err}`);
-          } else{
-            this._onlineStatus = true;
-          }
-          fs.close(fd, (err) => {
-            if (err) {
-              logger.error(`Error closing file: ${err}`);
-            }
-          });
-        });
       });
     } else {
-      this._onlineStatus = false;
-      logger.error(`File ${this._devicePath} does not exist`);
+      logger.error(`File ${this._devicePath} is not open or does not exist`);
     }
   }
 
