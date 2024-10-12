@@ -35,7 +35,7 @@ import {
   apiGetUploadProgress,
   apiGetMakeImageProgress
 } from './msd.route.js';
-import { apiLogin, apiChangeAccount } from './login.route.js';
+import { apiLogin, apiChangeAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount } from './login.route.js';
 import {
   apiEnableSwitch,
   apiGetSwitchState,
@@ -83,6 +83,9 @@ const routes = [
   { path: '/api/msd/delete', handler: apiDeleteImage, method: 'post' },
   { path: '/api/login', handler: apiLogin, method: 'post' },
   { path: '/api/changeaccount', handler: apiChangeAccount, method: 'post' },
+  { path: '/api/account', handler: apiGetUserList, method: 'get' },
+  // { path: '/api/account', handler: apiCreateAccount, method: 'post' },
+  // { path: '/api/account/delete', handler: apiDeleteAccount, method: 'post' },
   { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
   { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },
   { path: '/api/switch/setchannel', handler: apiChangeChannel, method: 'post' },

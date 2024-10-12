@@ -1,10 +1,26 @@
-[
-  {
-    "username": "admin",
-    "password": "admin"
-  },
-  {
-    "username": "blikvm",
-    "password": "blikvm"
-  }
-]
+{
+  "Roles": [
+    {
+      "role": "admin",
+      "description": "full access"
+    },
+    {
+      "role": "readonly",
+      "description": "limited access"
+    }
+  ],
+  "Accounts": [
+    {
+      "username": "admin",
+      "password": "$2b$10$iB3xpN8gl/iXusff8d3xCeRJu5M1s71RFgSveZTKuBymerQREUIja",
+      "role": "admin",
+      "isEnabled": "true"
+    },
+    {
+      "username": "blikvm",
+      "password": "$2b$10$.3cX/1cVKwgTxERqaYpdL.VVE0ippbiAUFtMJLA77vEcAGuuwgmBS",
+      "role": "readonly",
+      "isEnabled": "true"
+    }
+  ]
+}

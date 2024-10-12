@@ -22,19 +22,116 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
+import bcrypt from 'bcrypt';
 import { CONFIG_PATH, JWT_SECRET } from '../../common/constants.js';
 import Logger from '../../log/logger.js';
 import jwt from 'jsonwebtoken';
 
 const logger = new Logger();
 
+const hashEncrypt = async (value) => {
+  const saltRounds = 10;
+  return await bcrypt.hash(value, saltRounds);
+};
+
+const verifiedHash = async (value, hashedValue) => {
+  return await bcrypt.compare(value, hashedValue);
+};
+
 function getUsers() {
   const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-  const users = fs.readFileSync(userManager.userFile, 'utf8');
-  return JSON.parse(users);
+  const { Accounts } =  JSON.parse(fs.readFileSync(userManager.userFile, 'utf8'));
+  return Accounts;
 }
 
-function apiLogin(req, res, next) {
+//TODO
+async function apiCreateAccount(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const { role, username, password } = req.body;
+    if(role !== 'admin') {
+      returnObject.msg = 'Only admin can create accounts!';
+      returnObject.code = ApiCode.INVALID_CREDENTIALS;
+      res.json(returnObject);
+      return;
+    }
+    if (!username || !password) {
+      returnObject.msg = 'Account name and password cannot be empty!';
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      res.json(returnObject);
+      return;
+    }
+    const users = getUsers();
+    const userExists = users.some(user => user.username === username);
+    if (userExists) {
+      returnObject.msg = 'Username already exists!';
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      res.json(returnObject);
+      return;
+    }
+    const hashedPassword = await hashEncrypt(password, 10);
+    const newUser = {
+      role: 'readonly',
+      username,
+      password: hashedPassword
+    };
+    users.push(newUser);
+    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    fs.writeFileSync(userManager.userFile, JSON.stringify(users, null, 2), 'utf8');
+    returnObject.msg = 'Account created successfully!';
+    returnObject.code = ApiCode.OK;
+    res.json(returnObject);
+  }
+  catch (err) {
+    next(err);
+  }
+}
+
+function apiGetUserList(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const users = getUsers();
+    const usernames = users.map(user => user.username);
+    returnObject.code = ApiCode.OK;
+    returnObject.data = usernames;
+    res.json(returnObject);
+  } catch (err) {
+    next(err);
+  }
+}
+
+//TODO
+function apiDeleteAccount(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const { role, username } = req.body;
+    if(role !== 'admin') {
+      returnObject.msg = 'Only admin can delete accounts!';
+      returnObject.code = ApiCode.INVALID_CREDENTIALS;
+      res.json(returnObject);
+      return;
+    }
+    const users = getUsers();
+    const userIndex = users.findIndex(user => user.username === username);
+    if (userIndex === -1) {
+      returnObject.msg = 'Username does not exist!';
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      res.json(returnObject);
+      return;
+    }
+    users.splice(userIndex, 1);
+    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    fs.writeFileSync(userManager.userFile, JSON.stringify(users, null, 2), 'utf8');
+    returnObject.msg = 'Account deleted successfully!';
+    returnObject.code = ApiCode.OK;
+    res.json(returnObject);
+  }
+  catch (err) {
+    next(err);
+  }
+}
+
+async function  apiLogin(req, res, next) {
   try {
     const returnObject = createApiObj();
     const { username, password } = req.body;
@@ -46,9 +143,18 @@ function apiLogin(req, res, next) {
     }
 
     const users = getUsers();
-    const user = users.find((u) => u.username === username && u.password === password);
+    let verified = false;
+    let user = null;
+    for( let i = 0; i < users.length; i++) {
+      user = users[i];
+      const psVerified = await verifiedHash(password, user.password);
+      if( (user.username === username) &&   psVerified) {
+        verified = true;
+        break;
+      }
+    }
 
-    if (!user) {
+    if (verified === false) {
       returnObject.msg = 'The username or password is incorrect!';
       returnObject.code = ApiCode.INVALID_CREDENTIALS;
       return res.json(returnObject);
@@ -68,33 +174,41 @@ function apiLogin(req, res, next) {
     next(err);
   }
 }
+
 async function changeAccount(oriUsername, newUsername, newPassword) {
   try {
-    // Read the configuration file to get the firmware object path
+    // Read the configuration file to get the user file path
     const configData = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const firmwareFilePath = configData.userManager.userFile;
+    const userFilePath = configData.userManager.userFile;
 
-    // Read the firmware file content
-    const firmwareContent = await fsPromises.readFile(firmwareFilePath, 'utf8');
-    const usersArray = JSON.parse(firmwareContent);
+    // Read the user file content
+    const userContent = await fsPromises.readFile(userFilePath, 'utf8');
+    const users = JSON.parse(userContent);
 
-    // Find the user object by oriUsername
-    const user = usersArray.find((user) => user.username === oriUsername);
+    let userFound = false;
 
-    if (!user) {
+    // Iterate through all user arrays
+    for (let account of users.Accounts) {
+      // Find the user object by oriUsername
+      if (account.username === oriUsername) {
+        // Update the username and password
+        account.username = newUsername;
+        account.password = await hashEncrypt(newPassword);
+        userFound = true;
+        break;
+      }
+    }
+
+    if (!userFound) {
       logger.error('Error: User not found');
       return false;
     }
 
-    // Update the username and password
-    user.username = newUsername;
-    user.password = newPassword;
-
-    // Convert the updated array back to JSON format
-    const updatedJsonContent = JSON.stringify(usersArray, null, 2);
+    // Convert the updated object back to JSON format
+    const updatedJsonContent = JSON.stringify(users, null, 2);
 
     // Write the updated content back to the JSON file
-    await fsPromises.writeFile(firmwareFilePath, updatedJsonContent, 'utf8');
+    await fsPromises.writeFile(userFilePath, updatedJsonContent, 'utf8');
 
     return true;
   } catch (error) {
@@ -124,4 +238,4 @@ async function apiChangeAccount(req, res, next) {
   }
 }
 
-export { apiLogin, apiChangeAccount };
+export { apiLogin, apiChangeAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount };
