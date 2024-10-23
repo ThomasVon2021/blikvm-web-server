@@ -98,6 +98,23 @@ The recommended format is as follows:
 
 `subject` is a short description of the commit, which is recommended to be no more than 50 characters.
 
+## 6. How to build
+You need to build client first, then cp dist to server, then build server.
+```
+# build client
+cd web_client
+npm install
+npm run build
+cp -r dist ../web_server
+cd ../
+
+# build server
+cd ./web_server
+npm install
+npm run clean
+npm run build
+```
+
 ## License
 Copyright (C) 2018-2024 by blicube info@blicube.com
 
