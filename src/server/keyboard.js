@@ -44,7 +44,7 @@ class Keyboard {
       Keyboard._instance = this;
       this._mouse = new Mouse();
       this._openFile();
-      setInterval(() => this.processQueue(), 50);
+      setInterval(() => this.processQueue(), 10);
     }
     return Keyboard._instance;
   }

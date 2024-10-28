@@ -18,8 +18,6 @@
     "userFile": "./config/user.json"
   },
   "server": {
-    "protocol": "https",
-    "port": 443,
     "ssl": {
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"

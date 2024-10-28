@@ -46,7 +46,7 @@ class Mouse {
       this._init();
       Mouse._instance = this;
       this._openFile();
-      setInterval(() => this.processQueue(), 50);
+      setInterval(() => this.processQueue(), 10);
     }
     return Mouse._instance;
   }

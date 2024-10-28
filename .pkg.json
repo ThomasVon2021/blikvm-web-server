@@ -5,6 +5,7 @@
     "build/src/server/dist/**/*",
     "node_modules/@serialport/bindings-cpp/prebuilds/linux-arm64/node.napi.armv8.node",
     "node_modules/tesseract.js/**/*",
-    "node_modules/unix-dgram/build/**/*"
+    "node_modules/unix-dgram/build/**/*",
+    "node_modules/bcrypt/lib/binding/**/*"
   ]
 }
