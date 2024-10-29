@@ -154,6 +154,7 @@ class Mouse {
       });
     } else {
       logger.error(`File ${this._devicePath} is not open or does not exist`);
+      this._openFile();
     }
   }
 
