@@ -44,7 +44,6 @@ function getUsers() {
   return Accounts;
 }
 
-//TODO
 async function apiCreateAccount(req, res, next) {
   try {
     const returnObject = createApiObj();
@@ -71,13 +70,16 @@ async function apiCreateAccount(req, res, next) {
     }
     const hashedPassword = await hashEncrypt(password, 10);
     const newUser = {
-      role: 'readonly',
       username,
-      password: hashedPassword
+      password: hashedPassword,
+      role: 'readonly',
+      isEnabled: 'true'
     };
-    users.push(newUser);
     const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    fs.writeFileSync(userManager.userFile, JSON.stringify(users, null, 2), 'utf8');
+    const userFile =  JSON.parse(fs.readFileSync(userManager.userFile, 'utf8'));
+    userFile.Accounts.push(newUser);
+
+    fs.writeFileSync(userManager.userFile, JSON.stringify(userFile, null, 2), 'utf8');
     returnObject.msg = 'Account created successfully!';
     returnObject.code = ApiCode.OK;
     res.json(returnObject);
@@ -111,7 +113,11 @@ function apiDeleteAccount(req, res, next) {
       res.json(returnObject);
       return;
     }
-    const users = getUsers();
+
+    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    const userFile =  JSON.parse(fs.readFileSync(userManager.userFile, 'utf8'));
+
+    const users = userFile.Accounts;
     const userIndex = users.findIndex(user => user.username === username);
     if (userIndex === -1) {
       returnObject.msg = 'Username does not exist!';
@@ -119,9 +125,9 @@ function apiDeleteAccount(req, res, next) {
       res.json(returnObject);
       return;
     }
+
     users.splice(userIndex, 1);
-    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    fs.writeFileSync(userManager.userFile, JSON.stringify(users, null, 2), 'utf8');
+    fs.writeFileSync(userManager.userFile, JSON.stringify(userFile, null, 2), 'utf8');
     returnObject.msg = 'Account deleted successfully!';
     returnObject.code = ApiCode.OK;
     res.json(returnObject);
@@ -200,7 +206,7 @@ async function changeAccount(oriUsername, newUsername, newPassword) {
     }
 
     if (!userFound) {
-      logger.error('Error: User not found');
+      logger.error(`Error: User ${oriUsername} not found`);
       return false;
     }
 
@@ -217,7 +223,7 @@ async function changeAccount(oriUsername, newUsername, newPassword) {
   }
 }
 
-async function apiChangeAccount(req, res, next) {
+async function apiUpdateAccount(req, res, next) {
   try {
     const { newUsername, newPassword } = req.body;
     const oriUsername = req.headers.username;
@@ -238,4 +244,4 @@ async function apiChangeAccount(req, res, next) {
   }
 }
 
-export { apiLogin, apiChangeAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount };
+export { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount };
