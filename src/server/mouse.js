@@ -27,49 +27,26 @@ import Logger from '../log/logger.js';
 import { isDeviceFile } from '../common/tool.js';
 import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
-import { constants } from 'fs';
+import  HIDDevice  from '../modules/hid_devices.js';
+
 
 const logger = new Logger();
 
-class Mouse {
-  static _instance = null;
-  _onlineStatus = true;
-  _lastUserInteraction = Date.now();
+class Mouse extends HIDDevice {
   _jigglerActive = false;
   _jigglerTimeDiff = 60000;  //uint: ms
-  _devicePath = '/dev/hidg1';
-  eventQueue = []; 
-  isProcessing = false;
 
   constructor() {
     if (!Mouse._instance) {
+      super();
       this._init();
       Mouse._instance = this;
-      this._openFile();
+      this._devicePath = '/dev/hidg1';
+      this.open();
       setInterval(() => this.processQueue(), 10);
+      
     }
     return Mouse._instance;
-  }
-
-  _openFile() {
-    fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
-      if (err) {
-        logger.error(`Error opening file: ${err}`);
-        this._onlineStatus = false;
-        return;
-      }
-      this._fd = fd;
-    });
-  }
-
-  close() {
-    if (this._fd) {
-      fs.close(this._fd, (err) => {
-        if (err) {
-          logger.error(`Error closing file: ${err}`);
-        }
-      });
-    }
   }
 
   _init() {
@@ -77,10 +54,6 @@ class Mouse {
     this._absoluteMode = hid.absoluteMode;
     this._jigglerActive = hid.mouseJiggler;
     this._jigglerLoop();
-  }
-
-  updateUserInteraction(){
-    this._lastUserInteraction = Date.now();
   }
 
   /**
@@ -119,47 +92,9 @@ class Mouse {
       );
     }
 
-    if (isDeviceFile(this._devicePath)) {
-      //this._writeData(data);
+    if (isDeviceFile(this._devicePath) && !this.isClosing) {
       this.eventQueue.push(data);
     }
-  }
-
-    /**
-   * Processes the queued events, one every 50ms.
-   */
-    processQueue() {
-      if (this.isProcessing || this.eventQueue.length === 0) {
-        return;
-      }
-  
-      this.isProcessing = true;
-  
-      const data = this.eventQueue.shift(); 
-      this._writeData(data);
-  
-      this.isProcessing = false;
-    }
-
-  _writeData(data) {
-    if (this._fd) {
-      const dataBuffer = Buffer.from(data);
-      fs.write(this._fd, dataBuffer, (err, written) => {
-        if (err) {
-          this._onlineStatus = false;
-          logger.warn(`Error writing to ${this._devicePath}: ${err}`);
-        }else{
-          this._onlineStatus = true;
-        }
-      });
-    } else {
-      logger.error(`File ${this._devicePath} is not open or does not exist`);
-      this._openFile();
-    }
-  }
-
-  getStatus() {
-    return this._onlineStatus;
   }
 
   /**

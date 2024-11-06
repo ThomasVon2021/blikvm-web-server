@@ -31,7 +31,6 @@ import HID from './modules/kvmd/kvmd_hid.js';
 import KVMSwitchFactory from './modules/kvmd/switch/kvmd_switch.js';
 import { CONFIG_PATH, UTF8 } from './common/constants.js';
 import {NotificationType, Notification } from './modules/notification.js';
-import Mouse from './server/mouse.js';
 
 const logger = new Logger();
 const notification = new Notification();
@@ -90,7 +89,6 @@ function startHid() {
     const hidHandle = new HID();
     const mode = hid.absoluteMode ? 'true' : 'false';
     hidHandle.startService(mode);
-    const mouse = new Mouse();
   }
 }
 

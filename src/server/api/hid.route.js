@@ -21,18 +21,25 @@
 import { ApiCode, createApiObj } from '../../common/api.js';
 import HID from '../../modules/kvmd/kvmd_hid.js';
 import Keyboard from '../keyboard.js';
+import Mouse from '../mouse.js';
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import fs from 'fs';
+
 
 function apiEnableHID(req, res, next) {
   try {
     const returnObject = createApiObj();
     const action = req.query.action;
     const hid = new HID();
+    const mouse = new Mouse();
+    const keyboard = new Keyboard();
     if (action === 'enable') {
       hid
         .startService()
         .then(() => {
+          mouse.open();
+          keyboard.open();
+
           returnObject.msg = 'hid enable success';
           res.json(returnObject);
         })
@@ -42,6 +49,10 @@ function apiEnableHID(req, res, next) {
           res.json(returnObject);
         });
     } else if (action === 'disable') {
+
+      mouse.close();
+      keyboard.close();
+
       hid
         .closeService()
         .then(() => {

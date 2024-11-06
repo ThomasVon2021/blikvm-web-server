@@ -24,50 +24,25 @@
  * @module api/http_api/keyboard
  */
 
-import fs from 'fs';
+
 import Logger from '../log/logger.js';
-import { isDeviceFile } from '../common/tool.js';
 import Mouse from './mouse.js';
-import { constants } from 'fs';
+import  HIDDevice  from '../modules/hid_devices.js';
 
 const logger = new Logger();
 
-class Keyboard {
-  static _instance = null;
-  _onlineStatus = true;
-  _devicePath = '/dev/hidg0';
-  eventQueue = []; 
-  isProcessing = false;
+class Keyboard extends HIDDevice {
 
   constructor() {
     if (!Keyboard._instance) {
+      super();
       Keyboard._instance = this;
       this._mouse = new Mouse();
-      this._openFile();
+      this._devicePath = '/dev/hidg0';
+      this.open();
       setInterval(() => this.processQueue(), 10);
     }
     return Keyboard._instance;
-  }
-
-  _openFile() {
-    fs.open(this._devicePath, constants.O_WRONLY | constants.O_NONBLOCK, (err, fd) => {
-      if (err) {
-        logger.error(`Error opening file: ${err}`);
-        this._onlineStatus = false;
-        return;
-      }
-      this._fd = fd;
-    });
-  }
-
-  close() {
-    if (this._fd) {
-      fs.close(this._fd, (err) => {
-        if (err) {
-          logger.error(`Error closing file: ${err}`);
-        }
-      });
-    }
   }
 
   /**
@@ -80,22 +55,6 @@ class Keyboard {
     this.eventQueue.push(keyboardData); 
   }
 
-  /**
-   * Processes the queued events, one every 50ms.
-   */
-  processQueue() {
-    if (this.isProcessing || this.eventQueue.length === 0) {
-      return;
-    }
-
-    this.isProcessing = true;
-
-    const keyboardData = this.eventQueue.shift(); 
-    this._writeDataToHID(keyboardData);
-
-    this.isProcessing = false;
-  }
-
   pasteData(data) {
     let index = 0;
   
@@ -103,9 +62,9 @@ class Keyboard {
       if (index < data.length) {
         const char = data[index];
         const keyboardData = this._char2hid(char);
-        this._writeDataToHID(keyboardData);
+        this._writeData(keyboardData);
         const zeroData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-        this._writeDataToHID(zeroData);
+        this._writeData(zeroData);
         // Move to the next character and schedule the next processing
         index++;
         setTimeout(processNextChar, 50);
@@ -113,7 +72,7 @@ class Keyboard {
         // After processing all characters, send the release data
         setTimeout(() => {
           const releaseData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-          this._writeDataToHID(releaseData);
+          this._writeData(releaseData);
         }, 50);
       }
     };
@@ -126,31 +85,9 @@ class Keyboard {
     this.handleEvent(data);
     setTimeout(() => {
       const releaseData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-      this._writeDataToHID(releaseData);
+      this._writeData(releaseData);
     }, 50);
   }
-
-  getStatus() {
-    return this._onlineStatus;
-  }
-
-  _writeDataToHID(data) {
-    if (this._fd) {
-      const dataBuffer = Buffer.from(data);
-      fs.write(this._fd, dataBuffer, (err, written) => {
-        if (err) {
-          this._onlineStatus = false;
-          logger.warn(`Error writing to ${this._devicePath}: ${err}`);
-        }else{
-          this._onlineStatus = true;
-        }
-      });
-    } else {
-      logger.error(`File ${this._devicePath} is not open or does not exist`);
-      this._openFile();
-    }
-  }
-
 
   /**
    * Packs the given data into a binary format.

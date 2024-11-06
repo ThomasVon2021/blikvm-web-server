@@ -24,7 +24,8 @@ iso_files=()
 count_value=0
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 ventoy_dir="/mnt/msd/ventoy"
-ventoy_bin_dir="&=$SCRIPT_DIR/ventoy-1.0.97"
+ventoy_bin_dir="&=$SCRIPT_DIR/ventoy-1.0.99"
+ventoy_disk_sh="$SCRIPT_DIR/ventoy-1.0.99/Ventoy2Disk.sh"
 iso_dir="/mnt/msd/user"
 mount_dist_dir="/media/blikvm/ventoy/"
 usb_gadget_sh="$SCRIPT_DIR/hid/enable-gadget.sh"
@@ -289,7 +290,7 @@ case ${CMD} in
 
         if [ "$TYPE" = "ventoy" ] 
         then
-                sh /usr/bin/blikvm/ventoy-1.0.88/Ventoy2Disk.sh -i $dev_name;
+                bash $ventoy_disk_sh -i $dev_name;
         fi
 
         mkdir -p $mount_dist_dir

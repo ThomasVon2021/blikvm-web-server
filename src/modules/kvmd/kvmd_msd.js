@@ -225,62 +225,62 @@ class MSD {
     }
   }
 
-  connectMSD(req, res, next) {
+  async connectMSD(req, res, next) {
     const returnObject = createApiObj();
     const state = this.getMSDState();
+  
     if (state.msd_img_created !== 'created') {
-      returnObject.msg = "usb drive not created, you can't exec conenct command";
+      returnObject.msg = "usb drive not created, you can't exec connect command";
       returnObject.code = ApiCode.ok;
       returnObject.data = state;
-      res.json(returnObject);
-      return;
+      return res.json(returnObject);
     }
+  
     const action = req.query.action;
     const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    if (action === 'true') {
-      if (state.msd_status === 'connected') {
-        returnObject.msg = 'usb drive alreadly conected to host';
-        returnObject.code = ApiCode.ok;
-        returnObject.data = state;
-        res.json(returnObject);
-        return;
-      }
-      logger.info('Connect MSD');
-      const cmd = `bash ${msd.shell} -c conn`;
-      executeCMD(cmd)
-        .then(() => {
-          returnObject.msg = `${cmd} ok`;
+  
+    try {
+      if (action === 'true') {
+        if (state.msd_status === 'connected') {
+          returnObject.msg = 'usb drive already connected to host';
           returnObject.code = ApiCode.ok;
-          returnObject.data = this.getMSDState();
-          res.json(returnObject);
-        })
-        .catch((err) => {
-          next(err);
-        });
-    } else {
-      logger.info('disconnect MSD');
-      if (state.msd_status === 'not_connected') {
-        returnObject.msg = 'usb drive alreadly disconected to host';
+          returnObject.data = state;
+          return res.json(returnObject);
+        }
+  
+        const cmd = `bash ${msd.shell} -c conn`;
+        await executeCMD(cmd); 
+  
+        logger.info('Connected MSD');
+        returnObject.msg = `${cmd} ok`;
         returnObject.code = ApiCode.ok;
-        returnObject.data = state;
-        res.json(returnObject);
-        return;
-      }
-      const cmd = `bash ${msd.shell} -c disconn`;
-      executeCMD(cmd)
-        .then(() => {
-          returnObject.msg = `${cmd} ok`;
+        returnObject.data = this.getMSDState();
+        return res.json(returnObject);
+        
+      } else {
+        if (state.msd_status === 'not_connected') {
+          returnObject.msg = 'usb drive already disconnected from host';
           returnObject.code = ApiCode.ok;
-          returnObject.data = this.getMSDState();
-          res.json(returnObject);
-        })
-        .catch((err) => {
-          next(err);
-        });
+          returnObject.data = state;
+          return res.json(returnObject);
+        }
+  
+        const cmd = `bash ${msd.shell} -c disconn`;
+        await executeCMD(cmd);  // 使用 await 确保执行完成
+  
+        logger.info('Disconnected MSD');
+        returnObject.msg = `${cmd} ok`;
+        returnObject.code = ApiCode.ok;
+        returnObject.data = this.getMSDState();
+        return res.json(returnObject);
+      }
+    } catch (err) {
+      next(err);
     }
   }
+  
 
-  removeMSD(req, res, next) {
+  async removeMSD(req, res, next) {
     const returnObject = createApiObj();
     const state = this.getMSDState();
     if (state.msd_img_created !== 'created') {
@@ -293,16 +293,15 @@ class MSD {
     const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     const cmd = `bash ${msd.shell} -c clean`;
     logger.info(`Remove MSD: ${cmd}`);
-    executeCMD(cmd)
-      .then(() => {
-        returnObject.msg = 'remove msd image ok';
-        returnObject.code = ApiCode.ok;
-        returnObject.data = this.getMSDState();
-        res.json(returnObject);
-      })
-      .catch((err) => {
-        next(err);
-      });
+    try{
+      await executeCMD(cmd);
+      returnObject.msg = 'remove msd image ok';
+      returnObject.code = ApiCode.ok;
+      returnObject.data = this.getMSDState();
+      res.json(returnObject);
+    }catch (err) {
+      next(err);
+    }
   }
 
   async getImages(dir) {

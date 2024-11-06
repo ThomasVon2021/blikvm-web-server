@@ -21,7 +21,8 @@
 *****************************************************************************/
 import { ApiCode, createApiObj } from '../../common/api.js';
 import MSD from '../../modules/kvmd/kvmd_msd.js';
-
+import Mouse from '../mouse.js';
+import Keyboard from '../keyboard.js';
 /**
  * /api/msd/state
  * /api/msd/upload?image=test.iso
@@ -67,10 +68,19 @@ function apiState(req, res, next) {
   }
 }
 
-function apiConnect(req, res, next) {
+async function apiConnect(req, res, next) {
   try {
+    const mouse = new Mouse();
+    mouse.close();
+    const keyboard = new Keyboard();
+    keyboard.close();
+
     const msd = new MSD();
-    msd.connectMSD(req, res, next);
+    await msd.connectMSD(req, res, next);
+
+    mouse.open();
+    keyboard.open();
+    
   } catch (err) {
     next(err);
   }
@@ -88,9 +98,18 @@ async function apiImages(req, res, next) {
   }
 }
 
-function apiRemoveMSD(req, res, next) {
+async function apiRemoveMSD(req, res, next) {
+
+  const mouse = new Mouse();
+  mouse.close();
+  const keyboard = new Keyboard();
+  keyboard.close();
+
   const msd = new MSD();
-  msd.removeMSD(req, res, next);
+  await msd.removeMSD(req, res, next);
+
+  mouse.open();
+  keyboard.open();
 }
 
 function apiDeleteImage(req, res, next) {
