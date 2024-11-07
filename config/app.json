@@ -65,9 +65,18 @@
       ]
     }
   },
+  "display":{
+    "isActive": true,
+    "mode": 1,              
+    "onBootTime": 3600,     
+    "cycleInterval": 60,
+    "displayTime": 10
+  },
   "atx": {
     "controlSockFilePath": "/var/blikvm/atx.sock",
-    "stateSockFilePath": "/dev/shm/blikvm/atx"
+    "stateSockFilePath": "/dev/shm/blikvm/atx",
+    "power_on_delay": 500,
+    "power_off_delay": 5000
   },
   "msd": {
     "isoFilePath": "/mnt/msd/user",
