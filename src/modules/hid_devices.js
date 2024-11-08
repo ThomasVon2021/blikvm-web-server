@@ -114,7 +114,7 @@ class HIDDevice {
 
         if (this._fd !== null) {
             const dataBuffer = Buffer.from(data);
-            logger.info(`Writing to ${this._devicePath}`);
+            //logger.info(`Writing to ${this._devicePath}`);
             fs.write(this._fd, dataBuffer, (err, written) => {
                 if (err) {
                     this._onlineStatus = false;
