@@ -1,4 +1,5 @@
 {
+  "version": 1,
   "device": "./config/device.json",
   "log": {
     "console": {
@@ -34,7 +35,9 @@
     "fps": 30,
     "quality": 80,
     "kbps": 5000,
-    "gop": 30
+    "gop": 30,
+    "recordPath": "/mnt/tmp/record",
+    "recordBin": "./lib/pi/ustreamer-dump"
   },
   "kvmd": {
     "bin": "./lib/pi/kvmd-main",

@@ -19,8 +19,11 @@
 #                                                                            #
 *****************************************************************************/
 import Video from '../../modules/video/video.js';
+import MJPEGStreamRecorder from '../../modules/video/MJPEGStreamRecorder.js';
+import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import Logger from '../../log/logger.js';
+
 
 const logger = new Logger();
 
@@ -127,4 +130,50 @@ async function wsGetVideoState() {
   }
 }
 
-export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState };
+function apiStartRecording(req, res, next) {
+  try {
+    const recorder = new MJPEGStreamRecorder();
+    recorder.startRecording()
+    .then(() => {
+      logger.info('Recording started successfully');
+    })
+    .catch((error) => {
+      logger.error('Failed to start recording:', error.message);
+    });
+    const ret = createApiObj();
+    ret.msg = 'Recording started successfully.';
+    res.json(ret);
+  } catch (error) {
+    next(error);
+  }
+}
+
+function apiStopRecording(req, res, next) {
+  try {
+    const ret = createApiObj();
+    const recorder = new MJPEGStreamRecorder();
+    recorder.stopRecording();
+    ret.msg = 'Recording stopped and saved.';
+    res.json(ret);
+  } catch (error) {
+    next(error);
+  }
+}
+
+function apiRecording(req, res, next) {
+  try {
+    const action = req.query.action;
+    if (action === 'start') {
+      apiStartRecording(req, res, next);
+    } else if (action === 'stop') {
+      apiStopRecording(req, res, next);
+    } else {
+      res.status(400).json({ message: 'Invalid action' });
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording };

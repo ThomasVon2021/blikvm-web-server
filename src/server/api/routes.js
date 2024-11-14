@@ -21,7 +21,7 @@
 *****************************************************************************/
 import { apiATXClick, apiATXState } from './atx.route.js';
 import state from './state.route.js';
-import { apiVideoControl, apiVideoConfig, apiGetVideoState } from './video.route.js';
+import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig } from './hid.route.js';
 import {
@@ -45,7 +45,7 @@ import {
   apiGetSwitchList,
   apiSetSwitchModule
 } from './switch.route.js';
-import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
+import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs, apiGetBoard } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
 import { apiMouseJiggler } from './mouse.route.js';
@@ -62,9 +62,12 @@ const routes = [
   { path: '/api/atx/state', handler: apiATXState, method: 'post' },
   { path: '/api/atx/click', handler: apiATXClick, method: 'post' },
   { path: '/api/state', handler: state, method: 'post' },
+  
   { path: '/api/video', handler: apiVideoControl, method: 'post' },
   { path: '/api/video/config', handler: apiVideoConfig, method: 'post' },
   { path: '/api/video/state', handler: apiGetVideoState, method: 'post' },
+  { path: '/api/video/record', handler: apiRecording, method: 'post' },
+  
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: apiEnableHID, method: 'post' },
   { path: '/api/hid/mode', handler: apiChangeMode, method: 'post' },
@@ -94,6 +97,7 @@ const routes = [
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
   { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
+  { path: '/api/board', handler: apiGetBoard, method: 'get' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },

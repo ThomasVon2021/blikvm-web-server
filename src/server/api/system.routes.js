@@ -27,6 +27,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import {Notification, NotificationType} from '../../modules/notification.js';
+import si from 'systeminformation';
 
 const notification = new Notification();
 
@@ -34,6 +35,23 @@ function apiReboot(req, res, next) {
   try {
     executeCMD('reboot');
   } catch (error) {
+    next(error);
+  }
+}
+
+function apiGetBoard(req, res, next) {
+  try{
+    si.system().then(data => {
+      console.log(data);
+      const returnObject = createApiObj();
+      returnObject.code = ApiCode.OK;
+      returnObject.data = {
+        board: data.model,
+        serial: data.serial
+      };
+      res.json(returnObject);
+    })
+  }catch(error){
     next(error);
   }
 }
@@ -68,7 +86,6 @@ function apiGetDevice(req, res, next) {
     next(error);
   }
 }
-
 
 
 async function apiGetSystemInfo(req, res, next) {
@@ -124,4 +141,4 @@ const apiGetLogs = async (req, res, next) => {
   }
 };
 
-export { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs };
+export { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs, apiGetBoard };

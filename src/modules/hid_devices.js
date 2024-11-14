@@ -20,7 +20,6 @@
 *****************************************************************************/
 
 import Logger from '../log/logger.js';
-import { isDeviceFile } from '../common/tool.js';
 import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
 import { constants } from 'fs';
@@ -92,19 +91,24 @@ class HIDDevice {
    * Processes the queued events, one every 50ms.
    */
     processQueue() {
-        if (this.isProcessing || this.eventQueue.length === 0) {
-            return;
-        } else if (this.isClosing) {
-            this.eventQueue = [];
+        if (this.isProcessing || this.isClosing) {
             return;
         }
-
+    
         this.isProcessing = true;
-
-        const data = this.eventQueue.shift();
-        this._writeData(data);
-
-        this.isProcessing = false;
+    
+        const processNext = () => {
+            if (this.eventQueue.length === 0) {
+                this.isProcessing = false;
+                return;
+            }
+    
+            const data = this.eventQueue.shift();
+            this._writeData(data);
+            setImmediate(processNext);
+        };
+    
+        processNext();
     }
 
     _writeData(data) {
