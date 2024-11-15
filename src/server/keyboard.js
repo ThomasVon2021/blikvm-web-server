@@ -40,7 +40,7 @@ class Keyboard extends HIDDevice {
       this._mouse = new Mouse();
       this._devicePath = '/dev/hidg0';
       this.open();
-      setInterval(() => this.processQueue(), 10);
+      this.startWriteToHid();
     }
     return Keyboard._instance;
   }
@@ -52,7 +52,7 @@ class Keyboard extends HIDDevice {
   handleEvent(event) {
     this._mouse.updateUserInteraction();
     const keyboardData = this._packData(event);
-    this.eventQueue.push(keyboardData); 
+    this.writeToQueue(keyboardData);
   }
 
   pasteData(data) {

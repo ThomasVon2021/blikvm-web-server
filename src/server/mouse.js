@@ -43,8 +43,7 @@ class Mouse extends HIDDevice {
       Mouse._instance = this;
       this._devicePath = '/dev/hidg1';
       this.open();
-      setInterval(() => this.processQueue(), 10);
-      
+      this.startWriteToHid();
     }
     return Mouse._instance;
   }
@@ -93,7 +92,7 @@ class Mouse extends HIDDevice {
     }
 
     if (isDeviceFile(this._devicePath) && !this.isClosing) {
-      this.eventQueue.push(data);
+      this.writeToQueue(data);
     }
   }
 

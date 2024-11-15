@@ -28,6 +28,9 @@ import path from 'path';
 import { exec } from 'child_process';
 import {Notification, NotificationType} from '../../modules/notification.js';
 import si from 'systeminformation';
+import Logger from '../../log/logger.js';
+
+const logger = new Logger();
 
 const notification = new Notification();
 
@@ -39,19 +42,55 @@ function apiReboot(req, res, next) {
   }
 }
 
+function readSerialNumber() {
+  return new Promise((resolve, reject) => {
+    fs.readFile('/proc/device-tree/serial-number', 'utf8', (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(data.replace(/\u0000/g, '').trim());
+    });
+  });
+}
+
 function apiGetBoard(req, res, next) {
-  try{
-    si.system().then(data => {
-      console.log(data);
-      const returnObject = createApiObj();
-      returnObject.code = ApiCode.OK;
-      returnObject.data = {
-        board: data.model,
-        serial: data.serial
-      };
-      res.json(returnObject);
-    })
-  }catch(error){
+  try {
+    Promise.all([si.system(), si.cpu(),readSerialNumber()])
+      .then(([systemData, cpuData, serialNumber]) => {
+        const returnObject = createApiObj();
+        returnObject.code = ApiCode.OK;
+        returnObject.data = {
+          board: {
+            manufacturer: systemData.manufacturer || 'Unknown',
+            model: systemData.model || 'Unknown',
+            version: systemData.version || 'Unknown',
+            serial: systemData.serial || 'Unknown',
+            type: systemData.type || 'Unknown',
+            cpu: {
+              manufacturer: cpuData.manufacturer || 'Unknown',
+              processor: cpuData.brand || 'Unknown',
+              revision: cpuData.revision || 'Unknown',
+              vendor: cpuData.vendor || 'Unknown',            
+            }
+          }
+        };
+        const hardwareType = getHardwareType();
+        if(hardwareType === HardwareType.MangoPi){
+          returnObject.data.board.manufacturer = "MangoPi";
+          returnObject.data.board.model = "MangoPi MCore";
+          returnObject.data.board.serial = serialNumber;
+          returnObject.data.board.type = "mangopi";
+          returnObject.data.board.cpu.manufacturer = "Allwinner Technology Co";
+          returnObject.data.board.cpu.processor = "H316 or H616";
+        }else if(hardwareType === HardwareType.PI4B || hardwareType === HardwareType.CM4){
+          returnObject.data.board.type = systemData.raspberry.type;
+        }
+        res.json(returnObject);
+      })
+      .catch(error => {
+        next(error);
+      });
+  } catch (error) {
     next(error);
   }
 }

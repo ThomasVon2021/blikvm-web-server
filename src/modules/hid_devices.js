@@ -23,18 +23,45 @@ import Logger from '../log/logger.js';
 import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
 import { constants } from 'fs';
+import Queue from '../common/queue.js';
 
 const logger = new Logger();
 
-class HIDDevice {
+class HIDDevice{
     static _instance = null;
     _onlineStatus = true;
     _lastUserInteraction;
     _devicePath = '';
-    eventQueue = [];
+    eventQueue = new Queue();
     isProcessing = false;
     isClosing = false;
     _fd = null;
+
+    writeToQueue(data) {
+        this.eventQueue.enqueue(data);
+    }
+
+    readData() {
+        return new Promise((resolve) => {
+            if (this.eventQueue.isEmpty()) {
+                resolve(null);
+            } else {
+                const data = this.eventQueue.dequeue();
+                this._writeData(data);
+                resolve();
+            }
+        });
+    }
+
+    async startWriteToHid() {
+        while (true) {
+            while (!this.eventQueue.isEmpty()) {
+                await this.readData();
+            }
+
+            await new Promise((resolve) => this.eventQueue.once('data', resolve));
+        }
+    }
 
     open() {
         return new Promise((resolve, reject) => {
@@ -85,30 +112,6 @@ class HIDDevice {
 
     handleEvent(event) {
         throw new Error('must overwrite by children class');
-    }
-
-    /**
-   * Processes the queued events, one every 50ms.
-   */
-    processQueue() {
-        if (this.isProcessing || this.isClosing) {
-            return;
-        }
-    
-        this.isProcessing = true;
-    
-        const processNext = () => {
-            if (this.eventQueue.length === 0) {
-                this.isProcessing = false;
-                return;
-            }
-    
-            const data = this.eventQueue.shift();
-            this._writeData(data);
-            setImmediate(processNext);
-        };
-    
-        processNext();
     }
 
     _writeData(data) {

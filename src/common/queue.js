@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -19,47 +18,30 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-/**
- * This module defines the API object and its default values.
- * @module api/common/api
- */
 
-/**
- * The version of the API.
- * @type {string}
- */
-const API_VERSION = '1.5.1';
+import {EventEmitter} from 'events';
 
-/**
- * Represents the error codes used in the API.
- * 100-199 indicates request error,
- * 200-299 indicates server error.
- * @enum {number}
- */
-const ApiCode = {
-  OK: 0,
-  INVALID_CREDENTIALS: 100,
-  NULL_TOKEN: 101,
-  INVALID_TOKEN: 102,
-  INVALID_INPUT_PARAM: 200,
-  INTERNAL_SERVER_ERROR: 300
-};
+class Queue extends EventEmitter {
+    constructor() {
+        super();
+        this.items = [];
+    }
 
-/**
- * Creates an API object with default values.
- * @returns {Object} The created API object.
- * @property {string} version The version of the API.
- * @property {string} msg The message of the API.
- * @property {ApiCode} code The error code of the API.
- * @property {Object} data The data of the API.
- */
-function createApiObj() {
-  return {
-    version: API_VERSION,
-    msg: '',
-    code: ApiCode.OK,
-    data: {}
-  };
+    enqueue(item) {
+        this.items.push(item);
+        this.emit('data');
+    }
+
+    dequeue() {
+        if (this.isEmpty()) {
+            return null;
+        }
+        return this.items.shift();
+    }
+
+    isEmpty() {
+        return this.items.length === 0;
+    }
 }
 
-export { API_VERSION, ApiCode, createApiObj };
+export default Queue;
