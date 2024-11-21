@@ -45,7 +45,7 @@ import {
   apiGetSwitchList,
   apiSetSwitchModule
 } from './switch.route.js';
-import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs, apiGetBoard } from './system.routes.js';
+import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
 import { apiMouseJiggler } from './mouse.route.js';
@@ -97,7 +97,6 @@ const routes = [
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
   { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
-  { path: '/api/board', handler: apiGetBoard, method: 'get' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },

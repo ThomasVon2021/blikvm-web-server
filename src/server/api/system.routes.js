@@ -53,13 +53,16 @@ function readSerialNumber() {
   });
 }
 
-function apiGetBoard(req, res, next) {
+function apiGetSystemInfo(req, res, next) {
   try {
-    Promise.all([si.system(), si.cpu(),readSerialNumber()])
-      .then(([systemData, cpuData, serialNumber]) => {
+    Promise.all([si.system(), si.cpu(),readSerialNumber(), getSystemInfo()])
+      .then(([systemData, cpuData, serialNumber, systemInfo]) => {
         const returnObject = createApiObj();
         returnObject.code = ApiCode.OK;
         returnObject.data = {
+          cpuLoad: systemInfo.cpuLoad,
+          uptime: systemInfo.uptime,
+          temperature: systemInfo.temperature,
           board: {
             manufacturer: systemData.manufacturer || 'Unknown',
             model: systemData.model || 'Unknown',
@@ -126,18 +129,6 @@ function apiGetDevice(req, res, next) {
   }
 }
 
-
-async function apiGetSystemInfo(req, res, next) {
-  try {
-    const returnObject = createApiObj();
-    returnObject.code = ApiCode.OK;
-    returnObject.data = await getSystemInfo();
-    res.json(returnObject);
-  } catch (error) {
-    next(error);
-  }
-}
-
 const apiGetLogs = async (req, res, next) => {
   try {
     const { log } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
@@ -180,4 +171,4 @@ const apiGetLogs = async (req, res, next) => {
   }
 };
 
-export { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs, apiGetBoard };
+export { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs };
