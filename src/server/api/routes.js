@@ -49,6 +49,7 @@ import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
 import { apiMouseJiggler } from './mouse.route.js';
+import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
 
 /**
  * Array of route objects.
@@ -84,11 +85,17 @@ const routes = [
   { path: '/api/msd/images', handler: apiImages, method: 'post' },
   { path: '/api/msd/remove', handler: apiRemoveMSD, method: 'post' },
   { path: '/api/msd/delete', handler: apiDeleteImage, method: 'post' },
+
   { path: '/api/login', handler: apiLogin, method: 'post' },
   { path: '/api/account/update', handler: apiUpdateAccount, method: 'post' },
   { path: '/api/account', handler: apiGetUserList, method: 'get' },
   { path: '/api/account/create', handler: apiCreateAccount, method: 'post' },
   { path: '/api/account/delete', handler: apiDeleteAccount, method: 'post' },
+ 
+  { path: '/api/2fa', handler: apiTwoFa, method: 'post' },
+  { path: '/api/2fa/info', handler: apiGetTwoFaInfo, method: 'post' },
+  { path: '/api/2fa/verify', handler: apiTwoFaVerify, method: 'post' },
+
   { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
   { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },
   { path: '/api/switch/setchannel', handler: apiChangeChannel, method: 'post' },

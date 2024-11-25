@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -19,6 +18,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
+
 import { ApiCode, createApiObj } from '../../common/api.js';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
@@ -26,6 +26,7 @@ import bcrypt from 'bcrypt';
 import { CONFIG_PATH, JWT_SECRET } from '../../common/constants.js';
 import Logger from '../../log/logger.js';
 import jwt from 'jsonwebtoken';
+import TwoFactorAuth from '../../modules/two_factor_auth.js';
 
 const logger = new Logger();
 
@@ -140,7 +141,7 @@ function apiDeleteAccount(req, res, next) {
 async function  apiLogin(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const { username, password } = req.body;
+    const { username, password, twoFaCode} = req.body;
 
     if (!username || !password) {
       returnObject.msg = 'Account name and password cannot be empty!';
@@ -165,6 +166,17 @@ async function  apiLogin(req, res, next) {
       returnObject.code = ApiCode.INVALID_CREDENTIALS;
       return res.json(returnObject);
     }
+
+    const twoFa = new TwoFactorAuth();
+    if(twoFa.getTwoFaStatus(username)) {
+      const result = await twoFa.verifyToken(username, twoFaCode);
+      if (!result) {
+        returnObject.msg = 'Two factor auth verify failed';
+        returnObject.code = ApiCode.INVALID_CREDENTIALS;
+        return res.json(returnObject);
+      }
+    }
+
     const expiresTime = 12; // h
     const token = jwt.sign({ username: user.username }, JWT_SECRET, {
       expiresIn: `${expiresTime}h`

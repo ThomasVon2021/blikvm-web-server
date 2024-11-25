@@ -28,7 +28,7 @@
  * The version of the API.
  * @type {string}
  */
-const API_VERSION = '1.5.1';
+const API_VERSION = '1.5.3';
 
 /**
  * Represents the error codes used in the API.

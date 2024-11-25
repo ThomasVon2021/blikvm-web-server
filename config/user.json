@@ -15,13 +15,19 @@
       "username": "admin",
       "password": "$2b$10$iB3xpN8gl/iXusff8d3xCeRJu5M1s71RFgSveZTKuBymerQREUIja",
       "role": "admin",
-      "isEnabled": "true"
+      "isEnabled": true,
+      "isTwoFaEnabled": false,
+      "twoFaSecret": "",
+      "twoFaUri": ""
     },
     {
       "username": "blikvm",
       "password": "$2b$10$.3cX/1cVKwgTxERqaYpdL.VVE0ippbiAUFtMJLA77vEcAGuuwgmBS",
       "role": "readonly",
-      "isEnabled": "true"
+      "isEnabled": true,
+      "isTwoFaEnabled": false,
+      "twoFaSecret": "",
+      "twoFaUri": ""
     }
   ]
 }

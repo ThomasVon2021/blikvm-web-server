@@ -57,17 +57,24 @@ class Keyboard extends HIDDevice {
 
   pasteData(data) {
     let index = 0;
-  
+    let zeroFlag = 0;
     const processNextChar = () => {
       if (index < data.length) {
-        const char = data[index];
-        const keyboardData = this._char2hid(char);
-        this._writeData(keyboardData);
-        const zeroData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-        this._writeData(zeroData);
-        // Move to the next character and schedule the next processing
-        index++;
-        setTimeout(processNextChar, 50);
+        if( zeroFlag === 1 ){
+          const zeroData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
+          this.writeToQueue(zeroData);
+          zeroFlag = 0;
+          setTimeout(processNextChar, 10);
+        }else{
+          const char = data[index];
+          const keyboardData = this._char2hid(char);
+          this.writeToQueue(keyboardData);
+          // Move to the next character and schedule the next processing
+          index++;
+          zeroFlag = 1;
+          setTimeout(processNextChar, 10);
+        }
+
       } else {
         // After processing all characters, send the release data
         setTimeout(() => {
