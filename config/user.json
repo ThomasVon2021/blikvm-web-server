@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "Roles": [
     {
       "role": "admin",
@@ -17,8 +17,8 @@
       "role": "admin",
       "isEnabled": true,
       "isTwoFaEnabled": false,
-      "twoFaSecret": "",
-      "twoFaUri": ""
+      "twoFaSecret": "CN6TP5DCSQRXB4J477RVSWUB3X5WKMBN",
+      "twoFaUri": "otpauth://totp/BliKVM%3Aadmin?secret=CN6TP5DCSQRXB4J477RVSWUB3X5WKMBN&issuer=BliKVM"
     },
     {
       "username": "blikvm",

@@ -19,7 +19,7 @@
 #                                                                            #
 *****************************************************************************/
 
-import twofactor from 'node-2fa';
+import {generateSecret,verifyToken } from  'node-2fa';
 import QRCode from 'qrcode';
 import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
@@ -55,7 +55,7 @@ class TwoFactorAuth {
     for( let i = 0; i < users.length; i++){
       if(userName === users[i].username){
         if(users[i].twoFaUri === "" || users[i].twoFaUri === ""){
-          const newSecret = twofactor.generateSecret({ name: 'blikvm', account: userName });
+          const newSecret = generateSecret({ name: 'BliKVM', account: userName });
           users[i].twoFaSecret = newSecret.secret;
           users[i].twoFaUri = newSecret.uri;
           fs.writeFileSync(userManager.userFile, JSON.stringify(userContent, null, 2), UTF8);
@@ -76,7 +76,7 @@ class TwoFactorAuth {
     const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     const userContent =  JSON.parse(fs.readFileSync(userManager.userFile, UTF8));
     let users = userContent.Accounts;
-    const newSecret = twofactor.generateSecret({ name: 'BliKVM', account: userName });
+    const newSecret = generateSecret({ name: 'BliKVM', account: userName });
     for( let i = 0; i < users.length; i++){
       if(userName === users[i].username){
         users[i].twoFaSecret = newSecret.secret;
@@ -129,7 +129,7 @@ class TwoFactorAuth {
       return false;
     }
     logger.info(`Verifying secret: ${user.twoFaSecret} token: ${token}` );
-    const result = twofactor.verifyToken(user.twoFaSecret, token);
+    const result = verifyToken(user.twoFaSecret, token);
     return result && result.delta === 0;
   }
 }

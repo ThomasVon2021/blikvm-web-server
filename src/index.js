@@ -31,11 +31,14 @@ import HID from './modules/kvmd/kvmd_hid.js';
 import KVMSwitchFactory from './modules/kvmd/switch/kvmd_switch.js';
 import { CONFIG_PATH, UTF8 } from './common/constants.js';
 import {NotificationType, Notification } from './modules/notification.js';
+import UserConfigUpdate from './modules/update/user_update.js';
 
 const logger = new Logger();
 const notification = new Notification();
 
-createSecretFile();
+
+const userConfigUpdate = new UserConfigUpdate();
+userConfigUpdate.upgradeFile();
 
 const httpServer = new HttpServer();
 httpServer.startService().then((result) => {
@@ -55,24 +58,6 @@ httpServer.startService().then((result) => {
   logger.info("All services have been started.");
   notification.addMessage(NotificationType.INFO, 'All services have been started.');
 });
-
-/**
- * Creates or updates a secret file with a unique code, secret key, and empty OTP.
- * @private
- */
-function createSecretFile() {
-  const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-  if (!fileExists(userManager.userFile)) {
-    createFile(userManager.userFile);
-    const data = {
-      user: 'admin',
-      pwd: 'admin',
-      id: generateUniqueCode()
-    };
-    fs.writeFileSync(userManager.userFile, JSON.stringify(data));
-    logger.info(`Secret file created at ${userManager.userFile}`);
-  }
-}
 
 // function start switch
 function startSwitch() {

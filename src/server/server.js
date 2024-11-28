@@ -507,8 +507,8 @@ class HttpServer {
     }
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        logger.error('token is error');
-        returnObject.msg = 'token is error!';
+        logger.error('invalid token');
+        returnObject.msg = 'invalid token';
         res.status(401).json(returnObject);
         return;
       }

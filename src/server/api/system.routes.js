@@ -29,6 +29,7 @@ import { exec } from 'child_process';
 import {Notification, NotificationType} from '../../modules/notification.js';
 import si from 'systeminformation';
 import Logger from '../../log/logger.js';
+import { type } from 'os';
 
 const logger = new Logger();
 
@@ -55,8 +56,28 @@ function readSerialNumber() {
 
 function apiGetSystemInfo(req, res, next) {
   try {
-    Promise.all([si.system(), si.cpu(),readSerialNumber(), getSystemInfo()])
-      .then(([systemData, cpuData, serialNumber, systemInfo]) => {
+    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo()])
+      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo]) => {
+        const netDataFilter = networkData.filter(netInterface => netInterface.iface !== 'lo')
+        .map(netInterface => ({
+          iface: netInterface.iface,   
+          ip4: netInterface.ip4,       
+          mac: netInterface.mac,
+          virtual: netInterface.virtual,
+          type: netInterface.type,
+          dhcp: netInterface.dhcp    
+        }));
+        const osDataFilter = {
+          platform: osData.platform,
+          distro: osData.distro,
+          release: osData.release,
+          codename: osData.codename,
+          kernel: osData.kernel,
+          arch: osData.arch,
+          hostname: osData.hostname,
+          fqdn: osData.fqdn,
+          codepage: osData.codepage
+        };
         const returnObject = createApiObj();
         returnObject.code = ApiCode.OK;
         returnObject.data = {
@@ -75,7 +96,9 @@ function apiGetSystemInfo(req, res, next) {
               revision: cpuData.revision || 'Unknown',
               vendor: cpuData.vendor || 'Unknown',            
             }
-          }
+          },
+          os: osDataFilter,
+          network: netDataFilter
         };
         const hardwareType = getHardwareType();
         if(hardwareType === HardwareType.MangoPi){

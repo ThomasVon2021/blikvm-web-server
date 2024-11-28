@@ -44,6 +44,11 @@ const deleteDirectoryIfExists = async (dir) => {
 const copyRecursive = async (src, dest) => {
   try {
     const stat = await fs.stat(src);
+
+    if( src.includes(path.join('config', 'user.json'))){
+      console.log('skipping user.json');
+      return;
+    }
     if (stat.isDirectory()) {
       await createDirectoryIfNotExists(dest);
       const entries = await fs.readdir(src);
