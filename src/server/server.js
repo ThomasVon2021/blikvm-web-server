@@ -320,22 +320,36 @@ class HttpServer {
     });
 
     this._server.on('upgrade', (request, socket, head) => {
-      const pathname = request.url;
-    
-      if (pathname === '/wss') {
-        this._wss.handleUpgrade(request, socket, head, (ws) => {
-          this._wss.emit('connection', ws, request);
-        });
-      } else if (pathname === '/ssh') {
+
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      const pathname = url.pathname;  
+      const token = url.searchParams.get('token');  
+      
+      jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+          logger.error('invalid wss token');
+          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+          socket.destroy();
+          return;  
+        }
+        if (pathname === '/wss') {
+          this._wss.handleUpgrade(request, socket, head, (ws) => {
+            this._wss.emit('connection', ws, request);
+          });
+        } else if (pathname === '/ssh') {
           this._wsTerminal.handleUpgrade(request, socket, head, (ws) => {
-          this._wsTerminal.emit('connection', ws, request);
-        });
-      } else if(pathname === '/janus') {
+            this._wsTerminal.emit('connection', ws, request);
+          });
+        } else if (pathname === '/janus') {
           this._proxy.ws(request, socket, head);
-      } else {
-        socket.destroy();
-      }
+        } else {
+          socket.destroy();
+        }
+
+      });
+
     });
+    
 
   }
 

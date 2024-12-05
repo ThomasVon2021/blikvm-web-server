@@ -79,7 +79,7 @@ class HIDDevice{
                     return;
                 }
                 this._fd = fd;
-                logger.warn(`File ${this._devicePath} opened fd ${this._fd}`);
+                logger.info(`File ${this._devicePath} opened fd ${this._fd}`);
                 resolve(fd);  // Resolve promise with the file descriptor if file opens successfully
             });
         });
