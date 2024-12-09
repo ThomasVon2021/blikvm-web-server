@@ -1,20 +1,5 @@
 #!/bin/bash
 
-# Check if the number of command line arguments is not equal to 2
-if [ "$#" -ne 6 ]; then
-  echo "Usage: $0 <ustreamer_bin_path> <port> <fps> <quality> <kbps> <gop>"
-  exit 1
-fi
-
-# Set the path to the ustreamer binary and the port number
-ustreamer_bin=$1
-port=$2
-fps=$3
-quality=$4
-kbps=$5
-gop=$6
-ustreamer_pid=""
-
 # Define board type names
 pi4b_board="Raspberry Pi 4 Model B"
 cm4b_board="Raspberry Pi Compute Module 4"
@@ -42,9 +27,33 @@ get_board_type() {
     type=$v4_h616
   else
     type=$unknown
+    exit 1
   fi
   echo "$type"
 }
+
+# Get the board type
+board_type=$(get_board_type)
+echo "Board type: $board_type"
+
+# Check if the number of command line arguments is not equal to 2
+if [ "$#" -ne 7 ]; then
+  echo "Usage: $0 <ustreamer_bin_path> <port> <fps> <quality> <kbps> <gop> <resolution>"
+  exit 1
+fi
+
+
+
+
+# Set the path to the ustreamer binary and the port number
+ustreamer_bin=$1
+port=$2
+fps=$3
+quality=$4
+kbps=$5
+gop=$6
+resolution=$7
+ustreamer_pid=""
 
 # Function to clean up the process
 cleanup() {
@@ -75,9 +84,7 @@ done
 # Wait for the video device to be ready
 # sleep 5
 
-# Get the board type
-board_type=$(get_board_type)
-echo "Board type: $board_type"
+
 
 # Start the ustreamer process based on the board type
 if [[ "$board_type" == "$v2_hat" ]] || [[ "$board_type" == "$v3_pcie" ]]; then
@@ -95,7 +102,7 @@ elif [[ "$board_type" == "$v4_h616" ]]; then
   done
   if [ -n "$jpeg_supported_device" ]; then
       echo "find support JPEG video divice: $jpeg_supported_device"
-      $ustreamer_bin --format=MJPEG --device=$jpeg_supported_device --resolution=1920x1080 --host=0.0.0.0 --port=$port --drop-same-frames=30 --desired-fps=$fps --quality=$quality &
+      $ustreamer_bin --format=MJPEG --device=$jpeg_supported_device --resolution=$resolution --host=0.0.0.0 --port=$port --drop-same-frames=30 --desired-fps=$fps --quality=$quality &
       ustreamer_pid=$!
   else
       echo "not find JPEG video device, use video1"

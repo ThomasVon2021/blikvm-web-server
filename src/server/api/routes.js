@@ -21,7 +21,7 @@
 *****************************************************************************/
 import { apiATXClick, apiATXState } from './atx.route.js';
 import state from './state.route.js';
-import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording } from './video.route.js';
+import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording, apiResolutionChange } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig } from './hid.route.js';
 import {
@@ -68,6 +68,7 @@ const routes = [
   { path: '/api/video/config', handler: apiVideoConfig, method: 'post' },
   { path: '/api/video/state', handler: apiGetVideoState, method: 'post' },
   { path: '/api/video/record', handler: apiRecording, method: 'post' },
+  { path: '/api/video/resolution', handler: apiResolutionChange, method: 'post' },
   
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: apiEnableHID, method: 'post' },

@@ -36,6 +36,7 @@
     "quality": 80,
     "kbps": 5000,
     "gop": 30,
+    "resolution": "1920x1080",
     "recordPath": "/mnt/tmp/record",
     "recordBin": "./lib/pi/ustreamer-dump"
   },
@@ -68,10 +69,10 @@
       ]
     }
   },
-  "display":{
+  "display": {
     "isActive": true,
-    "mode": 1,              
-    "onBootTime": 3600,     
+    "mode": 1,
+    "onBootTime": 3600,
     "cycleInterval": 60,
     "displayTime": 10
   },

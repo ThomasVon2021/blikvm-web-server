@@ -23,7 +23,9 @@ import MJPEGStreamRecorder from '../../modules/video/MJPEGStreamRecorder.js';
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import Logger from '../../log/logger.js';
-
+import { ModuleState } from '../../common/enums.js';
+import { getHardwareType } from '../../common/tool.js';
+import { HardwareType } from '../../common/enums.js';
 
 const logger = new Logger();
 
@@ -75,6 +77,55 @@ function apiVideoControl(req, res, next) {
   }
 }
 
+function apiResolutionChange(req, res, next) {
+  const ret = createApiObj();
+
+  if (getHardwareType() !== HardwareType.MangoPi) {
+    ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+    ret.msg = 'Hardware not supported change resolution';
+    res.json(ret);
+    return;
+  }
+
+  const resolution = req.query.resolution;
+  const video = new Video();
+  video.setResolution(resolution);
+
+  if (video.state === ModuleState.RUNNING) {
+    video
+      .closeService() 
+      .then(() => {
+        return video.startService(); 
+      })
+      .then(() => {
+        ret.code = ApiCode.SUCCESS;
+        ret.msg = 'Resolution changed and service restarted successfully';
+        res.json(ret);
+      })
+      .catch((result) => {
+        ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+        ret.msg = result.msg;
+        ret.data.state = video.state;
+        res.json(ret);
+      });
+  } else {
+    video
+      .startService()
+      .then(() => {
+        ret.code = ApiCode.SUCCESS;
+        ret.msg = 'Service started with new resolution successfully';
+        res.json(ret);
+      })
+      .catch((result) => {
+        ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+        ret.msg = result.msg;
+        ret.data.state = video.state;
+        res.json(ret);
+      });
+  }
+}
+
+
 function apiVideoConfig(req, res, next) {
   try {
     const ret = createApiObj();
@@ -115,9 +166,14 @@ function apiGetVideoState(req, res, next) {
     });
 }
 
+
 async function wsGetVideoState() {
   try {
-    const response = await new Video().getVideoState();
+    const video = new Video();
+    if (video.state !== ModuleState.RUNNING) {
+      return null;
+    }
+    const response = await video.getVideoState();
     const ret = {
       width: response.result.source.resolution.width,
       height: response.result.source.resolution.height,
@@ -176,4 +232,4 @@ function apiRecording(req, res, next) {
 }
 
 
-export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording };
+export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiResolutionChange };
