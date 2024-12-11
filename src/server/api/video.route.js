@@ -231,5 +231,18 @@ function apiRecording(req, res, next) {
   }
 }
 
+async function apiSnapshot(req, res, next) {
+  try {
+    const video = new Video();
+    const imageBuffer = await video.getSnapshotImage(next);
+    if (imageBuffer) {
+      res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+      res.end(imageBuffer, 'binary');
+    }
+  } catch (error) {
+    next(error);
+  }
+} 
 
-export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiResolutionChange };
+
+export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiResolutionChange,apiSnapshot };

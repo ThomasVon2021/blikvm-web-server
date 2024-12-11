@@ -25,6 +25,7 @@ import { getRequest } from "../../common/http.js"
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import { getHardwareType } from '../../common/tool.js';
 import { HardwareType } from '../../common/enums.js';
+import http from 'http';
 
 class Video extends ModuleApp {
   static _instance = null;
@@ -102,7 +103,26 @@ class Video extends ModuleApp {
   getSnapshotUrl(){
     return `http://127.0.0.1:${this._param[1]}/snapshot`;
   }
+
+  async getSnapshotImage() {
+    const url = `http://127.0.0.1:${this._param[1]}/snapshot`;
   
+    return new Promise((resolve, reject) => {
+      http.get(url, (response) => {
+        const chunks = [];
+        response.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+        response.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          resolve(buffer);
+        });
+      }).on('error', (error) => {
+        console.error('Error fetching snapshot:', error);
+        reject(error);
+      });
+    });
+  }
 }
 
 export default Video;

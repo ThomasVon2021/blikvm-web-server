@@ -21,7 +21,7 @@
 *****************************************************************************/
 import { apiATXClick, apiATXState } from './atx.route.js';
 import state from './state.route.js';
-import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording, apiResolutionChange } from './video.route.js';
+import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording, apiResolutionChange, apiSnapshot } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
 import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig } from './hid.route.js';
 import {
@@ -69,6 +69,8 @@ const routes = [
   { path: '/api/video/state', handler: apiGetVideoState, method: 'post' },
   { path: '/api/video/record', handler: apiRecording, method: 'post' },
   { path: '/api/video/resolution', handler: apiResolutionChange, method: 'post' },
+  { path: '/api/video/snapshot', handler: apiSnapshot, method: 'get' },
+
   
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: apiEnableHID, method: 'post' },
@@ -104,6 +106,7 @@ const routes = [
   { path: '/api/switch/setlabel', handler: apiSetSwitchLabel, method: 'post' },
   { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
   { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
+
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
