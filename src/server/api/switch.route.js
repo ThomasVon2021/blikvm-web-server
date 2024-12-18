@@ -21,163 +21,126 @@
 *****************************************************************************/
 import { ApiCode, createApiObj } from '../../common/api.js';
 import KVMSwitchFactory from '../../modules/kvmd/switch/kvmd_switch.js';
-import { CONFIG_PATH } from '../../common/constants.js';
+import { SWITCH_PATH, UTF8 } from '../../common/constants.js';
+import { SwitchModulesID } from '../../common/enums.js';
 import fs from 'fs';
 
-function _enableSwitch(req, res, next) {
+function apiGetSwitch(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
-
-    if (kvmdSwitch === null) {
-      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-      returnObject.msg = `input error module: ${req.query.module}`;
-      res.json(returnObject);
-      return;
-    }
-    kvmdSwitch
-      .enableSwitch()
-      .then((result) => {
-        returnObject.code = ApiCode.OK;
-        returnObject.msg = result.msg;
-        res.json(returnObject);
-      })
-      .catch((error) => {
-        returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
-        returnObject.msg = error.message;
-        res.json(returnObject);
-      });
-  } catch (err) {
-    next(err);
-  }
-}
-
-function _disableSwitch(req, res, next) {
-  try {
-    const returnObject = createApiObj();
-    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
-
-    if (kvmdSwitch === null) {
-      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-      returnObject.msg = `input error module: ${req.query.module}`;
-      res.json(returnObject);
-      return;
-    }
-
-    kvmdSwitch
-      .disableSwitch()
-      .then((result) => {
-        returnObject.code = ApiCode.OK;
-        returnObject.msg = result.msg;
-        res.json(returnObject);
-      })
-      .catch((error) => {
-        returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
-        returnObject.msg = error.message;
-        res.json(returnObject);
-      });
-  } catch (err) {
-    next(err);
-  }
-}
-
-function apiEnableSwitch(req, res, next) {
-  if (req.query.action === 'true') {
-    _enableSwitch(req, res, next);
-  } else if (req.query.action === 'false') {
-    _disableSwitch(req, res, next);
-  } else {
-    const returnObject = createApiObj();
-    returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-    returnObject.msg = `input error action: ${req.query.action}`;
-    res.json(returnObject);
-  }
-}
-
-function apiGetSwitchState(req, res, next) {
-  try {
-    const returnObject = createApiObj();
-    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-
-    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
-
-    if (kvmdSwitch === null) {
-      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-      returnObject.msg = `input error module: ${req.query.module}`;
-      res.json(returnObject);
-      return;
-    }
-
-    const lable = kvmdSwitch.getLable();
-    const channel = kvmdSwitch.getChannel();
-    const state = kvmdSwitch.getState();
-
-    returnObject.data = {
-      state,
-      enabled: kvmd.switch.enabled,
-      channel,
-      module: kvmd.switch.module,
-      devicePath: kvmd.switch.devicePath,
-      channelLable: lable
-    };
-    returnObject.code = ApiCode.OK;
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    returnObject.data = switchObj;
     res.json(returnObject);
   } catch (err) {
     next(err);
   }
 }
 
-function apiSetSwitchDevicePath(req, res, next) {
+function apiSwitchActive(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    config.kvmd.switch.devicePath = req.body.devicePath;
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
-    returnObject.code = ApiCode.OK;
-    returnObject.msg = 'set switch device path';
-    res.json(returnObject);
+    const activeValue = req.body.isActive;
+    if (activeValue === undefined) {
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      returnObject.msg = 'isActive is required';
+      res.json(returnObject);
+      return;
+    }
+    const switchId = parseInt(req.params.id, 10);
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    if (switchId !==  switchObj.kvmSwitch.activeSwitchId && switchObj.kvmSwitch.isActive === true) {
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      returnObject.msg = `you need to operate switch ${switchObj.kvmSwitch.activeSwitchId} before open new switch`;
+      res.json(returnObject);
+      return;
+    }
+    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(switchId);
+    if (kvmdSwitch === null) {
+      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+      returnObject.msg = `input error switchId: ${switchId}`;
+      res.json(returnObject);
+      return;
+    }
+    if (activeValue === false) {
+      if (switchObj.kvmSwitch.isActive === false) {
+        returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+        returnObject.msg = 'switch already inactive';
+        res.json(returnObject);
+        return;
+      }
+      kvmdSwitch
+        .disableSwitch()
+        .then((result) => {
+          if (result.result === true) {
+            returnObject.code = ApiCode.OK;
+            returnObject.msg = "switch inactive";
+            switchObj.kvmSwitch.isActive = false;
+            switchObj.kvmSwitch.activeSwitchId = -1;
+            res.json(returnObject);
+            fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
+          }else{
+            returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+            returnObject.msg = result.msg;
+            res.json(returnObject);
+          }
+
+        })
+        .catch((error) => {
+          returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+          returnObject.msg = error.message;
+          res.json(returnObject);
+          return;
+        });
+    } else if (activeValue === true) {
+      if (switchObj.kvmSwitch.isActive === true) {
+        returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+        returnObject.msg = 'switch already active';
+        res.json(returnObject);
+        return;
+      }
+      kvmdSwitch
+        .enableSwitch()
+        .then((result) => {
+          console.log(result);
+          if (result.result === true) {
+            returnObject.code = ApiCode.OK;
+            returnObject.msg = "switch enabled success";
+            switchObj.kvmSwitch.isActive = true;
+            switchObj.kvmSwitch.activeSwitchId = switchId;
+            res.json(returnObject);
+            fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
+          }else{
+            returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+            returnObject.msg = result.msg;
+            res.json(returnObject);
+          }
+
+        })
+        .catch((error) => {
+          returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+          returnObject.msg = error.message;
+          res.json(returnObject);
+          return;
+        });
+    }
   } catch (err) {
     next(err);
   }
 }
 
-function apiSetSwitchLabel(req, res, next) {
+function apiSwitchChannel(req, res, next) {
   try {
     const returnObject = createApiObj();
-
-    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.body.module);
+    const switchId = parseInt(req.params.id, 10);
+    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(switchId);
 
     if (kvmdSwitch === null) {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-      returnObject.msg = `input error module: ${req.body.module}`;
+      returnObject.msg = `input error switchId: ${switchId}`;
       res.json(returnObject);
       return;
     }
-
-    kvmdSwitch.setLable(req.body.channelLable);
-
-    returnObject.code = ApiCode.OK;
-    returnObject.msg = 'set switch lable ok';
-    res.json(returnObject);
-  } catch (err) {
-    next(err);
-  }
-}
-
-function apiChangeChannel(req, res, next) {
-  try {
-    const returnObject = createApiObj();
-
-    const kvmdSwitch = KVMSwitchFactory.getSwitchHandle(req.query.module);
-
-    if (kvmdSwitch === null) {
-      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-      returnObject.msg = `input error module: ${req.query.module}`;
-      res.json(returnObject);
-      return;
-    }
-
-    const channel = req.query.channel;
+    const channel = req.body.channel;
     const result = kvmdSwitch.switchChannel(channel);
     if (result.result === true) {
       returnObject.code = ApiCode.OK;
@@ -186,40 +149,29 @@ function apiChangeChannel(req, res, next) {
       returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
       returnObject.msg = result.msg;
     }
+
     res.json(returnObject);
   } catch (err) {
     next(err);
   }
 }
 
-function apiGetSwitchList(req, res, next) {
+function apiSwitchUpdate(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const list = KVMSwitchFactory.getSwitchList();
-    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    returnObject.data = {
-      module: kvmd.switch.module,
-      list
-    };
-    res.json(returnObject);
-  } catch (err) {
-    next(err);
-  }
-}
-
-function apiSetSwitchModule(req, res, next) {
-  try {
-    const returnObject = createApiObj();
-    const result = KVMSwitchFactory.setSwitchModle(req.query.module);
-    if (result === true) {
-      KVMSwitchFactory.getSwitchHandle(req.query.module);
-      returnObject.code = ApiCode.OK;
-      returnObject.msg = 'set switch modle success';
+    const switchId = parseInt(req.params.id, 10);
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    const itemIndex = switchObj.kvmSwitch.items.findIndex(item => item.id === switchId);
+    if (itemIndex !== -1) {
+      switchObj.kvmSwitch.items[itemIndex] = req.body;
+      fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
+      returnObject.success = true;
+      returnObject.message = 'Switch updated successfully';
     } else {
-      returnObject.code = ApiCode.INVALID_INPUT_PARAM;
-      returnObject.msg = `input error modle: ${req.query.module}`;
+      returnObject.success = false;
+      returnObject.message = 'Switch ID not found';
     }
-
+    returnObject.data = switchObj;
     res.json(returnObject);
   } catch (err) {
     next(err);
@@ -227,11 +179,8 @@ function apiSetSwitchModule(req, res, next) {
 }
 
 export {
-  apiEnableSwitch,
-  apiGetSwitchState,
-  apiChangeChannel,
-  apiSetSwitchDevicePath,
-  apiSetSwitchLabel,
-  apiGetSwitchList,
-  apiSetSwitchModule
+  apiGetSwitch,
+  apiSwitchActive,
+  apiSwitchUpdate,
+  apiSwitchChannel
 };

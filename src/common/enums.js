@@ -50,4 +50,9 @@ const ModuleState = {
   ERROR: 'ERROR'
 };
 
-export { HardwareType, ModuleState };
+const SwitchModulesID = {
+  BliKVM_switch_v1: 1,
+  BliKVM_switch_v2: 2
+};
+
+export { HardwareType, ModuleState, SwitchModulesID };

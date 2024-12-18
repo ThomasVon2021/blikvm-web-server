@@ -22,8 +22,8 @@
 import fs from 'fs';
 import Logger from '../../../log/logger.js';
 import Serial from '../../serial.js';
-import { ModuleState } from '../../../common/enums.js';
-import { CONFIG_PATH, UTF8, BliKVMSwitchV1ModuleName } from '../../../common/constants.js';
+import { ModuleState, SwitchModulesID} from '../../../common/enums.js';
+import { SWITCH_PATH, UTF8 } from '../../../common/constants.js';
 import KVMSwitchBase from './kvmd_switch_base.js';
 import { isDeviceFile } from '../../../common/tool.js';
 
@@ -38,10 +38,10 @@ const ChannelCode = {
 };
 
 const ChannelCommand = {
-  Channel1: 'SW1\r\nG01gA',
-  Channel2: 'SW1\r\nG02gA',
-  Channel3: 'SW1\r\nG03gA',
-  Channel4: 'SW1\r\nG04gA'
+  Channel1: 'SW1\r\nG01gA\r\n',
+  Channel2: 'SW2\r\nG02gA\r\n',
+  Channel3: 'SW3\r\nG03gA\r\n',
+  Channel4: 'SW4\r\nG04gA\r\n'
 };
 
 class KVMDBliSwitchV1 extends KVMSwitchBase {
@@ -53,9 +53,15 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
   }
 
   _init() {
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    this._path = config.kvmd.switch.devicePath;
-    this._name = BliKVMSwitchV1ModuleName;
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    const item = switchObj.kvmSwitch.items.find(item => item.id === 1);
+    if (item === null) {
+      logger.error('Can not find switch item');
+      return;
+    }
+    this._id = item.id;
+    this._path = item.deviceFile;
+    this._name = item.title;
     this._baudRate = 19200;
     logger.info(`KVMDBliSwitchV1 init success, path: ${this._path}, name: ${this._name}`);
   }
@@ -70,6 +76,10 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
           });
           return;
         }
+
+        const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+        const item = switchObj.kvmSwitch.items.find(item => item.id === 1);
+        this._path = item.deviceFile;
 
         if (isDeviceFile(this._path) === false) {
           const text = `Switch path ${this._path} is not exist`;
@@ -88,10 +98,10 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
         this._serialHandle._process.on('open', () => {
           logger.info(`${this._name} open success`);
           this._state = ModuleState.RUNNING;
-          const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-          if (config.kvmd.switch.enabled === false) {
-            config.kvmd.switch.enabled = true;
-            fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+          const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+          if (switchObj.kvmSwitch.isActive === false) {
+            switchObj.kvmSwitch.isActive = true;
+            fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
           }
           resolve({
             result: true,
@@ -111,20 +121,27 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
 
         this._serialHandle._process.on('data', (data) => {
           const currentData = data.toString().trim();
+          if(currentData.length > 8){
+            return;
+          }
           if (this._last_data !== currentData) {
             logger.info(`${this._name} data: ${data}`);
             this._last_data = currentData;
             if (data.includes(ChannelCode.Channel1)) {
-              this._channel = this.getLable()[0];
+              this._channel = 1;
             } else if (data.includes(ChannelCode.Channel2)) {
-              this._channel = this.getLable()[1];
+              this._channel = 2;
             } else if (data.includes(ChannelCode.Channel3)) {
-              this._channel = this.getLable()[2];
+              this._channel = 3;
             } else if (data.includes(ChannelCode.Channel4)) {
-              this._channel = this.getLable()[3];
+              this._channel = 4;
             } else {
               this._channel = ChannelCode.ChannelNone;
             }
+            const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+            const item = switchObj.kvmSwitch.items.find(item => item.id === 1);
+            item.activeChannel = this._channel;
+            fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
           }
         });
       } catch (error) {
@@ -161,14 +178,23 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
         msg: 'Switch is not in running state'
       };
     }
-    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    if (channel === kvmd.switch.blikvm_switch_v1_lable[0]) {
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    const item = switchObj.kvmSwitch.items.find(item => item.id === SwitchModulesID.BliKVM_switch_v1);
+    if (item === null) {
+      logger.error('Can not find switch item');
+      return {
+        result: false,
+        msg: 'Switch is not in running state'
+      };
+    }
+    if (channel === item.channels[0].name) {
       this._serialHandle.write(ChannelCommand.Channel1);
-    } else if (channel === kvmd.switch.blikvm_switch_v1_lable[1]) {
+    } else if (channel === item.channels[1].name) {
+      console.log("Channel2");
       this._serialHandle.write(ChannelCommand.Channel2);
-    } else if (channel === kvmd.switch.blikvm_switch_v1_lable[2]) {
+    } else if (channel === item.channels[2].name) {
       this._serialHandle.write(ChannelCommand.Channel3);
-    } else if (channel === kvmd.switch.blikvm_switch_v1_lable[3]) {
+    } else if (channel === item.channels[3].name) {
       this._serialHandle.write(ChannelCommand.Channel4);
     } else {
       return {
@@ -180,18 +206,6 @@ class KVMDBliSwitchV1 extends KVMSwitchBase {
       result: true,
       msg: `Switch to ${channel}`
     };
-  }
-
-  getLable() {
-    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const lable = kvmd.switch.blikvm_switch_v1_lable;
-    return lable;
-  }
-
-  setLable(lable) {
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    config.kvmd.switch.blikvm_switch_v1_lable = lable;
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
   }
 }
 
