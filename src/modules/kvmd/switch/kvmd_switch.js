@@ -23,11 +23,10 @@ import KVMDBliSwitchV1 from './kvmd_switch_v1.js';
 import KVMDBliSwitchV2 from './kvmd_switch_v2.js';
 import Logger from '../../../log/logger.js';
 import {
-  BliKVMSwitchV1ModuleName,
-  BliKVMSwitchV2ModuleName,
-  CONFIG_PATH,
+  SWITCH_PATH,
   UTF8
 } from '../../../common/constants.js';
+import {SwitchModulesID} from '../../../common/enums.js';
 import fs from 'fs';
 
 const logger = new Logger();
@@ -35,50 +34,34 @@ const logger = new Logger();
 class KVMSwitchFactory {
   static _instance = null;
 
-  static getSwitchHandle(type) {
+  static getSwitchHandle(switchId) {
     if (this._instance !== null) {
-      if (type === this._instance.getName()) {
+      if (switchId === this._instance.getId()) {
         return this._instance;
       } else {
         this._instance.disableSwitch();
       }
     }
 
-    switch (type) {
-      case BliKVMSwitchV1ModuleName:
+    switch (switchId) {
+      case SwitchModulesID.BliKVM_switch_v1:
         this._instance = new KVMDBliSwitchV1();
         break;
-      case BliKVMSwitchV2ModuleName:
+      case SwitchModulesID.BliKVM_switch_v2:
         this._instance = new KVMDBliSwitchV2();
         break;
       default:
-        logger.error(`Unknown switch type: ${type}`);
+        logger.error(`Unknown switch type: ${switchId}`);
         return null;
     }
 
     return this._instance;
   }
 
-  static getSwitchList() {
-    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    const switchList = kvmd.switch.list;
-    return switchList;
-  }
-
-  static setSwitchModle(module) {
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    switch (module) {
-      case BliKVMSwitchV1ModuleName:
-        config.kvmd.switch.module = BliKVMSwitchV1ModuleName;
-        break;
-      case BliKVMSwitchV2ModuleName:
-        config.kvmd.switch.module = BliKVMSwitchV2ModuleName;
-        break;
-      default:
-        logger.error(`Unknown switch modle: ${module}`);
-        return false;
-    }
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+  static setActiveSwitchId(switchId) {
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    switchObj.kvmSwitch.activeSwitchId = switchId
+    fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
     return true;
   }
 }

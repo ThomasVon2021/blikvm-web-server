@@ -36,6 +36,9 @@ const defaultConfig = {
     "userManager": {
       "userFile": "./config/user.json"
     },
+    "switchManager": {
+      "file": "./config/switch.json"
+    },
     "server": {
       "protocol": "https",
       "https_port": 443,
@@ -69,32 +72,7 @@ const defaultConfig = {
     },
     "kvmd": {
       "bin": `./lib/${hardware}/kvmd-main`,
-      "janusBin": `./lib/${hardware}/janus`,
-      "switch": {
-        "enabled": false,
-        "devicePath": "/dev/ttyUSB0",
-        "module": "BliKVM_switch_v1",
-        "list": [
-          "BliKVM_switch_v1",
-          "BliKVM_switch_v2"
-        ],
-        "blikvm_switch_v1_lable": [
-          "channel_1",
-          "channel_2",
-          "channel_3",
-          "channel_4"
-        ],
-        "blikvm_switch_v2_lable": [
-          "channel_1",
-          "channel_2",
-          "channel_3",
-          "channel_4",
-          "channel_5",
-          "channel_6",
-          "channel_7",
-          "channel_8"
-        ]
-      }
+      "janusBin": `./lib/${hardware}/janus`
     },
     "display": {
       "isActive": true,
@@ -126,7 +104,7 @@ const defaultConfig = {
       "jigglerTimeDiff": 60,
       "pass_through": {
         "enabled": false,
-        "block": false,
+        "blockFlag": false,
         "mouse_sensitivity": 0.3
       },
       "shortcuts": {

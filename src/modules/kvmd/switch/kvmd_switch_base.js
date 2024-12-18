@@ -21,9 +21,10 @@
 import { ModuleState } from '../../../common/enums.js';
 import {Notification, NotificationType} from '../../notification.js';
 import fs from 'fs';
-import { CONFIG_PATH, UTF8 } from '../../../common/constants.js';
+import {UTF8, SWITCH_PATH } from '../../../common/constants.js';
 
 class KVMSwitchBase {
+  _id = -1;
   _name = 'None';
   _channel = 'None';
   _state = ModuleState.STOPPED;
@@ -37,13 +38,13 @@ class KVMSwitchBase {
     throw new Error('must overwrite by children class');
   }
 
-  getLable() {
-    throw new Error('must overwrite by children class');
-  }
-
   setLable() {
     throw new Error('must overwrite by children class');
   }
+
+  getId() {
+    return this._id;
+  } 
 
   getName() {
     return this._name;
@@ -62,10 +63,10 @@ class KVMSwitchBase {
   }
 
   _setConfigDisable(){
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    if (config.kvmd.switch.enabled === true) {
-      config.kvmd.switch.enabled = false;
-      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+    const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+    if (switchObj.kvmSwitch.isActive === true) {
+      switchObj.kvmSwitch.isActive = false;
+      fs.writeFileSync(SWITCH_PATH, JSON.stringify(switchObj, null, 2), UTF8);
     }
   }
 

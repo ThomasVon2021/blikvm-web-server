@@ -29,10 +29,11 @@ import ATX from './modules/kvmd/kvmd_atx.js';
 import Janus from './modules/kvmd/kvmd_janus.js';
 import HID from './modules/kvmd/kvmd_hid.js';
 import KVMSwitchFactory from './modules/kvmd/switch/kvmd_switch.js';
-import { CONFIG_PATH, UTF8 } from './common/constants.js';
+import { CONFIG_PATH, UTF8, SWITCH_PATH } from './common/constants.js';
 import {NotificationType, Notification } from './modules/notification.js';
 import UserConfigUpdate from './modules/update/user_update.js';
 import AppConfigUpdate from './modules/update/app_update.js';
+import SwitchConfigUpdate from './modules/update/switch_update.js';
 import {InputEventListener, getFilteredEventDevices} from './server/kvmd_event_listenner.js';
 import Mouse from './server/mouse.js';
 
@@ -51,6 +52,10 @@ appConfigUpdate.upgradeFile();
 // update user.json
 const userConfigUpdate = new UserConfigUpdate();
 userConfigUpdate.upgradeFile();
+
+// update switch.json
+const switchConfigUpdate = new SwitchConfigUpdate();
+switchConfigUpdate.upgradeFile();
 
 const notification = new Notification();
 const logger = new Logger();
@@ -82,9 +87,9 @@ httpServer.startService().then((result) => {
 
 // function start switch
 function startSwitch() {
-  const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-  if (kvmd.switch.enabled === true) {
-    const switchHandle = KVMSwitchFactory.getSwitchHandle(kvmd.switch.module);
+  const switchObj = JSON.parse(fs.readFileSync(SWITCH_PATH, UTF8));
+  if (switchObj.kvmSwitch.isActive === true) {
+    const switchHandle = KVMSwitchFactory.getSwitchHandle(switchObj.kvmSwitch.activeSwitchId);
     switchHandle.enableSwitch();
   }
 }

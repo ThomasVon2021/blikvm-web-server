@@ -37,13 +37,10 @@ import {
 } from './msd.route.js';
 import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount,apiGetAuthState, apiChangeAuthExpiration } from './login.route.js';
 import {
-  apiEnableSwitch,
-  apiGetSwitchState,
-  apiChangeChannel,
-  apiSetSwitchDevicePath,
-  apiSetSwitchLabel,
-  apiGetSwitchList,
-  apiSetSwitchModule
+  apiGetSwitch,
+  apiSwitchActive,
+  apiSwitchUpdate,
+  apiSwitchChannel
 } from './switch.route.js';
 import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
@@ -110,15 +107,13 @@ const routes = [
   { path: '/api/2fa/info', handler: apiGetTwoFaInfo, method: 'post' },
   { path: '/api/2fa/verify', handler: apiTwoFaVerify, method: 'post' },
 
+
   { path: '/api/auth/expiration', handler: apiChangeAuthExpiration, method: 'post' },
 
-  { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
-  { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },
-  { path: '/api/switch/setchannel', handler: apiChangeChannel, method: 'post' },
-  { path: '/api/switch/setpath', handler: apiSetSwitchDevicePath, method: 'post' },
-  { path: '/api/switch/setlabel', handler: apiSetSwitchLabel, method: 'post' },
-  { path: '/api/switch/getlist', handler: apiGetSwitchList, method: 'post' },
-  { path: '/api/switch/setmodule', handler: apiSetSwitchModule, method: 'post' },
+  { path: '/api/switch/', handler: apiGetSwitch, method: 'get' },
+  { path: '/api/switch/:id/activate', handler: apiSwitchActive, method: 'post' },
+  { path: '/api/switch/:id/channel', handler: apiSwitchChannel, method: 'post' },
+  { path: '/api/switch/:id/update', handler: apiSwitchUpdate, method: 'post' },
 
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },

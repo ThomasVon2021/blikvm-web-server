@@ -25,8 +25,7 @@ dotenv.config();
 
 export const CONFIG_DIR = 'config';
 export const CONFIG_PATH = process.argv[2] ? process.argv[2] : 'config/app.json';
-console.log(`Config path is: ${CONFIG_PATH}`);
+export const SWITCH_PATH = process.argv[3] ? process.argv[3] : 'config/switch.json';
+console.log(`Config path is: ${CONFIG_PATH} and switch path is: ${SWITCH_PATH}`);
 export const UTF8 = 'utf8';
-export const BliKVMSwitchV1ModuleName = 'BliKVM_switch_v1';
-export const BliKVMSwitchV2ModuleName = 'BliKVM_switch_v2';
 export const JWT_SECRET = crypto.randomBytes(32).toString('hex');

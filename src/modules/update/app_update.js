@@ -97,8 +97,13 @@ class AppConfigUpdate {
         interval: 15
       };
     }
-    if( data.hid.pass_through.block === undefined){
-      data.hid.pass_through.block = false;
+    if( data.hid.pass_through.blockFlag === undefined){
+      data.hid.pass_through.blockFlag = false;
+    }
+    if(data.switchManager === undefined){
+      data.switchManager = {
+        file: "./config/switch.json"
+      };
     }
     data.version = 5;
     return data;
