@@ -35,7 +35,7 @@ import {
   apiGetUploadProgress,
   apiGetMakeImageProgress
 } from './msd.route.js';
-import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount } from './login.route.js';
+import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount } from './account.route.js';
 import {
   apiGetSwitch,
   apiSwitchActive,

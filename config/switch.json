@@ -1,7 +1,7 @@
 {
   "version": 0,
   "kvmSwitch": {
-    "isActive": true,
+    "isActive": false,
     "activeSwitchId": 2,
     "items": [
       {

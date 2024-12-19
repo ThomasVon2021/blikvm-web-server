@@ -38,7 +38,7 @@ import { ApiCode, createApiObj } from '../common/api.js';
 import { CONFIG_PATH, UTF8, JWT_SECRET } from '../common/constants.js';
 import { fileExists, processPing, getSystemInfo } from '../common/tool.js';
 import path from 'path';
-import { apiLogin } from './api/login.route.js';
+import { apiLogin } from './api/account.route.js';
 import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
 import {wsGetVideoState} from './api/video.route.js';
