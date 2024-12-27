@@ -26,7 +26,10 @@
 
 
 import Logger from '../log/logger.js';
-import  HIDDevice  from '../modules/hid_devices.js';
+import HIDDevice from '../modules/hid_devices.js';
+import { textToWebKeys } from '../modules/hid/printer.js';
+import { makeKeyboardEvent } from '../modules/hid/event.js';
+import KeyboardProcessor from '../modules/hid/keyboard_processor.js';
 
 const logger = new Logger();
 
@@ -52,38 +55,25 @@ class Keyboard extends HIDDevice {
     this.writeToQueue(keyboardData);
   }
 
-  pasteData(data) {
-    let index = 0;
-    let zeroFlag = 0;
-    const processNextChar = () => {
-      if (index < data.length) {
-        if( zeroFlag === 1 ){
-          const zeroData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-          this.writeToQueue(zeroData);
-          zeroFlag = 0;
-          setTimeout(processNextChar, 10);
-        }else{
-          const char = data[index];
-          const keyboardData = this._char2hid(char);
-          this.writeToQueue(keyboardData);
-          // Move to the next character and schedule the next processing
-          index++;
-          zeroFlag = 1;
-          setTimeout(processNextChar, 10);
-        }
-
-      } else {
-        // After processing all characters, send the release data
-        setTimeout(() => {
-          const releaseData = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
-          this._writeData(releaseData);
-        }, 50);
-      }
-    };
+  pasteData(data, lang) {
+    const web_keys = textToWebKeys(data, lang);
+    if (web_keys === null) {
+      return false;
+    }
+    const keyboardProcessor = new KeyboardProcessor();
   
-    // Start processing the first character
-    processNextChar();
+    let delay = 0;
+    for (let [key, state] of web_keys) {
+      setTimeout(() => {
+        const event = makeKeyboardEvent(key, state);
+        const data = keyboardProcessor.processEvent(event);
+        this.writeToQueue(data);
+      }, delay);
+      delay += 5;
+    }
+    return true;
   }
+  
 
   shortcuts(data) {
     this.handleEvent(data);
@@ -312,7 +302,7 @@ class Keyboard extends HIDDevice {
       '\n': 40, '\t': 43, ' ': 44, '-': 45, '=': 46, '[': 47, ']': 48, '\\': 49,
       ';': 51, "'": 52, '`': 53, ',': 54, '.': 55, '/': 56
     };
-  
+
     const shiftMapping = {
       'A': 4, 'B': 5, 'C': 6, 'D': 7, 'E': 8, 'F': 9, 'G': 10, 'H': 11, 'I': 12,
       'J': 13, 'K': 14, 'L': 15, 'M': 16, 'N': 17, 'O': 18, 'P': 19, 'Q': 20,
@@ -321,15 +311,15 @@ class Keyboard extends HIDDevice {
       '(': 38, ')': 39, '_': 45, '+': 46, '{': 47, '}': 48, '|': 49, ':': 51,
       '"': 52, '~': 53, '<': 54, '>': 55, '?': 56
     };
-  
+
     if (mapping.hasOwnProperty(char)) {
       return [false, mapping[char]];
     }
-  
+
     if (shiftMapping.hasOwnProperty(char)) {
       return [true, shiftMapping[char]];
     }
-  
+
     return [false, 0];
   }
 
@@ -337,13 +327,13 @@ class Keyboard extends HIDDevice {
     let d1 = 0;
     let dn = [];
     const [needShift, code] = this._charKeyCodeMapping(char);
-  
+
     if (needShift) {
       d1 |= 0x02;
     }
-  
+
     dn[0] = code;
-  
+
     // Node.js uses Buffer for binary data
     const buffer = Buffer.alloc(8);
     buffer.writeUInt8(d1, 0);
@@ -354,7 +344,7 @@ class Keyboard extends HIDDevice {
     buffer.writeUInt8(0, 5);
     buffer.writeUInt8(0, 6);
     buffer.writeUInt8(0, 7);
-  
+
     return buffer;
   }
 

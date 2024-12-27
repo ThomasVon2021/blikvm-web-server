@@ -18,14 +18,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
+import fs from 'fs';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import HID from '../../modules/kvmd/kvmd_hid.js';
 import Keyboard from '../keyboard.js';
 import Mouse from '../mouse.js';
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
-import fs from 'fs';
+import { getSupportLang } from '../../modules/hid/keysym.js';
 import {InputEventListener} from '../kvmd_event_listenner.js';
+import Logger from '../../log/logger.js';
 
+const logger = new Logger();
 
 function apiEnableHID(req, res, next) {
   try {
@@ -113,15 +116,20 @@ function apiGetStatus(req, res, next) {
 function apiKeyboardPaste(req, res, next) {
   try {
     const returnObject = createApiObj();
-    const text = req.body;
+    const text = req.body.text;
+    const lang = req.body.lang;
     if (typeof text !== 'string') {
       returnObject.code = ApiCode.INVALID_INPUT_PARAM;
       returnObject.msg = 'input data is not string';
+      logger.error(`input data is not string: ${text}`);
       res.json(returnObject);
       return;
     }
+    if (typeof lang !== 'string') {
+      lang = 'en';
+    }
     const keyboard = new Keyboard();
-    keyboard.pasteData(text);
+    keyboard.pasteData(text, lang);
     returnObject.code = ApiCode.OK;
     returnObject.msg = 'paste data ok';
     res.json(returnObject);
@@ -129,6 +137,28 @@ function apiKeyboardPaste(req, res, next) {
     next(err);
   }
 }
+
+function apiKeyboardPasteLanguage(req, res, next) {
+  try{
+    const returnObject = createApiObj();
+    const language = getSupportLang();
+    if (language === null) {
+      returnObject.code = ApiCode.INTERNAL_SERVER_ERROR;
+      returnObject.msg = 'error reading keymap';
+      res.json(returnObject);
+      return;
+    }
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = 'paste data ok';
+    returnObject.data = language;
+    res.json(returnObject);
+  } catch
+  (err) {
+    next(err);
+  }
+}
+
+
 
 function apiKeyboardShortcuts(req, res, next) {
   try {
@@ -192,4 +222,4 @@ function apiHIDLoopStatus(req, res, next) {
 }
 
 
-export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig, apiHIDLoopStatus,apiHIDLoopBlock };
+export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig, apiHIDLoopStatus,apiHIDLoopBlock,apiKeyboardPasteLanguage };
