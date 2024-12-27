@@ -19,7 +19,7 @@
 #                                                                            #
 *****************************************************************************/
 import Logger from './log/logger.js';
-import { fileExists, createFile, generateUniqueCode, getHardwareType } from './common/tool.js';
+import {getHardwareType } from './common/tool.js';
 import { HardwareType } from './common/enums.js';
 import fs from 'fs';
 import HttpServer from './server/server.js';
@@ -53,6 +53,9 @@ httpServer.startService().then((result) => {
   setTimeout(() => {
     atx.startService();
   }, 5000); // 5000 ms delay start ATX service
+
+  // test
+  //const keysym = chToKeysym('Hello, world!');
 })
 .finally(() => {
   logger.info("All services have been started.");

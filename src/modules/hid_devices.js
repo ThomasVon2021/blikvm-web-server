@@ -121,11 +121,13 @@ class HIDDevice{
 
         if (this._fd !== null) {
             const dataBuffer = Buffer.from(data);
-            //logger.info(`Writing to ${this._devicePath}`);
+            if(this._devicePath === '/dev/hidg0') {
+                logger.info(`Writing to ${this._devicePath} data:${data}`);
+            }   
             fs.write(this._fd, dataBuffer, (err, written) => {
                 if (err) {
                     this._onlineStatus = false;
-                    logger.warn(`Error writing to ${this._devicePath}: ${err}`);
+                    logger.warn(`Error writing to ${this._devicePath} data:${data} ${err}`);
                 } else {
                     this._onlineStatus = true;
                 }

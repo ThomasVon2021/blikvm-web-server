@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -19,47 +18,59 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-/**
- * This module defines the API object and its default values.
- * @module api/common/api
- */
+import {KEYMAP} from './mapping.js';
 
-/**
- * The version of the API.
- * @type {string}
- */
-const API_VERSION = '1.5.5';
 
-/**
- * Represents the error codes used in the API.
- * 100-199 indicates request error,
- * 200-299 indicates server error.
- * @enum {number}
- */
-const ApiCode = {
-  OK: 0,
-  INVALID_CREDENTIALS: 100,
-  NULL_TOKEN: 101,
-  INVALID_TOKEN: 102,
-  INVALID_INPUT_PARAM: 200,
-  INTERNAL_SERVER_ERROR: 300
-};
+// USB 键类的定义
+class KeyEvent{
+    constructor(key, state) {
+        this.key = key;   // 按键的 USB 信息
+        this.state = state;  // 按键的状态（按下或松开）
 
-/**
- * Creates an API object with default values.
- * @returns {Object} The created API object.
- * @property {string} version The version of the API.
- * @property {string} msg The message of the API.
- * @property {ApiCode} code The error code of the API.
- * @property {Object} data The data of the API.
- */
-function createApiObj() {
-  return {
-    version: API_VERSION,
-    msg: '',
-    code: ApiCode.OK,
-    data: {}
-  };
+        // 确保这个按键不是修饰键
+        if (this.key.isModifier) {
+            throw new Error("KeyEvent cannot be a modifier key.");
+        }
+    }
 }
 
-export { API_VERSION, ApiCode, createApiObj };
+class ModifierEvent {
+    constructor(modifier, state) {
+        this.modifier = modifier;  // 修饰键的 USB 信息
+        this.state = state;        // 修饰键的状态（按下或松开）
+
+        // 确保这是一个修饰键
+        if (!this.modifier.isModifier) {
+            throw new Error("ModifierEvent must be for a modifier key.");
+        }
+    }
+}
+
+function makeKeyboardEvent(key, state) {
+    const usbKey = KEYMAP[key].usb; // 获取键盘映射中的 USB 键信息
+    
+    // 如果是修饰键，返回 ModifierEvent
+    if (usbKey.isModifier) {
+        return new ModifierEvent(usbKey, state);
+    }
+
+    // 否则返回普通的 KeyEvent
+    return new KeyEvent(usbKey, state);
+}
+
+function makeKeyboardReport(pressedModifiers, pressedKeys) {
+    let modifiers = 0;
+    for (const modifier of pressedModifiers) {
+        modifiers |= modifier.code;
+    }
+
+    if (pressedKeys.length !== 6) {
+        throw new Error('pressedKeys must have a length of 6');
+    }
+
+    const keys = pressedKeys.map(key => (key === null ? 0 : key.code));
+
+    return Buffer.from([modifiers, 0, ...keys]);
+}
+
+export {KeyEvent, ModifierEvent, makeKeyboardEvent, makeKeyboardReport};

@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -19,47 +18,49 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-/**
- * This module defines the API object and its default values.
- * @module api/common/api
- */
+import fs from 'fs';
+import path from 'path';
+import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
+import {fileExists} from '../../common/tool.js';
+import Logger from '../../log/logger.js';
 
-/**
- * The version of the API.
- * @type {string}
- */
-const API_VERSION = '1.5.5';
+const logger = new Logger();
+let supportLanguage = null;
 
-/**
- * Represents the error codes used in the API.
- * 100-199 indicates request error,
- * 200-299 indicates server error.
- * @enum {number}
- */
-const ApiCode = {
-  OK: 0,
-  INVALID_CREDENTIALS: 100,
-  NULL_TOKEN: 101,
-  INVALID_TOKEN: 102,
-  INVALID_INPUT_PARAM: 200,
-  INTERNAL_SERVER_ERROR: 300
+const SymmapModifiers = {
+    SHIFT: 0x1,
+    ALTGR: 0x2,
+    CTRL: 0x4
 };
 
-/**
- * Creates an API object with default values.
- * @returns {Object} The created API object.
- * @property {string} version The version of the API.
- * @property {string} msg The message of the API.
- * @property {ApiCode} code The error code of the API.
- * @property {Object} data The data of the API.
- */
-function createApiObj() {
-  return {
-    version: API_VERSION,
-    msg: '',
-    code: ApiCode.OK,
-    data: {}
-  };
+function getSysmap(lang) {
+    const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const filePath = path.join(hid.keymaps, `${lang}.json`);
+    if(!fileExists(filePath)) {
+        logger.error(`Keymap file not found: ${filePath}`);
+        return null;
+    }
+    const keymap = JSON.parse(fs.readFileSync(filePath, UTF8));
+    return keymap;
 }
 
-export { API_VERSION, ApiCode, createApiObj };
+function getSupportLang() {
+  if (supportLanguage !== null) {
+    return supportLanguage;
+  }
+    try {
+      const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      const files = fs.readdirSync(hid.keymaps);
+      supportLanguage = files
+        .filter(file => path.extname(file) === '.json')
+        .map(file => path.basename(file, '.json'));
+      return supportLanguage;
+    } catch (err) {
+        logger.error(`Error reading directory: ${err}`);
+      return [];
+    }
+  }
+
+
+
+export { SymmapModifiers, getSysmap, getSupportLang };
