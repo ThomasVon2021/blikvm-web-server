@@ -19,42 +19,13 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-/**
- * Represents the hardware types.
- * @enum {number}
- */
-const HardwareType = {
-  /**
-   * Unknown hardware type.
-   */
-  UNKNOWN: 0,
-  /**
-   * Raspberry Pi 4B.
-   */
-  PI4B: 1,
-  /**
-   * Compute Module 4.
-   */
-  CM4: 2,
-  /**
-   * MangoPi hardware.
-   */
-  MangoPi: 3
-};
+import { SwitchModulesID } from '../../../common/enums.js';
+import KVMDTesmartSwitchBase from './kvmd_switch_tesmart_base.js';
 
-const ModuleState = {
-  STARTING: 'STARTING',
-  RUNNING: 'RUNNING',
-  STOPPING: 'STOPPING',
-  STOPPED: 'STOPPED',
-  ERROR: 'ERROR'
-};
+class KVMDTesmartHSW1601Switch extends KVMDTesmartSwitchBase {
+  constructor() {
+    super(SwitchModulesID.TESmart_HSW1601_switch);
+  }
+}
 
-const SwitchModulesID = {
-  BliKVM_switch_v1: 1,
-  BliKVM_switch_v2: 2,
-  TESmart_HSW0801_switch: 3,
-  TESmart_HSW1601_switch: 4
-};
-
-export { HardwareType, ModuleState, SwitchModulesID };
+export default KVMDTesmartHSW1601Switch;
