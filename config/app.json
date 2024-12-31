@@ -23,7 +23,7 @@
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"
     },
-    "rootPath": "/mnt/blikvm/web_src/web_server",
+    "rootPath": "/mnt/tmp/blikvm/web_src/web_server",
     "configPath": "/usr/bin/blikvm/package.json",
     "sshUser": "blikvm",
     "sshPassword": "blikvm"

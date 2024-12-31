@@ -88,7 +88,13 @@ done
 
 # Start the ustreamer process based on the board type
 if [[ "$board_type" == "$v2_hat" ]] || [[ "$board_type" == "$v3_pcie" ]]; then
-    v4l2-ctl --set-edid=file=/usr/bin/blikvm/edid.txt --fix-edid-checksums
+    if [ -f "/mnt/exec/release/lib/edid.txt" ]; then
+        v4l2-ctl --set-edid=file=/mnt/exec/release/lib/edid.txt --fix-edid-checksums
+    elif [ -f "./lib/edid" ]; then
+        v4l2-ctl --set-edid=file=./lib/edid.txt --fix-edid-checksums
+    else
+        echo "no edid"
+    fi
     v4l2-ctl --set-dv-bt-timings query
     $ustreamer_bin --device=/dev/video0 --host=0.0.0.0 --port=$port --persistent --dv-timings --format=uyvy --encoder=omx --workers=3 --quality=$quality --desired-fps=$fps --h264-bitrate=$kbps --h264-gop=$gop  --drop-same-frames=30 --last-as-blank=0 --h264-sink=demo::ustreamer::h264 &
     ustreamer_pid=$!
