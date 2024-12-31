@@ -21,10 +21,12 @@
 *****************************************************************************/
 import multer from 'multer';
 import fs from 'fs';
+import path from 'path';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import Logger from '../../log/logger.js';
 import { exec } from 'child_process';
 import progressStream from 'progress-stream';
+import {dirExists} from '../../common/tool.js'
 import {
   executeCMD,
   getSystemType,
@@ -154,7 +156,22 @@ class MSD {
 
   getMSDState() {
     const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const state = JSON.parse(fs.readFileSync(msd.stateFilePath, 'utf8'));
+    const stateFilePath = msd.stateFilePath;
+    if (!fs.existsSync(stateFilePath)) {
+      const initialState = {
+        msd_status: "not_connected",
+        msd_img_created: "not_created",
+      };
+  
+      const dirPath = path.dirname(stateFilePath);
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+  
+      fs.writeFileSync(stateFilePath, JSON.stringify(initialState, null, 2), 'utf8');
+    }
+  
+    const state = JSON.parse(fs.readFileSync(stateFilePath, 'utf8'));
     return {
       ...state,   
       tusPort: msd.tusPort
@@ -304,8 +321,9 @@ class MSD {
     }
   }
 
-  async getImages(dir) {
+  async getImages() {
     const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    logger.info("test");
     try {
       const isos = await readVentoyDirectory(msd.isoFilePath);
       return isos;

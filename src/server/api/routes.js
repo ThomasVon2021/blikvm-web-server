@@ -78,6 +78,7 @@ const routes = [
 
   { path: '/api/hid/shortcuts', handler: apiKeyboardShortcuts, method: 'post' },
   { path: '/api/hid/shortcuts/config', handler: apiGetShortcutsConfig, method: 'post' },
+  
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
   { path: '/api/msd/upload/progress', handler: apiGetUploadProgress, method: 'post' },
   { path: '/api/msd/create', handler: apiCreateMSD, method: 'post' },
