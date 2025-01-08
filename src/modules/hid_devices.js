@@ -36,6 +36,7 @@ class HIDDevice{
     isProcessing = false;
     isClosing = false;
     _fd = null;
+    _timeDiff = 5; //uint: ms
 
     writeToQueue(data) {
         this.eventQueue.enqueue(data);
@@ -57,6 +58,7 @@ class HIDDevice{
         while (true) {
             while (!this.eventQueue.isEmpty()) {
                 await this.readData();
+                await new Promise(resolve => setTimeout(resolve, this._timeDiff));
             }
 
             await new Promise((resolve) => this.eventQueue.once('data', resolve));
