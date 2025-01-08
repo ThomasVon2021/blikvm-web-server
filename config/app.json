@@ -33,7 +33,7 @@
     "shell": "./lib/kvmd-video.sh",
     "bin": "./lib/pi/ustreamer.bin",
     "fps": 30,
-    "quality": 100,
+    "quality": 80,
     "kbps": 5000,
     "gop": 30,
     "resolution": "1920x1080",
