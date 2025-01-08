@@ -23,7 +23,7 @@ import { apiATXClick, apiATXState } from './atx.route.js';
 import state from './state.route.js';
 import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording, apiResolutionChange, apiSnapshot } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
-import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig } from './hid.route.js';
+import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig, apiKeyboardPasteLanguage } from './hid.route.js';
 import {
   apiUpload,
   apiCreateMSD,
@@ -74,6 +74,8 @@ const routes = [
   { path: '/api/hid/mode', handler: apiChangeMode, method: 'post' },
   { path: '/api/hid/status', handler: apiGetStatus, method: 'post' },
   { path: '/api/hid/paste', handler: apiKeyboardPaste, method: 'post' },
+  { path: '/api/hid/paste', handler: apiKeyboardPasteLanguage, method: 'get' },
+
   { path: '/api/hid/shortcuts', handler: apiKeyboardShortcuts, method: 'post' },
   { path: '/api/hid/shortcuts/config', handler: apiGetShortcutsConfig, method: 'post' },
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },

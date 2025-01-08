@@ -33,7 +33,7 @@
     "shell": "./lib/kvmd-video.sh",
     "bin": "./lib/pi/ustreamer.bin",
     "fps": 30,
-    "quality": 80,
+    "quality": 100,
     "kbps": 5000,
     "gop": 30,
     "resolution": "1920x1080",
@@ -66,6 +66,7 @@
   "hid": {
     "hidEnable": "./lib/hid/enable-gadget.sh",
     "hidDisable": "./lib/hid/disable-gadget.sh",
+    "keymaps": "./lib/keymaps",
     "enable": true,
     "absoluteMode": true,
     "mouseJiggler": false,

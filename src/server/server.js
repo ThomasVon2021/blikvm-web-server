@@ -327,7 +327,7 @@ class HttpServer {
       
       jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) {
-          logger.error('invalid wss token');
+          logger.error(`invalid wss token:${token}`);
           socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
           socket.destroy();
           return;  

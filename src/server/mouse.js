@@ -92,6 +92,7 @@ class Mouse extends HIDDevice {
     }
 
     if (isDeviceFile(this._devicePath) && !this.isClosing) {
+      // logger.info(`Writing mouse data:${data} to ${this._devicePath}`);
       this.writeToQueue(data);
     }
   }
