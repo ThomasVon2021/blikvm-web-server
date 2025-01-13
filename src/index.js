@@ -43,16 +43,16 @@ userConfigUpdate.upgradeFile();
 const httpServer = new HttpServer();
 httpServer.startService().then((result) => {
   startHid();
-  const video = new Video();
-  video.startService();
-  const kvmdmain = new KVMDMain();
-  kvmdmain.startService();
-  startJanus();
-  startSwitch();
-  const atx = new ATX();
-  setTimeout(() => {
-    atx.startService();
-  }, 5000); // 5000 ms delay start ATX service
+  // const video = new Video();
+  // video.startService();
+  // const kvmdmain = new KVMDMain();
+  // kvmdmain.startService();
+  // startJanus();
+  // startSwitch();
+  // const atx = new ATX();
+  // setTimeout(() => {
+  //   atx.startService();
+  // }, 5000); // 5000 ms delay start ATX service
 })
 .finally(() => {
   logger.info("All services have been started.");

@@ -31,7 +31,7 @@ set -x
 # Treat undefined environment variables as errors.
 set -u
 
-USB_DEVICE_DIR="g1"
+USB_DEVICE_DIR="rockchip"
 USB_GADGET_PATH="/sys/kernel/config/usb_gadget"
 USB_DEVICE_PATH="${USB_GADGET_PATH}/${USB_DEVICE_DIR}"
 
@@ -42,7 +42,7 @@ USB_MASS_STORAGE_NAME="mass_storage.0"
 USB_MASS_STORAGE_FUNCTIONS_DIR="functions/${USB_MASS_STORAGE_NAME}"
 
 USB_CONFIG_INDEX=1
-USB_CONFIG_DIR="configs/c.${USB_CONFIG_INDEX}"
+USB_CONFIG_DIR="configs/b.${USB_CONFIG_INDEX}"
 USB_ALL_CONFIGS_DIR="configs/*"
 USB_ALL_FUNCTIONS_DIR="functions/*"
 USB_MSD_DIR="/mnt/msd/ventoy"
