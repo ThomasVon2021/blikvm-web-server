@@ -323,7 +323,6 @@ class MSD {
 
   async getImages() {
     const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    logger.info("test");
     try {
       const isos = await readVentoyDirectory(msd.isoFilePath);
       return isos;

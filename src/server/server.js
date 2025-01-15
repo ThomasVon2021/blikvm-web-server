@@ -176,19 +176,33 @@ class HttpServer {
   startService() {
     return new Promise((resolve, reject) => {
       this._state = HttpServerState.STARTING;
-      this._server.listen(this._httpsServerPort, () => {
-        this._state = HttpServerState.RUNNING;
-        logger.info(
-          `Https Api started at https://localhost:${this._httpsServerPort}, state: ${this._state}`
-        );
-        logger.info(
-          `WebSocket Api started at ws://localhost:${this._httpsServerPort}, state: ${this._state}`
-        );
-        resolve('ok');
-      });
-      this._httpServer.listen(this._httpServerPort, () => {
-        logger.info('Http server started at http://localhost:80');
-      });
+      if( this._protocol === 'https' ){
+        this._server.listen(this._httpsServerPort, () => {
+          logger.info(
+            `Https Api started at https://localhost:${this._httpsServerPort}, state: ${this._state}`
+          );
+          logger.info(
+            `WebSocket Api started at ws://localhost:${this._httpsServerPort}, state: ${this._state}`
+          );
+          resolve('ok');
+        });
+        this._httpServer.listen(this._httpServerPort, () => {
+          this._state = HttpServerState.RUNNING;
+          logger.info('Http server started at http://localhost:80');
+        });
+      }else{
+        this._server.listen(this._httpServerPort, () => {
+          this._state = HttpServerState.RUNNING;
+          logger.info(
+            `Http Api started at http://localhost:${this._httpServerPort}, state: ${this._state}`
+          );
+          logger.info(
+            `WebSocket Api started at ws://localhost:${this._httpServerPort}, state: ${this._state}`
+          );
+          resolve('ok');
+        });
+      }
+
     });
   }
 
@@ -237,7 +251,7 @@ class HttpServer {
    */
   _init() {
     const { server, video, msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-
+    this._protocol = server.protocol;
     const app = express();
     app.use(
       cors({
@@ -266,7 +280,7 @@ class HttpServer {
       },
     }));
 
-    const janus_server = this._protocol === 'http' ? 'http://127.0.0.1:8188' : 'https://127.0.0.1:8989';
+    const janus_server = server.protocol === 'http' ? 'http://127.0.0.1:8188' : 'https://127.0.0.1:8989';
     this._proxy = httpProxy.createProxyServer({
       target: janus_server, // Janus server address
       ws: true,
@@ -290,19 +304,25 @@ class HttpServer {
 
     app.get('*', this._otherRoute);
     
-    //start https server
-    this._server = https.createServer({
+    //start http or https server
+
+    if( server.protocol === 'http' ){
+      this._server = http.createServer(app);
+    }else{
+
+      this._server = https.createServer({
         key: fs.readFileSync(server.ssl.key),
         cert: fs.readFileSync(server.ssl.cert)
       }, app);
-    
-    //start http server
-    this._httpServer = http.createServer((req, res) => {
-      const host = req.headers.host.replace(/:\d+$/, `${this._httpsServerPortps}`);
-      res.writeHead(301, { Location: `https://${host}${req.url}` });
-      res.end();
-    });
 
+      this._httpServer = http.createServer((req, res) => {
+        const host = req.headers.host.replace(/:\d+$/, `${this._httpsServerPortps}`);
+        res.writeHead(301, { Location: `https://${host}${req.url}` });
+        res.end();
+      });
+
+    }
+    
     this._httpServerEvents();
 
     this._wss = new WebSocketServer({

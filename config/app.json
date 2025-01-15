@@ -19,11 +19,12 @@
     "userFile": "./config/user.json"
   },
   "server": {
+    "protocol": "http",
     "ssl": {
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"
     },
-    "rootPath": "/mnt/tmp/blikvm/web_src/web_server",
+    "rootPath": "/mnt/blikvm/web_src/web_server",
     "configPath": "/usr/bin/blikvm/package.json",
     "sshUser": "blikvm",
     "sshPassword": "blikvm"
