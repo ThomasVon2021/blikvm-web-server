@@ -80,10 +80,14 @@ function apiGetSystemInfo(req, res, next) {
         };
         const returnObject = createApiObj();
         returnObject.code = ApiCode.OK;
+        const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
         returnObject.data = {
           cpuLoad: systemInfo.cpuLoad,
           uptime: systemInfo.uptime,
           temperature: systemInfo.temperature,
+          auth:{
+            isEnabled: server.auth
+          },
           board: {
             manufacturer: systemData.manufacturer || 'Unknown',
             model: systemData.model || 'Unknown',

@@ -38,13 +38,13 @@ import { ApiCode, createApiObj } from '../common/api.js';
 import { CONFIG_PATH, UTF8, JWT_SECRET } from '../common/constants.js';
 import { fileExists, processPing, getSystemInfo } from '../common/tool.js';
 import path from 'path';
-import { apiLogin } from './api/login.route.js';
+import { apiGetAuthState, apiLogin } from './api/login.route.js';
 import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
-import {wsGetVideoState} from './api/video.route.js';
+import { wsGetVideoState } from './api/video.route.js';
 import startTusServer from './tusServer.js';
 import CreateSshServer from './sshServer.js';
-import {NotificationType, Notification} from '../modules/notification.js';
+import { NotificationType, Notification } from '../modules/notification.js';
 import ATX from '../modules/kvmd/kvmd_atx.js';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import httpProxy from 'http-proxy';
@@ -73,6 +73,8 @@ function getRootPath() {
   }
   return rootPath;
 }
+
+let G_AuthState = true;
 
 /**
  * Represents an HTTP API server.
@@ -110,7 +112,7 @@ class HttpServer {
   _httpServer = null;
   _httpServerPort = 80;
 
-  _protocol='https';
+  _protocol = 'https';
 
   /**
    * WebSocket server instance.
@@ -176,7 +178,7 @@ class HttpServer {
   startService() {
     return new Promise((resolve, reject) => {
       this._state = HttpServerState.STARTING;
-      if( this._protocol === 'https' ){
+      if (this._protocol === 'https') {
         this._server.listen(this._httpsServerPort, () => {
           logger.info(
             `Https Api started at https://localhost:${this._httpsServerPort}, state: ${this._state}`
@@ -190,7 +192,7 @@ class HttpServer {
           this._state = HttpServerState.RUNNING;
           logger.info('Http server started at http://localhost:80');
         });
-      }else{
+      } else {
         this._server.listen(this._httpServerPort, () => {
           this._state = HttpServerState.RUNNING;
           logger.info(
@@ -252,6 +254,7 @@ class HttpServer {
   _init() {
     const { server, video, msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     this._protocol = server.protocol;
+    G_AuthState = server.auth;
     const app = express();
     app.use(
       cors({
@@ -262,11 +265,11 @@ class HttpServer {
     app.use(bodyParser.json());
     app.use(express.static(path.join(getRootPath(), 'dist')));
     app.use(express.text());
-   
+
     app.use('/video', createProxyMiddleware({
       target: `http://127.0.0.1:${video.port}`,
       changeOrigin: true,
-      secure: false, 
+      secure: false,
     }));
 
     app.use('/tus', createProxyMiddleware({
@@ -287,9 +290,13 @@ class HttpServer {
       changeOrigin: true,
       secure: false,
     });
-    
+
     app.post('/api/login', apiLogin);
-    app.use(this._httpVerityMiddle);
+    app.get('/api/auth/state', apiGetAuthState);
+    if (server.auth === true) {
+      app.use(this._httpVerityMiddle);
+    }
+
     app.use(this._httpRecorderMiddle);
     startTusServer();  // start tus server
     routes.forEach((route) => {
@@ -303,12 +310,12 @@ class HttpServer {
     app.use(this._httpErrorMiddle);
 
     app.get('*', this._otherRoute);
-    
+
     //start http or https server
 
-    if( server.protocol === 'http' ){
+    if (server.protocol === 'http') {
       this._server = http.createServer(app);
-    }else{
+    } else {
 
       this._server = https.createServer({
         key: fs.readFileSync(server.ssl.key),
@@ -322,7 +329,7 @@ class HttpServer {
       });
 
     }
-    
+
     this._httpServerEvents();
 
     this._wss = new WebSocketServer({
@@ -342,16 +349,33 @@ class HttpServer {
     this._server.on('upgrade', (request, socket, head) => {
 
       const url = new URL(request.url, `http://${request.headers.host}`);
-      const pathname = url.pathname;  
-      const token = url.searchParams.get('token');  
-      
-      jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-          logger.error('invalid wss token');
-          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-          socket.destroy();
-          return;  
-        }
+      const pathname = url.pathname;
+
+      if (server.auth === true) {
+        const token = url.searchParams.get('token');
+        jwt.verify(token, JWT_SECRET, (err, user) => {
+          if (err) {
+            logger.error('invalid wss token');
+            socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+            socket.destroy();
+            return;
+          }
+          if (pathname === '/wss') {
+            this._wss.handleUpgrade(request, socket, head, (ws) => {
+              this._wss.emit('connection', ws, request);
+            });
+          } else if (pathname === '/ssh') {
+            this._wsTerminal.handleUpgrade(request, socket, head, (ws) => {
+              this._wsTerminal.emit('connection', ws, request);
+            });
+          } else if (pathname === '/janus') {
+            this._proxy.ws(request, socket, head);
+          } else {
+            socket.destroy();
+          }
+
+        });
+      }else{
         if (pathname === '/wss') {
           this._wss.handleUpgrade(request, socket, head, (ws) => {
             this._wss.emit('connection', ws, request);
@@ -365,11 +389,9 @@ class HttpServer {
         } else {
           socket.destroy();
         }
-
-      });
-
+      }
     });
-    
+
 
   }
 
@@ -405,7 +427,7 @@ class HttpServer {
       //   return;
       // }
       const notification = new Notification();
-      notification.initWebSocket(ws); 
+      notification.initWebSocket(ws);
 
       logger.info(`WebSocket Client connected, total clients: ${this._wss.clients.size}`);
 
@@ -413,7 +435,7 @@ class HttpServer {
       const keyboard = new Keyboard();
       const hid = new HID();
       const atx = new ATX();
-      const heartbeatInterval = setInterval(async() => {
+      const heartbeatInterval = setInterval(async () => {
         if (ws.readyState === WebSocket.OPEN) {
           const systemInfo = await getSystemInfo();
           const ret = createApiObj();
@@ -501,17 +523,22 @@ class HttpServer {
    * @private
    */
   _httpRecorderMiddle(req, res, next) {
-    if( req.url === '/main' || req.url === '/terminal'){
+    if (req.url === '/main' || req.url === '/terminal') {
       next();
       return;
     }
     const requestType = req.method;
     const requestUrl = req.url;
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const username = decoded.username;
-    logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
+    if(G_AuthState === true ){
+      const authHeader = req.headers.authorization;
+      const token = authHeader && authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const username = decoded.username;
+      logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
+    }else{
+      logger.info(`http api request ${requestType} ${requestUrl}`);
+    }
+
     next();
   }
 
@@ -523,7 +550,7 @@ class HttpServer {
    * @private
    */
   _httpVerityMiddle(req, res, next) {
-    if( req.url === '/main' || req.url === '/terminal'){
+    if (req.url === '/main' || req.url === '/terminal') {
       next();
       return;
     }

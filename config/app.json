@@ -19,7 +19,7 @@
     "userFile": "./config/user.json"
   },
   "server": {
-    "protocol": "http",
+    "protocol": "https",
     "ssl": {
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"
@@ -27,7 +27,8 @@
     "rootPath": "/mnt/blikvm/web_src/web_server",
     "configPath": "/usr/bin/blikvm/package.json",
     "sshUser": "blikvm",
-    "sshPassword": "blikvm"
+    "sshPassword": "blikvm",
+    "auth": false
   },
   "video": {
     "port": 10004,

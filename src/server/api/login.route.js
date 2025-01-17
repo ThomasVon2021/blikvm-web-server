@@ -23,7 +23,7 @@ import { ApiCode, createApiObj } from '../../common/api.js';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import bcrypt from 'bcrypt';
-import { CONFIG_PATH, JWT_SECRET } from '../../common/constants.js';
+import { CONFIG_PATH, JWT_SECRET, UTF8 } from '../../common/constants.js';
 import Logger from '../../log/logger.js';
 import jwt from 'jsonwebtoken';
 import TwoFactorAuth from '../../modules/two_factor_auth.js';
@@ -40,8 +40,8 @@ const verifiedHash = async (value, hashedValue) => {
 };
 
 function getUsers() {
-  const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-  const { Accounts } =  JSON.parse(fs.readFileSync(userManager.userFile, 'utf8'));
+  const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+  const { Accounts } =  JSON.parse(fs.readFileSync(userManager.userFile, UTF8));
   return Accounts;
 }
 
@@ -76,11 +76,11 @@ async function apiCreateAccount(req, res, next) {
       role: 'readonly',
       isEnabled: 'true'
     };
-    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const userFile =  JSON.parse(fs.readFileSync(userManager.userFile, 'utf8'));
+    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const userFile =  JSON.parse(fs.readFileSync(userManager.userFile, UTF8));
     userFile.Accounts.push(newUser);
 
-    fs.writeFileSync(userManager.userFile, JSON.stringify(userFile, null, 2), 'utf8');
+    fs.writeFileSync(userManager.userFile, JSON.stringify(userFile, null, 2), UTF8);
     returnObject.msg = 'Account created successfully!';
     returnObject.code = ApiCode.OK;
     res.json(returnObject);
@@ -115,8 +115,8 @@ function apiDeleteAccount(req, res, next) {
       return;
     }
 
-    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    const userFile =  JSON.parse(fs.readFileSync(userManager.userFile, 'utf8'));
+    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const userFile =  JSON.parse(fs.readFileSync(userManager.userFile, UTF8));
 
     const users = userFile.Accounts;
     const userIndex = users.findIndex(user => user.username === username);
@@ -128,7 +128,7 @@ function apiDeleteAccount(req, res, next) {
     }
 
     users.splice(userIndex, 1);
-    fs.writeFileSync(userManager.userFile, JSON.stringify(userFile, null, 2), 'utf8');
+    fs.writeFileSync(userManager.userFile, JSON.stringify(userFile, null, 2), UTF8);
     returnObject.msg = 'Account deleted successfully!';
     returnObject.code = ApiCode.OK;
     res.json(returnObject);
@@ -196,11 +196,11 @@ async function  apiLogin(req, res, next) {
 async function changeAccount(oriUsername, newUsername, newPassword) {
   try {
     // Read the configuration file to get the user file path
-    const configData = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    const configData = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     const userFilePath = configData.userManager.userFile;
 
     // Read the user file content
-    const userContent = await fsPromises.readFile(userFilePath, 'utf8');
+    const userContent = await fsPromises.readFile(userFilePath, UTF8);
     const users = JSON.parse(userContent);
 
     let userFound = false;
@@ -226,7 +226,7 @@ async function changeAccount(oriUsername, newUsername, newPassword) {
     const updatedJsonContent = JSON.stringify(users, null, 2);
 
     // Write the updated content back to the JSON file
-    await fsPromises.writeFile(userFilePath, updatedJsonContent, 'utf8');
+    await fsPromises.writeFile(userFilePath, updatedJsonContent, UTF8);
 
     return true;
   } catch (error) {
@@ -256,4 +256,18 @@ async function apiUpdateAccount(req, res, next) {
   }
 }
 
-export { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount };
+function apiGetAuthState(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    returnObject.code = ApiCode.OK;
+    returnObject.data = {
+      auth: server.auth
+    };
+    res.json(returnObject);
+  } catch (err) {
+    next(err);
+  }
+} 
+
+export { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount, apiGetAuthState };

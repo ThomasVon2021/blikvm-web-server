@@ -35,7 +35,7 @@ import {
   apiGetUploadProgress,
   apiGetMakeImageProgress
 } from './msd.route.js';
-import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount } from './login.route.js';
+import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount,apiGetAuthState } from './login.route.js';
 import {
   apiEnableSwitch,
   apiGetSwitchState,
@@ -114,7 +114,9 @@ const routes = [
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
   { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
   { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'post' },
-  { path: '/api/logs', handler: apiGetLogs, method: 'post' }
+  { path: '/api/logs', handler: apiGetLogs, method: 'post' },
+
+  { path: '/api/auth/state', handler: apiGetAuthState, method: 'get' }
   
 ];
 
