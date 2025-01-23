@@ -34,9 +34,6 @@ import {NotificationType, Notification } from './modules/notification.js';
 import UserConfigUpdate from './modules/update/user_update.js';
 import AppConfigUpdate from './modules/update/app_update.js';
 
-const logger = new Logger();
-const notification = new Notification();
-
 // udpate app.json
 const appConfigUpdate = new AppConfigUpdate();
 appConfigUpdate.upgradeFile();
@@ -44,6 +41,9 @@ appConfigUpdate.upgradeFile();
 // update user.json
 const userConfigUpdate = new UserConfigUpdate();
 userConfigUpdate.upgradeFile();
+
+const notification = new Notification();
+const logger = new Logger();
 
 
 const httpServer = new HttpServer();
