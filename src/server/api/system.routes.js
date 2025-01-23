@@ -29,7 +29,6 @@ import { exec } from 'child_process';
 import {Notification, NotificationType} from '../../modules/notification.js';
 import si from 'systeminformation';
 import Logger from '../../log/logger.js';
-import { type } from 'os';
 
 const logger = new Logger();
 
@@ -127,8 +126,6 @@ function apiGetSystemInfo(req, res, next) {
 
 function apiGetDevice(req, res, next) {
   try {
-    const { device } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    const { deviceinfo, manufacturer } = JSON.parse(fs.readFileSync(device, UTF8));
     const returnObject = createApiObj();
     returnObject.code = ApiCode.OK;
     const hardwareType = getHardwareType();
@@ -145,10 +142,10 @@ function apiGetDevice(req, res, next) {
       deviceType = "BliKVM CM4";
     }
     returnObject.data = {
-      device: deviceinfo,
+      device: "KVM-over-IP",
       deviceType: deviceType,
       hardwareType: type,
-      manufacturer: manufacturer
+      manufacturer: "BliCube LLC"
     };
     res.json(returnObject);
   } catch (error) {
