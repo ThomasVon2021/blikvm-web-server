@@ -42,6 +42,8 @@ class ModuleApp extends Module {
 
   _errorMsg = '';
 
+  _ManualStop = false;
+
   startService() {
     return new Promise((resolve, reject) => {
       const { checkResult, checkMessage } = this._startServiceCheck();
@@ -80,6 +82,14 @@ class ModuleApp extends Module {
       this._app.on('close', (code, signal) => {
         this._state = ModuleState.STOPPED;
         logger.info(`${this._name} API closed with code ${code} and signal ${signal}`);
+        if (this._ManualStop === false) {
+          //为了避免递归调用导致的栈溢出，这里使用setTimeout
+          setTimeout(() => {
+            this.startService().catch((err) => {
+              logger.error(`Failed to restart ${this._name} API: ${err.msg}`);
+            });
+          }, 1000); 
+        }
         if (code === 1) {
           this._state = ModuleState.ERROR;
           this._error = ModuleAppStateCode.START_FAILED;
@@ -106,6 +116,7 @@ class ModuleApp extends Module {
           return;
         }
         this._state = ModuleState.RUNNING;
+        this._ManualStop = false;
         logger.info(`${this._name} API started, state: ${this._state}`);
         resolve(result);
       }, 200);
@@ -126,7 +137,7 @@ class ModuleApp extends Module {
 
       this._app.kill('SIGTERM');
       this._state = ModuleState.STOPPING;
-
+      this._ManualStop = true;
       const startTime = Date.now();
 
       const checkState = () => {

@@ -23,61 +23,24 @@ import fs from 'fs';
 import {fileExists} from '../../common/tool.js'
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import Logger from '../../log/logger.js';
+import defaultConfig from './app_default_config.js';
 
 const logger = new Logger();
 
-class UserConfigUpdate {
+class AppConfigUpdate {
 
   constructor() {
-    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    this._filePath = userManager.userFile;
-    this._defaultConfig = {
-        "version": 2,
-        "Roles": [
-          {
-            "role": "admin",
-            "description": "full access"
-          },
-          {
-            "role": "readonly",
-            "description": "limited access"
-          }
-        ],
-        "Accounts": [
-          {
-            "username": "admin",
-            "password": "$2b$10$iB3xpN8gl/iXusff8d3xCeRJu5M1s71RFgSveZTKuBymerQREUIja",
-            "role": "admin",
-            "isEnabled": true,
-            "isTwoFaEnabled": false,
-            "twoFaSecret": "",
-            "twoFaUri": ""
-          },
-          {
-            "username": "blikvm",
-            "password": "$2b$10$.3cX/1cVKwgTxERqaYpdL.VVE0ippbiAUFtMJLA77vEcAGuuwgmBS",
-            "role": "readonly",
-            "isEnabled": true,
-            "isTwoFaEnabled": false,
-            "twoFaSecret": "",
-            "twoFaUri": ""
-          }
-        ]
-    };
+    this._filePath = CONFIG_PATH;
+    this._defaultConfig = defaultConfig;
   }
 
   upgradeV1toV2(data) {
-    data.Accounts.forEach(account => {
-      if (account.isTwoFaEnabled === undefined) {
-        account.isTwoFaEnabled = false; 
-      }
-      if (account.twoFaSecret === undefined) {
-        account.twoFaSecret = ''; 
-      }
-      if (account.twoFaUri === undefined) {
-        account.twoFaUri = ''; 
-      }
-    });
+    if (data.server.protocol === undefined) {
+      data.server.protocol = 'https'; 
+    }
+    if (data.server.auth === undefined) {
+      data.server.auth = true; 
+    }
     data.version = 2;
     return data;
   }
@@ -99,8 +62,10 @@ class UserConfigUpdate {
   // 升级配置文件
   upgradeFile() {
     try {
+      // const app_config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
       if(fileExists(this._filePath) === false){
         fs.writeFileSync(this._filePath, JSON.stringify(this._defaultConfig, null, 2), UTF8);
+        logger.info(`write default config to ${this._filePath}`);
         return;
       }
 
@@ -121,6 +86,10 @@ class UserConfigUpdate {
       logger.error(`${error}`);
     }
   }
+
+  getDefaultConfig() {
+    return this._defaultConfig;
+  }
 }
 
-export default UserConfigUpdate;
+export default AppConfigUpdate;

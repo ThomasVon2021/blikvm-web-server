@@ -27,7 +27,7 @@
 import log4js from 'log4js';
 import fs from 'fs';
 import { CONFIG_PATH } from '../common/constants.js';
-
+import defaultConfig from '../modules/update/app_default_config.js';
 
 /**
  * Represents a logger that logs messages to multiple loggers.
@@ -126,7 +126,14 @@ class Logger {
    * @private
    */
   _init() {
-    const { log } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+
+    let log;
+    if(fs.existsSync(CONFIG_PATH) === false){
+      log = defaultConfig.log;
+    }else{
+      const configFile = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+      log = configFile.log;
+    }
 
     if (!log.console.enabled && !log.file.enabled) {
       return;
