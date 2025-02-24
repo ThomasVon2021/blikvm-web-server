@@ -19,7 +19,7 @@
 #                                                                            #
 *****************************************************************************/
 import Logger from './log/logger.js';
-import { fileExists, createFile, generateUniqueCode, getHardwareType } from './common/tool.js';
+import { fileExists, createFile, generateUniqueCode, getHardwareType, getSreamerType} from './common/tool.js';
 import { HardwareType } from './common/enums.js';
 import fs from 'fs';
 import HttpServer from './server/server.js';
@@ -30,15 +30,16 @@ import Janus from './modules/kvmd/kvmd_janus.js';
 import HID from './modules/kvmd/kvmd_hid.js';
 import KVMSwitchFactory from './modules/kvmd/switch/kvmd_switch.js';
 import { CONFIG_PATH, UTF8 } from './common/constants.js';
-import {NotificationType, Notification } from './modules/notification.js';
+import { NotificationType, Notification } from './modules/notification.js';
 import UserConfigUpdate from './modules/update/user_update.js';
 import AppConfigUpdate from './modules/update/app_update.js';
+// update user.json
+import Mediamtx from './modules/kvmd/kvmd_mediamtx.js';
 
 // udpate app.json
 const appConfigUpdate = new AppConfigUpdate();
 appConfigUpdate.upgradeFile();
 
-// update user.json
 const userConfigUpdate = new UserConfigUpdate();
 userConfigUpdate.upgradeFile();
 
@@ -48,22 +49,21 @@ const logger = new Logger();
 
 const httpServer = new HttpServer();
 httpServer.startService().then((result) => {
-  startHid();
-  // const video = new Video();
-  // video.startService();
+  // startHid();
+  startVideo();
   // const kvmdmain = new KVMDMain();
   // kvmdmain.startService();
-  // startJanus();
+  startWebServer();
   // startSwitch();
   // const atx = new ATX();
   // setTimeout(() => {
   //   atx.startService();
   // }, 5000); // 5000 ms delay start ATX service
 })
-.finally(() => {
-  logger.info("All services have been started.");
-  notification.addMessage(NotificationType.INFO, 'All services have been started.');
-});
+  .finally(() => {
+    logger.info("All services have been started.");
+    notification.addMessage(NotificationType.INFO, 'All services have been started.');
+  });
 
 // function start switch
 function startSwitch() {
@@ -83,11 +83,23 @@ function startHid() {
   }
 }
 
-function startJanus(){
+function startVideo() {
+
   const hardwareType = getHardwareType();
-  if(hardwareType === HardwareType.CM4 ||  hardwareType === HardwareType.PI4B ){
-    
+  const streamerType = getSreamerType();
+  const video = new Video(streamerType, hardwareType);
+  video.startService();
+
+}
+
+function startWebServer() {
+  const hardwareType = getHardwareType();
+  if (hardwareType === HardwareType.CM4 || hardwareType === HardwareType.PI4B) {
+
     const janus = new Janus();
     janus.startService();
+  } else if (hardwareType === HardwareType.OrangePiCM4) {
+    const mediamtx = new Mediamtx();
+    mediamtx.startService();
   }
-}
+} 
