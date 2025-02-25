@@ -31,20 +31,30 @@
     "auth": true
   },
   "video": {
-    "port": 10004,
-    "shell": "./lib/kvmd-video.sh",
-    "bin": "./lib/pi/ustreamer.bin",
-    "fps": 30,
-    "quality": 80,
-    "kbps": 5000,
-    "gop": 30,
-    "resolution": "1920x1080",
-    "recordPath": "/mnt/tmp/record",
-    "recordBin": "./lib/pi/ustreamer-dump"
+    "ustreamer": {
+      "port": 10004,
+      "bin": "./lib/pi/ustreamer.bin",
+      "fps": 30,
+      "quality": 80,
+      "kbps": 5000,
+      "gop": 30,
+      "resolution": "1920x1080",
+      "recordPath": "/mnt/tmp/record",
+      "recordBin": "./lib/pi/ustreamer-dump"
+    },
+    "gstreamer": {
+      "port":10004,
+      "kbps": 5000,
+      "gop": 30,
+      "bin": "/usr/bin/gst-launch-1.0",
+      "decodeMode":"H265"
+    }
   },
   "kvmd": {
     "bin": "./lib/pi/kvmd-main",
     "janusBin": "./lib/pi/janus",
+    "MediamtxBin": "./lib/rk3566/mediamtx",
+    "MediamtxCfg": "./lib/rk3566/mediamtx.yml",
     "switch": {
       "enabled": false,
       "devicePath": "/dev/ttyUSB0",

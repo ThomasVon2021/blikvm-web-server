@@ -39,7 +39,31 @@ const HardwareType = {
   /**
    * MangoPi hardware.
    */
-  MangoPi: 3
+  MangoPi: 3,
+  /**
+   * Oriangepi hardware.
+   */
+  OrangePiCM4: 4
+};
+
+/**
+ * Represents the streamer types.
+ * @enum {number}
+ */
+const StreamerType = {
+    /**
+   * Unknown streamer type.
+   */
+    UNKNOWN: 0,
+  /**
+   * Unknown streamer type.
+   */
+  Ustreamer: 1,
+  /**
+   * Raspberry Pi 4B.
+   */
+  Gstreamer: 2,
+
 };
 
 const ModuleState = {
@@ -50,4 +74,4 @@ const ModuleState = {
   ERROR: 'ERROR'
 };
 
-export { HardwareType, ModuleState };
+export { HardwareType, StreamerType, ModuleState };

@@ -28,7 +28,7 @@ import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
 import { v4 } from 'uuid';
-import { HardwareType } from './enums.js';
+import { HardwareType, StreamerType } from './enums.js';
 import { execSync, exec } from 'child_process';
 import si from 'systeminformation';
 import Logger from '../log/logger.js';
@@ -37,6 +37,8 @@ import { createApiObj } from './api.js';
 const logger = new Logger();
 
 let hardwareSysType = HardwareType.UNKNOWN;
+
+let streamerSysType = StreamerType.UNKNOWN;
 
 /**
  * Checks if a directory exists at the specified path.
@@ -132,6 +134,10 @@ function generateSecret(length) {
   return password;
 }
 
+function getSreamerType() {
+  return streamerSysType;
+}
+
 /**
  * Retrieves the hardware type based on the device model.
  * @returns {enmus} The hardware type, see HardwareType.
@@ -142,13 +148,20 @@ function getHardwareType() {
     const pi4bSys = 'Raspberry Pi 4 Model B';
     const mangoPiSys = 'MangoPi Mcore';
     const piCM4Sys = 'Raspberry Pi Compute Module 4';
+    const orangePiCM4Sys="Rockchip RK3566 Orange Pi CM4 Board"
 
     if (modelOutput.includes(pi4bSys)) {
       hardwareSysType = HardwareType.PI4B;
+      streamerSysType = StreamerType.Ustreamer;
     } else if (modelOutput.includes(mangoPiSys)) {
       hardwareSysType = HardwareType.MangoPi;
+      streamerSysType = StreamerType.Ustreamer;
     } else if (modelOutput.includes(piCM4Sys)) {
       hardwareSysType = HardwareType.CM4;
+      streamerSysType = StreamerType.Ustreamer;
+    } else if (modelOutput.includes(orangePiCM4Sys)) {
+      hardwareSysType = HardwareType.OrangePiCM4;
+      streamerSysType = StreamerType.Gstreamer;
     }
   }
   return hardwareSysType;
@@ -375,6 +388,7 @@ export {
   generateUniqueCode,
   generateSecret,
   getHardwareType,
+  getSreamerType,
   executeScriptAtPath,
   isDeviceFile,
   executeCMD,

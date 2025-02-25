@@ -77,6 +77,55 @@ function apiVideoControl(req, res, next) {
   }
 }
 
+function apiDecodeChange(req, res, next) {
+  const ret = createApiObj();
+
+  if (getHardwareType() !== HardwareType.OrangePiCM4) {
+    ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+    ret.msg = 'Hardware not supported change decode';
+    res.json(ret);
+    return;
+  }
+
+  const decode = req.query.decode;
+  const video = new Video();
+  video.setDecodeParam(decode);
+
+  if (video.state === ModuleState.RUNNING) {
+    video
+      .closeService() 
+      .then(() => {
+        return video.startService(); 
+      })
+      .then(() => {
+        ret.code = ApiCode.SUCCESS;
+        ret.msg = 'decode changed and service restarted successfully';
+        res.json(ret);
+      })
+      .catch((result) => {
+        ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+        ret.msg = result.msg;
+        ret.data.state = video.state;
+        res.json(ret);
+      });
+  } else {
+    video
+      .startService()
+      .then(() => {
+        ret.code = ApiCode.SUCCESS;
+        ret.msg = 'Service started with new resolution successfully';
+        res.json(ret);
+      })
+      .catch((result) => {
+        ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+        ret.msg = result.msg;
+        ret.data.state = video.state;
+        res.json(ret);
+      });
+  }
+}
+
+
 function apiResolutionChange(req, res, next) {
   const ret = createApiObj();
 
@@ -245,4 +294,4 @@ async function apiSnapshot(req, res, next) {
 } 
 
 
-export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiResolutionChange,apiSnapshot };
+export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiDecodeChange, apiResolutionChange,apiSnapshot };
