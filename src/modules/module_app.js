@@ -106,7 +106,7 @@ class ModuleApp extends Module {
         process.exit(); 
       });
       process.on('SIGTERM', () => {
-        this._app.kill('SIGINT'); 
+        this._app.kill('SIGTERM'); 
         process.exit();
       });
       

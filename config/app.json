@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 3,
   "device": "./config/device.json",
   "log": {
     "console": {
@@ -24,7 +24,7 @@
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"
     },
-    "rootPath": "/mnt/blikvm/web_src/web_server",
+    "rootPath": "/mnt/tmp/blikvm/web_src/web_server",
     "configPath": "/usr/bin/blikvm/package.json",
     "sshUser": "blikvm",
     "sshPassword": "blikvm",
@@ -118,6 +118,10 @@
         "ControlLeft",
         "KeyW"
       ]
+    },
+    "pass_through": {
+      "enabled": false,
+      "mouse_sensitivity": 0.3
     }
   }
 }

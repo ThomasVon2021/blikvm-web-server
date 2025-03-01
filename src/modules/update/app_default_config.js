@@ -18,7 +18,7 @@ function getHardwareTypeForConfig() {
 const hardware = getHardwareTypeForConfig();
 
 const defaultConfig = {
-    "version": 2,
+    "version": 3,
     "log": {
       "console": {
         "enabled": true,
@@ -114,6 +114,10 @@ const defaultConfig = {
       "enable": true,
       "absoluteMode": true,
       "mouseJiggler": false,
+      "pass_through": {
+        "enabled": false,
+        "mouse_sensitivity": 0.3
+      },
       "shortcuts": {
         "Ctrl+Alt+Del": [
           "ControlLeft",

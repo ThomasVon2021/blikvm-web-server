@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-import Logger from './log/logger.js';
-import { fileExists, createFile, generateUniqueCode, getHardwareType } from './common/tool.js';
-import { HardwareType } from './common/enums.js';
 import fs from 'fs';
+import Logger from './log/logger.js';
+import { getHardwareType } from './common/tool.js';
+import { HardwareType } from './common/enums.js';
 import HttpServer from './server/server.js';
 import Video from './modules/video/video.js';
 import KVMDMain from './modules/kvmd/kvmd_main.js';
@@ -33,6 +33,15 @@ import { CONFIG_PATH, UTF8 } from './common/constants.js';
 import {NotificationType, Notification } from './modules/notification.js';
 import UserConfigUpdate from './modules/update/user_update.js';
 import AppConfigUpdate from './modules/update/app_update.js';
+import {InputEventListener, getFilteredEventDevices} from './server/kvmd_event_listenner.js';
+
+process.env.UV_THREADPOOL_SIZE = 8;
+
+process.on('SIGINT', () => {
+  console.log('kill self');
+  process.kill(process.pid, 'SIGKILL');
+}
+);
 
 // udpate app.json
 const appConfigUpdate = new AppConfigUpdate();
@@ -47,6 +56,7 @@ const logger = new Logger();
 
 
 const httpServer = new HttpServer();
+
 httpServer.startService().then((result) => {
   startHid();
   const video = new Video();
@@ -59,6 +69,7 @@ httpServer.startService().then((result) => {
   setTimeout(() => {
     atx.startService();
   }, 5000); // 5000 ms delay start ATX service
+  startHIDLoop();
 })
 .finally(() => {
   logger.info("All services have been started.");
@@ -90,4 +101,12 @@ function startJanus(){
     const janus = new Janus();
     janus.startService();
   }
+}
+
+function startHIDLoop() {
+  const eventDevices = getFilteredEventDevices();
+  eventDevices.forEach(device => {
+    const inputEventListener = new InputEventListener();
+    inputEventListener.open(`/dev/input/${device.event}`);
+  });
 }

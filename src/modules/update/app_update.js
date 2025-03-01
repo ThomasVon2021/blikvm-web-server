@@ -46,6 +46,12 @@ class AppConfigUpdate {
   }
 
   upgradeV2toV3(data) {
+    if(data.hid.pass_through === undefined){
+      data.hid.pass_through = {
+        enabled: false,
+        mouse_sensitivity: 0.3
+      };
+    }
     data.version = 3;
     return data;
   }
@@ -55,6 +61,10 @@ class AppConfigUpdate {
     if (data.version === 1) {
       logger.info('Upgrading from version 1 to version 2...');
       data = this.upgradeV1toV2(data);
+    }
+    if (data.version === 2) {
+      logger.info('Upgrading from version 2 to version 3...');
+      data = this.upgradeV2toV3(data);
     }
     return data;
   }
@@ -80,7 +90,7 @@ class AppConfigUpdate {
 
       fs.writeFileSync(this._filePath, JSON.stringify(upgradedData, null, 2), UTF8);
 
-      logger.info('File successfully upgraded!');
+      logger.info('app.json file successfully upgraded!');
 
     } catch (error) {
       logger.error(`${error}`);
