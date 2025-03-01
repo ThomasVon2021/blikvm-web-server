@@ -52,6 +52,12 @@ class AppConfigUpdate {
         mouse_sensitivity: 0.3
       };
     }
+    if(data.server.https_port === undefined){
+      data.server.https_port = 443;
+    }
+    if(data.server.http_port === undefined){
+      data.server.http_port = 80;
+    }
     data.version = 3;
     return data;
   }

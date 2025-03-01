@@ -38,6 +38,8 @@ const defaultConfig = {
     },
     "server": {
       "protocol": "https",
+      "https_port": 443,
+      "http_port": 80,
       "ssl": {
         "key": "./lib/https/key.pem",
         "cert": "./lib/https/cert.pem"

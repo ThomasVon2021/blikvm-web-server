@@ -190,7 +190,6 @@ class HttpServer {
         });
         this._httpServer.listen(this._httpServerPort, () => {
           this._state = HttpServerState.RUNNING;
-          logger.info('Http server started at http://localhost:80');
         });
       } else {
         this._server.listen(this._httpServerPort, () => {
@@ -254,6 +253,8 @@ class HttpServer {
   _init() {
     const { server, video, msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     this._protocol = server.protocol;
+    this._httpsServerPort = server.https_port;
+    this._httpServerPort = server.http_port;
     G_AuthState = server.auth;
     const app = express();
     app.use(

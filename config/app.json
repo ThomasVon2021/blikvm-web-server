@@ -28,7 +28,9 @@
     "configPath": "/usr/bin/blikvm/package.json",
     "sshUser": "blikvm",
     "sshPassword": "blikvm",
-    "auth": true
+    "auth": true,
+    "https_port": 443,
+    "http_port": 80
   },
   "video": {
     "port": 10004,
