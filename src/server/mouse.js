@@ -52,6 +52,7 @@ class Mouse extends HIDDevice {
     const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     this._absoluteMode = hid.absoluteMode;
     this._jigglerActive = hid.mouseJiggler;
+    this._jigglerTimeDiff = hid.jigglerTimeDiff*1000; //ms==>s
     this._jigglerLoop();
   }
 
@@ -194,14 +195,15 @@ class Mouse extends HIDDevice {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
   }
 
+
+
   _jigglerLoop() {
     if (!this._jigglerActive) return;
 
     const currentTime = Date.now();
     const timeSinceLastInteraction = currentTime - this._lastUserInteraction;
-    
     if (timeSinceLastInteraction >= this._jigglerTimeDiff) {
-      logger.info('No user interaction detected for 60 seconds, activating mouse jiggler.');
+      logger.info(`No user interaction detected for ${this._jigglerTimeDiff/1000} seconds, activating mouse jiggler.`);
 
       if (this._absoluteMode) {
         this._performAbsoluteJiggle();
@@ -248,6 +250,13 @@ class Mouse extends HIDDevice {
     this._jigglerActive = false;
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     config.hid.mouseJiggler = false;
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+  }
+
+  updateJigglerTimeDiff(timeDiff) {
+    this._jigglerTimeDiff = timeDiff*1000; //ms==>s
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    config.hid.jigglerTimeDiff = timeDiff ;
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
   }
 }

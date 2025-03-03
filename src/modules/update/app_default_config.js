@@ -117,6 +117,7 @@ const defaultConfig = {
       "enable": true,
       "absoluteMode": true,
       "mouseJiggler": false,
+      "jigglerTimeDiff": 60,
       "pass_through": {
         "enabled": false,
         "mouse_sensitivity": 0.3

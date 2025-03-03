@@ -48,7 +48,7 @@ import {
 import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
-import { apiMouseJiggler } from './mouse.route.js';
+import { apiMouseJiggler, apiChangeJigglerTime } from './mouse.route.js';
 import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
 
 /**
@@ -79,6 +79,8 @@ const routes = [
   { path: '/api/hid/paste', handler: apiKeyboardPaste, method: 'post' },
   { path: '/api/hid/shortcuts', handler: apiKeyboardShortcuts, method: 'post' },
   { path: '/api/hid/shortcuts/config', handler: apiGetShortcutsConfig, method: 'post' },
+  { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'get' },
+  { path: '/api/mouse/jiggler', handler: apiChangeJigglerTime, method: 'post' },
   
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
   { path: '/api/msd/upload/progress', handler: apiGetUploadProgress, method: 'post' },
@@ -115,7 +117,6 @@ const routes = [
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
   { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
-  { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'post' },
   { path: '/api/logs', handler: apiGetLogs, method: 'post' },
 
   { path: '/api/auth/state', handler: apiGetAuthState, method: 'get' }

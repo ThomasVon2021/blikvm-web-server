@@ -19,7 +19,7 @@
 #                                                                            #
 *****************************************************************************/
 
-import { createApiObj } from '../../common/api.js';
+import { createApiObj, ApiCode } from '../../common/api.js';
 import Logger from '../../log/logger.js';
 import Mouse from '../mouse.js';
 
@@ -32,8 +32,13 @@ async function apiMouseJiggler(req, res, next) {
     const mouse = new Mouse();
     if(action === 'true') {
         mouse.startJiggler();
-    }else{
+    }else if(action === 'false') {
         mouse.stopJiggler();
+    }else{
+        returnObject.code = ApiCode.INVALID_INPUT_PARAM;
+        returnObject.msg = `mouse jiggler action:${action} error`;
+        res.json(returnObject);
+        return;
     }
     returnObject.msg = `mouse jiggler ${action} success`;
     res.json(returnObject);
@@ -42,4 +47,17 @@ async function apiMouseJiggler(req, res, next) {
   } 
 }
 
-export { apiMouseJiggler };
+function apiChangeJigglerTime(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const {interval} = req.body;
+    const mouse = new Mouse();
+    mouse.updateJigglerTimeDiff(interval);
+    returnObject.msg = `mouse jiggler time changed to ${interval} success`;
+    res.json(returnObject);
+  } catch (error) {
+    next(error);
+  } 
+}
+
+export { apiMouseJiggler,apiChangeJigglerTime };

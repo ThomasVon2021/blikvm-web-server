@@ -61,6 +61,9 @@ class AppConfigUpdate {
     if(data.server.auth_expiration === undefined){
       data.server.auth_expiration = 12;
     }
+    if(data.hid.jigglerTimeDiff === undefined){
+      data.hid.jigglerTimeDiff = 60;
+    }
     data.version = 3;
     return data;
   }
