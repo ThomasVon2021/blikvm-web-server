@@ -35,7 +35,7 @@ import {
   apiGetUploadProgress,
   apiGetMakeImageProgress
 } from './msd.route.js';
-import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount,apiGetAuthState } from './login.route.js';
+import { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount,apiGetAuthState, apiChangeAuthExpiration } from './login.route.js';
 import {
   apiEnableSwitch,
   apiGetSwitchState,
@@ -99,6 +99,8 @@ const routes = [
   { path: '/api/2fa', handler: apiTwoFa, method: 'post' },
   { path: '/api/2fa/info', handler: apiGetTwoFaInfo, method: 'post' },
   { path: '/api/2fa/verify', handler: apiTwoFaVerify, method: 'post' },
+
+  { path: '/api/auth/expiration', handler: apiChangeAuthExpiration, method: 'post' },
 
   { path: '/api/switch/enable', handler: apiEnableSwitch, method: 'post' },
   { path: '/api/switch/state', handler: apiGetSwitchState, method: 'post' },

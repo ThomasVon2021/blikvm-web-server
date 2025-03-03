@@ -48,7 +48,8 @@ const defaultConfig = {
       "configPath": "/usr/bin/blikvm/package.json",
       "sshUser": "blikvm",
       "sshPassword": "blikvm",
-      "auth": true
+      "auth": true,
+      "auth_expiration": 12
     },
     "video": {
       "port": 10004,

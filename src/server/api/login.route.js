@@ -176,8 +176,9 @@ async function  apiLogin(req, res, next) {
         return res.json(returnObject);
       }
     }
+    const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
 
-    const expiresTime = 12; // h
+    const expiresTime = server.auth_expiration; // h
     const token = jwt.sign({ username: user.username }, JWT_SECRET, {
       expiresIn: `${expiresTime}h`
     });
@@ -270,4 +271,19 @@ function apiGetAuthState(req, res, next) {
   }
 } 
 
-export { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount, apiGetAuthState };
+function apiChangeAuthExpiration(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const { expiration } = req.body;
+    config.server.auth_expiration = expiration;
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify({ config }, null, 2), UTF8);
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = 'Auth expiration changed successfully!';
+    res.json(returnObject);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export { apiLogin, apiUpdateAccount, apiGetUserList, apiCreateAccount, apiDeleteAccount, apiGetAuthState, apiChangeAuthExpiration };

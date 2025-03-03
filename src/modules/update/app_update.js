@@ -58,6 +58,9 @@ class AppConfigUpdate {
     if(data.server.http_port === undefined){
       data.server.http_port = 80;
     }
+    if(data.server.auth_expiration === undefined){
+      data.server.auth_expiration = 12;
+    }
     data.version = 3;
     return data;
   }

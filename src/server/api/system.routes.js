@@ -55,8 +55,8 @@ function readSerialNumber() {
 
 function apiGetSystemInfo(req, res, next) {
   try {
-    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo()])
-      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo]) => {
+    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo(),si.mem(), si.diskLayout()])
+      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo,memData, disks]) => {
         const netDataFilter = networkData.filter(netInterface => netInterface.iface !== 'lo')
         .map(netInterface => ({
           iface: netInterface.iface,   
@@ -79,6 +79,13 @@ function apiGetSystemInfo(req, res, next) {
         };
         const returnObject = createApiObj();
         returnObject.code = ApiCode.OK;
+
+        // Find the SD card by checking for 'mmcblk0'
+        let sdTotalSpace = 0;
+        const sdCard = disks.find(disk => disk.device === '/dev/mmcblk0'); 
+        if (sdCard) {
+          sdTotalSpace = sdCard.size;
+        }
         const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
         returnObject.data = {
           cpuLoad: systemInfo.cpuLoad,
@@ -101,6 +108,12 @@ function apiGetSystemInfo(req, res, next) {
             }
           },
           os: osDataFilter,
+          mem:{
+            total: memData.total,
+          },
+          storage:{
+            total: sdTotalSpace,
+          },
           network: netDataFilter
         };
         const hardwareType = getHardwareType();
