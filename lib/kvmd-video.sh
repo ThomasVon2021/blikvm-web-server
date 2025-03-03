@@ -6,8 +6,8 @@ cm4b_board="Raspberry Pi Compute Module 4"
 h616_board="MangoPi Mcore"
 
 # Define board type values
-v2_hat="V2_HAT"
-v3_pcie="V3_PCIE"
+v3_hat="V3_HAT"
+v2_pcie="V2_PCIE"
 v4_h616="V4_H616"
 unknown="UNKNOWN"
 
@@ -20,9 +20,9 @@ exec_cmd() {
 # Function to get the board type
 get_board_type() {
   if [[ $(exec_cmd "tr -d '\0' < /proc/device-tree/model") == *"$pi4b_board"* ]] ; then
-    type=$v2_hat
+    type=$v3_hat
   elif [[ $(exec_cmd "tr -d '\0' < /proc/device-tree/model") == *"$cm4b_board"* ]] ; then
-    type=$v3_pcie
+    type=$v2_pcie
   elif [[ $(exec_cmd "tr -d '\0' < /proc/device-tree/model") == *"$h616_board"* ]] ; then
     type=$v4_h616
   else
@@ -87,7 +87,7 @@ done
 
 
 # Start the ustreamer process based on the board type
-if [[ "$board_type" == "$v2_hat" ]] || [[ "$board_type" == "$v3_pcie" ]]; then
+if [[ "$board_type" == "$v3_hat" ]] || [[ "$board_type" == "$v2_pcie" ]]; then
     if [ -f "/mnt/exec/release/lib/edid.txt" ]; then
         v4l2-ctl --set-edid=file=/mnt/exec/release/lib/edid.txt --fix-edid-checksums
     elif [ -f "./lib/edid" ]; then

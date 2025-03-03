@@ -115,7 +115,7 @@ class UserConfigUpdate {
 
       fs.writeFileSync(this._filePath, JSON.stringify(upgradedData, null, 2), UTF8);
 
-      logger.info('user.json file successfully upgraded!');
+      logger.info('user.json file successfully update!');
 
     } catch (error) {
       logger.error(`${error}`);

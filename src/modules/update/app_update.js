@@ -102,7 +102,7 @@ class AppConfigUpdate {
 
       fs.writeFileSync(this._filePath, JSON.stringify(upgradedData, null, 2), UTF8);
 
-      logger.info('app.json file successfully upgraded!');
+      logger.info('app.json file successfully update!');
 
     } catch (error) {
       logger.error(`${error}`);

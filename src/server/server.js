@@ -450,6 +450,7 @@ class HttpServer {
           ret.data.systemInfo = systemInfo;
           ret.data.videoStatus = await wsGetVideoState();
           ret.data.atxStatus = atx.getATXState();
+          ret.data.clientsConnected = this._wss.clients.size;
           ws.send(JSON.stringify(ret));
         }
       }, 2000);
