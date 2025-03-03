@@ -246,6 +246,21 @@ class HttpServer {
     });
   }
 
+  _ipWhitelistMiddleware(IP_WHITELIST) {
+    return (req, res, next) => {
+      let clientIp = req.ip || req.connection.remoteAddress;
+      if (clientIp.startsWith('::ffff:')) {
+        clientIp = clientIp.replace('::ffff:', '');
+      }
+      if (IP_WHITELIST.includes(clientIp)) {
+        next();
+      } else {
+        logger.warn(`IP ${clientIp} is not allowed to access this server.`);
+        res.status(403).json({ error: 'Forbidden' });
+      }
+    };
+  }
+
   /**
    * Initializes the HTTP API server.
    * @private
@@ -257,6 +272,12 @@ class HttpServer {
     this._httpServerPort = server.http_port;
     G_AuthState = server.auth;
     const app = express();
+  
+    if (server.ipWhite.enable === true) {
+      const IP_WHITELIST = server.ipWhite.list;
+      app.use(this._ipWhitelistMiddleware(IP_WHITELIST));
+    }
+
     app.use(
       cors({
         origin: true,

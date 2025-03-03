@@ -58,8 +58,14 @@ class AppConfigUpdate {
     if(data.server.http_port === undefined){
       data.server.http_port = 80;
     }
-    if(data.server.auth_expiration === undefined){
-      data.server.auth_expiration = 12;
+    if(data.server.authExpiration === undefined){
+      data.server.authExpiration = 12;
+    }
+    if(data.server.ipWhite === undefined){
+      data.server.ipWhite ={
+        enable: false,
+        list: []
+      };
     }
     if(data.hid.jigglerTimeDiff === undefined){
       data.hid.jigglerTimeDiff = 60;

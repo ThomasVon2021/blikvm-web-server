@@ -30,7 +30,12 @@
     "sshUser": "blikvm",
     "sshPassword": "blikvm",
     "auth": false,
-    "auth_expiration": 12
+    "authExpiration": 12,
+    "ipWhite": {
+      "enable": false,
+      "list": [
+      ]
+    }
   },
   "video": {
     "port": 10004,
