@@ -225,7 +225,7 @@ class Mouse extends HIDDevice {
 
     jiggleSequence.forEach(({ x, y }) => {
       const buf = this._prepareAbsoluteMouseEvent(0, x, y, 0, 0);
-      this._writeData(buf);
+      this.writeToQueue(buf);
     });
   }
 
@@ -237,12 +237,7 @@ class Mouse extends HIDDevice {
 
     jiggleSequence.forEach(({ x, y }) => {
       const buf = this._prepareRelativeMouseEvent(0, x, y, 0, 0, 1);
-
-      fs.writeFile(this._devicePath, buf, (error) => {
-        if (error) {
-          logger.info(`Error performing relative jiggle: ${error.message}`);
-        }
-      });
+      this.writeToQueue(buf);
     });
   }
 
