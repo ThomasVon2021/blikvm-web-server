@@ -37,11 +37,11 @@ import {InputEventListener, getFilteredEventDevices} from './server/kvmd_event_l
 
 process.env.UV_THREADPOOL_SIZE = 8;
 
-process.on('SIGINT', () => {
-  console.log('kill self');
-  process.kill(process.pid, 'SIGKILL');
-}
-);
+// process.on('SIGINT', () => {
+//   console.log('kill self');
+//   process.kill(process.pid, 'SIGKILL');
+// }
+// );
 
 // udpate app.json
 const appConfigUpdate = new AppConfigUpdate();

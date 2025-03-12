@@ -98,17 +98,6 @@ class ModuleApp extends Module {
           reject(result);
         }
       });
-      process.on('exit', () => {
-        this._app.kill(); 
-      });
-      process.on('SIGINT', () => {
-        this._app.kill('SIGINT'); 
-        process.exit(); 
-      });
-      process.on('SIGTERM', () => {
-        this._app.kill('SIGTERM'); 
-        process.exit();
-      });
       
       this._state = ModuleState.STARTING;
       setTimeout(() => {

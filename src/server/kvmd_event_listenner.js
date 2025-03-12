@@ -197,6 +197,7 @@ class InputEventListener {
 
   close() {
     this.reader.close();
+    logger.info(`${this.reader} Input listener closed.`);
   }
 
   handleKeyDown(key){
