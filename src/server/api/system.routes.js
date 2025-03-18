@@ -55,8 +55,8 @@ function readSerialNumber() {
 
 function apiGetSystemInfo(req, res, next) {
   try {
-    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo(),si.mem(), si.diskLayout()])
-      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo,memData, disks]) => {
+    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo(),si.mem(), si.diskLayout(),si.fsSize() ])
+      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo,memData, disks, fsData]) => {
         const netDataFilter = networkData.filter(netInterface => netInterface.iface !== 'lo')
         .map(netInterface => ({
           iface: netInterface.iface,   
@@ -86,6 +86,9 @@ function apiGetSystemInfo(req, res, next) {
         if (sdCard) {
           sdTotalSpace = sdCard.size;
         }
+        let sdAvailableSpace = fsData
+        .filter(fs => fs.fs.startsWith('/dev/mmcblk0'))
+        .reduce((total, partition) => total + partition.available, 0);
         const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
         returnObject.data = {
           cpuLoad: systemInfo.cpuLoad,
@@ -110,9 +113,11 @@ function apiGetSystemInfo(req, res, next) {
           os: osDataFilter,
           mem:{
             total: memData.total,
+            actual: memData.free
           },
           storage:{
             total: sdTotalSpace,
+            actual: sdAvailableSpace
           },
           network: netDataFilter
         };

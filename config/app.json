@@ -42,7 +42,7 @@
     "bin": "./lib/pi/ustreamer.bin",
     "fps": 30,
     "quality": 80,
-    "kbps": 2000,
+    "kbps": 1000,
     "gop": 30,
     "resolution": "1920x1080",
     "recordPath": "/mnt/tmp/record",
@@ -131,6 +131,6 @@
       ]
     },
     "jigglerTimeDiff": 10,
-    "mouseMode": "relative"
+    "mouseMode": "dual"
   }
 }
