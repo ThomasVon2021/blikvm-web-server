@@ -58,7 +58,9 @@ class ModuleApp extends Module {
 
       // this._app = this._param ? spawn(this._bin, this._param) : spawn(this._bin);
       // console.log("para:", this._param);
-      this._app = spawn(this._bin, this._param);
+      this._app = spawn(this._bin, this._param, {
+        detached: false
+      });
 
       this._app.stdout.on('data', (data) => {
         logger.trace(`${this._name} API stdout: ${data}`);
@@ -99,6 +101,12 @@ class ModuleApp extends Module {
         }
       });
       
+      process.on('exit', () => {
+        if (this._app) {
+          this._app.kill('SIGTERM'); // 发送 SIGTERM 终止子进程
+        }
+      });
+
       this._state = ModuleState.STARTING;
       setTimeout(() => {
         if (this._state === ModuleState.ERROR || this._state === ModuleState.STOPPED) {

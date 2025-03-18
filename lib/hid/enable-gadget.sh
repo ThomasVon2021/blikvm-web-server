@@ -37,7 +37,9 @@ USB_DEVICE_PATH="${USB_GADGET_PATH}/${USB_DEVICE_DIR}"
 
 USB_STRINGS_DIR="strings/0x409"
 USB_KEYBOARD_FUNCTIONS_DIR="functions/hid.keyboard"
-USB_MOUSE_FUNCTIONS_DIR="functions/hid.mouse"
+USB_MOUSE_ABS_FUNCTIONS_DIR="functions/hid.mouse0"
+USB_MOUSE_REL_FUNCTIONS_DIR="functions/hid.mouse1"
+
 USB_MASS_STORAGE_NAME="mass_storage.0"
 USB_MASS_STORAGE_FUNCTIONS_DIR="functions/${USB_MASS_STORAGE_NAME}"
 
@@ -113,15 +115,12 @@ if [[ -f "${USB_KEYBOARD_FUNCTIONS_DIR}/no_out_endpoint" ]]; then
 fi
 
 # Mouse
-mkdir -p "$USB_MOUSE_FUNCTIONS_DIR"
-echo 0 > "${USB_MOUSE_FUNCTIONS_DIR}/protocol"
-echo 0 > "${USB_MOUSE_FUNCTIONS_DIR}/subclass"
-echo 7 > "${USB_MOUSE_FUNCTIONS_DIR}/report_length"
 
-# Determine the absolute mode
-absolute=${1:-true}
-
-if [[ $absolute == true ]]; then
+configure_absolute_mode() {
+  mkdir -p "$USB_MOUSE_ABS_FUNCTIONS_DIR"
+  echo 0 > "${USB_MOUSE_ABS_FUNCTIONS_DIR}/protocol"
+  echo 0 > "${USB_MOUSE_ABS_FUNCTIONS_DIR}/subclass"
+  echo 7 > "${USB_MOUSE_ABS_FUNCTIONS_DIR}/report_length"
   # Write the report descriptor
   D=$(mktemp)
   {
@@ -163,7 +162,17 @@ if [[ $absolute == true ]]; then
   echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
   echo -ne \\xC0           # END_COLLECTION
   } >> "$D"
-else
+  cp "$D" "${USB_MOUSE_ABS_FUNCTIONS_DIR}/report_desc"
+  if [[ -f "${USB_MOUSE_ABS_FUNCTIONS_DIR}/no_out_endpoint" ]]; then
+    echo 1 > "${USB_MOUSE_ABS_FUNCTIONS_DIR}/no_out_endpoint"
+  fi
+}
+
+configure_relative_mode() {
+  mkdir -p "$USB_MOUSE_REL_FUNCTIONS_DIR"
+  echo 2 > "${USB_MOUSE_REL_FUNCTIONS_DIR}/protocol"
+  echo 1 > "${USB_MOUSE_REL_FUNCTIONS_DIR}/subclass"
+  echo 5 > "${USB_MOUSE_REL_FUNCTIONS_DIR}/report_length"
   D=$(mktemp)
   {
     echo -ne \\x05\\x01      # USAGE_PAGE (Generic Desktop)
@@ -199,40 +208,65 @@ else
     echo -ne \\x81\\x06      #   INPUT (Data,Var,Rel)
     echo -ne \\xC0           # END_COLLECTION
   } >> "$D"
+  cp "$D" "${USB_MOUSE_REL_FUNCTIONS_DIR}/report_desc"
+  if [[ -f "${USB_MOUSE_REL_FUNCTIONS_DIR}/no_out_endpoint" ]]; then
+    echo 1 > "${USB_MOUSE_REL_FUNCTIONS_DIR}/no_out_endpoint"
+  fi
+}
+
+# Determine the absolute mode
+mode="dual"
+msd="enable"
+for arg in "$@"; do
+  case $arg in
+    mouse_mode=*)
+      mode="${arg#*=}"
+      shift
+      ;;
+    msd=*)
+      msd="${arg#*=}"
+      shift
+      ;;
+    *)
+      ;;
+  esac
+done
+
+if [[ $mode == "absolute" ]]; then
+  configure_absolute_mode
+elif [[ $mode == "relative" ]]; then
+  configure_relative_mode
+elif [[ $mode == "dual" ]]; then
+  configure_absolute_mode
+  configure_relative_mode
+else
+  echo "Invalid mode: $mode"
+  exit 1
 fi
-cp "$D" "${USB_MOUSE_FUNCTIONS_DIR}/report_desc"
 
-if [[ -f "${USB_MOUSE_FUNCTIONS_DIR}/no_out_endpoint" ]]; then
-  echo 1 > "${USB_MOUSE_FUNCTIONS_DIR}/no_out_endpoint"
+  #MSD
+if [[ $msd == "enable" ]]; then
+  mkdir -p "$USB_MASS_STORAGE_FUNCTIONS_DIR"
+  #config msd paramter
+  shopt -s nullglob
+  if [ -d "$USB_MSD_DIR" ]
+  then
+    for file in $USB_MSD_DIR/*.img
+    do
+      if [[ $file == *.img ]] 
+      then
+        MSD_FILE=$file
+        echo "$file" > "${USB_MASS_STORAGE_FUNCTIONS_DIR}/lun.0/file"
+        echo 1 > "${USB_MASS_STORAGE_FUNCTIONS_DIR}/lun.0/removable"
+        echo 0 > "${USB_MASS_STORAGE_FUNCTIONS_DIR}/lun.0/nofua"
+        #echo 0 > functions/mass_storage.0/lun.0/ro
+        #echo 1 > functions/mass_storage.0/lun.0/cdrom
+        #echo 0 > functions/mass_storage.0/stall
+        break
+      fi
+    done
+  fi
 fi
-
-#MSD
-mkdir -p "$USB_MASS_STORAGE_FUNCTIONS_DIR"
- 
-#config msd paramter
-shopt -s nullglob
-if [ -d "$USB_MSD_DIR" ]
-then
-	for file in $USB_MSD_DIR/*.img
-	do
-		if [[ $file == *.img ]] 
-		then
-			MSD_FILE=$file
-			echo "$file" > "${USB_MASS_STORAGE_FUNCTIONS_DIR}/lun.0/file"
-			echo 1 > "${USB_MASS_STORAGE_FUNCTIONS_DIR}/lun.0/removable"
-			echo 0 > "${USB_MASS_STORAGE_FUNCTIONS_DIR}/lun.0/nofua"
-			#echo 0 > functions/mass_storage.0/lun.0/ro
-			#echo 1 > functions/mass_storage.0/lun.0/cdrom
-			#echo 0 > functions/mass_storage.0/stall
-			break
-		fi
-	done
-	
-fi
-
-
- 
-
 
 mkdir -p "${USB_CONFIG_DIR}"
 echo 250 > "${USB_CONFIG_DIR}/MaxPower"
@@ -242,7 +276,12 @@ mkdir -p "${CONFIGS_STRINGS_DIR}"
 echo "Config ${USB_CONFIG_INDEX}: ECM network" > "${CONFIGS_STRINGS_DIR}/configuration"
 
 ln -s "${USB_KEYBOARD_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
-ln -s "${USB_MOUSE_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
+if [[ -d "${USB_MOUSE_ABS_FUNCTIONS_DIR}" ]]; then
+  ln -s "${USB_MOUSE_ABS_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
+fi
+if [[ -d "${USB_MOUSE_REL_FUNCTIONS_DIR}" ]]; then
+  ln -s "${USB_MOUSE_REL_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
+fi
 
 #config config.1 link
 if [ -f "$MSD_FILE" ] 
@@ -251,5 +290,15 @@ then
 fi
 
 ls /sys/class/udc > "${USB_DEVICE_PATH}/UDC"
-chmod 777 /dev/hidg0
-chmod 777 /dev/hidg1
+
+if [[ -e /dev/hidg0 ]]; then
+  chmod 777 /dev/hidg0
+fi
+
+if [[ -e /dev/hidg1 ]]; then
+  chmod 777 /dev/hidg1
+fi
+
+if [[ -e /dev/hidg2 ]]; then
+  chmod 777 /dev/hidg2
+fi

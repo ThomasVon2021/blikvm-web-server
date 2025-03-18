@@ -74,6 +74,17 @@ class AppConfigUpdate {
     return data;
   }
 
+  upgradeV3toV4(data) {
+    if(data.hid.mouseMode === undefined){
+      data.hid.mouseMode = 'dual';
+    }
+    if(data.msd.enable === undefined){
+      data.msd.enable = true;
+    }
+    data.version = 4;
+    return data;
+  }
+
   // 通用升级函数，检查当前版本并逐步升级
   upgradeData(data) {
     if (data.version === 1) {
@@ -83,6 +94,10 @@ class AppConfigUpdate {
     if (data.version === 2) {
       logger.info('Upgrading from version 2 to version 3...');
       data = this.upgradeV2toV3(data);
+    }
+    if (data.version === 3) {
+      logger.info('Upgrading from version 3 to version 4...');
+      data = this.upgradeV3toV4(data);
     }
     return data;
   }

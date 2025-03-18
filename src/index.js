@@ -34,6 +34,7 @@ import {NotificationType, Notification } from './modules/notification.js';
 import UserConfigUpdate from './modules/update/user_update.js';
 import AppConfigUpdate from './modules/update/app_update.js';
 import {InputEventListener, getFilteredEventDevices} from './server/kvmd_event_listenner.js';
+import Mouse from './server/mouse.js';
 
 process.env.UV_THREADPOOL_SIZE = 8;
 
@@ -68,7 +69,10 @@ httpServer.startService().then((result) => {
   const atx = new ATX();
   setTimeout(() => {
     atx.startService();
+    //just for make sure jiggler is running
+    const mouse = new Mouse();
   }, 5000); // 5000 ms delay start ATX service
+
   startHIDLoop();
 })
 .finally(() => {
@@ -86,11 +90,12 @@ function startSwitch() {
 }
 
 function startHid() {
-  const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+  const { hid,msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
   if (hid.enable === true) {
     const hidHandle = new HID();
-    const mode = hid.absoluteMode ? 'true' : 'false';
-    hidHandle.startService(mode);
+    const mouseMode = hid.mouseMode;
+    const msdEnable = msd.enable;
+    hidHandle.startService(mouseMode,msdEnable);
   }
 }
 

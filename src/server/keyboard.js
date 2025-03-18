@@ -26,7 +26,6 @@
 
 
 import Logger from '../log/logger.js';
-import Mouse from './mouse.js';
 import  HIDDevice  from '../modules/hid_devices.js';
 
 const logger = new Logger();
@@ -37,7 +36,6 @@ class Keyboard extends HIDDevice {
     if (!Keyboard._instance) {
       super();
       Keyboard._instance = this;
-      this._mouse = new Mouse();
       this._devicePath = '/dev/hidg0';
       this.open();
       this.startWriteToHid();
@@ -50,7 +48,6 @@ class Keyboard extends HIDDevice {
    * @param {Event} event - The keyboard event.
    */
   handleEvent(event) {
-    this._mouse.updateUserInteraction();
     const keyboardData = this._packData(event);
     this.writeToQueue(keyboardData);
   }

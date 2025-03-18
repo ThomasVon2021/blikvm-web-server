@@ -28,32 +28,56 @@ import { isDeviceFile } from '../common/tool.js';
 import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
 import  HIDDevice  from '../modules/hid_devices.js';
-
+import MouseBase from '../modules/mouse_base.js';
 
 const logger = new Logger();
 
-class Mouse extends HIDDevice {
+class Mouse {
   _jigglerActive = false;
   _jigglerTimeDiff = 60000;  //uint: ms
-
+  _isAbsoluteMode = true;
+  _absMouse = null;
+  _relMouse = null;
   constructor() {
     if (!Mouse._instance) {
-      super();
       this._init();
       Mouse._instance = this;
-      this._devicePath = '/dev/hidg1';
-      this.open();
-      this.startWriteToHid();
     }
     return Mouse._instance;
   }
 
   _init() {
     const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    this._absoluteMode = hid.absoluteMode;
+    this._mouseMode = hid.mouseMode;
+    if(this._mouseMode === 'dual') {
+      this._absMouse = new MouseBase('/dev/hidg1');
+      this._relMouse = new MouseBase('/dev/hidg2');
+    }else if( this._mouseMode === 'absolute') {
+      this._absMouse = new MouseBase('/dev/hidg1');
+    }else if( this._mouseMode === 'relative') {
+      this._relMouse = new MouseBase('/dev/hidg1');
+    }
     this._jigglerActive = hid.mouseJiggler;
     this._jigglerTimeDiff = hid.jigglerTimeDiff*1000; //ms==>s
     this._jigglerLoop();
+  }
+
+  open() {
+    if(this._absMouse) {
+      this._absMouse.open();
+    }
+    if(this._relMouse) {
+      this._relMouse.open();
+    }
+  }
+
+  close() {
+    if(this._absMouse) {
+      this._absMouse.close();
+    }
+    if(this._relMouse) {
+      this._relMouse.close();
+    }
   }
 
   /**
@@ -81,6 +105,8 @@ class Mouse extends HIDDevice {
         verticalWheelDelta,
         horizontalWheelDelta
       );
+      this._isAbsoluteMode = true;
+      this._absMouse.write(data);
     } else {
       data = this._prepareRelativeMouseEvent(
         buttons,
@@ -90,11 +116,18 @@ class Mouse extends HIDDevice {
         horizontalWheelDelta,
         sensitivity
       );
+      this._isAbsoluteMode = false;
+      this._relMouse.write(data);
     }
+  }
 
-    if (isDeviceFile(this._devicePath) && !this.isClosing) {
-      //logger.info(`Writing mouse data:${data} to ${this._devicePath}`);
-      this.writeToQueue(data);
+  getStatus(){
+    if(this._isAbsoluteMode === true && this._mouseMode !== 'relative' && this._absMouse){ 
+      return this._absMouse.getStatus();
+    }else if( this._relMouse){
+      return this._relMouse.getStatus();
+    }else{
+      return null;
     }
   }
 
@@ -205,10 +238,10 @@ class Mouse extends HIDDevice {
     if (timeSinceLastInteraction >= this._jigglerTimeDiff) {
       logger.info(`No user interaction detected for ${this._jigglerTimeDiff/1000} seconds, activating mouse jiggler.`);
 
-      if (this._absoluteMode) {
-        this._performAbsoluteJiggle();
-      } else {
+      if (this._mouseMode === 'relative' ) {
         this._performRelativeJiggle();
+      } else {
+        this._performAbsoluteJiggle();
       }
 
       this._lastUserInteraction = Date.now(); 
@@ -222,10 +255,9 @@ class Mouse extends HIDDevice {
       { x: 0.1, y: 0.1 },
       { x: 0.5, y: 0.5 }
     ];
-
     jiggleSequence.forEach(({ x, y }) => {
       const buf = this._prepareAbsoluteMouseEvent(0, x, y, 0, 0);
-      this.writeToQueue(buf);
+      this._absMouse.write(buf);
     });
   }
 
@@ -237,7 +269,7 @@ class Mouse extends HIDDevice {
 
     jiggleSequence.forEach(({ x, y }) => {
       const buf = this._prepareRelativeMouseEvent(0, x, y, 0, 0, 1);
-      this.writeToQueue(buf);
+      this._relMouse.write(buf);
     });
   }
 

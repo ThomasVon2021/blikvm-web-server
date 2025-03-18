@@ -18,7 +18,7 @@ function getHardwareTypeForConfig() {
 const hardware = getHardwareTypeForConfig();
 
 const defaultConfig = {
-    "version": 3,
+    "version": 4,
     "log": {
       "console": {
         "enabled": true,
@@ -110,6 +110,7 @@ const defaultConfig = {
       "power_off_delay": 5000
     },
     "msd": {
+      "enable": true,
       "isoFilePath": "/mnt/msd/user",
       "shell": "./lib/kvmd-msd.sh",
       "stateFilePath": "/mnt/msd/config/msd.json",
@@ -119,7 +120,7 @@ const defaultConfig = {
       "hidEnable": "./lib/hid/enable-gadget.sh",
       "hidDisable": "./lib/hid/disable-gadget.sh",
       "enable": true,
-      "absoluteMode": true,
+      "mouseMode": "dual",
       "mouseJiggler": false,
       "jigglerTimeDiff": 60,
       "pass_through": {

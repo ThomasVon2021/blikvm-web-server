@@ -53,24 +53,12 @@ class HID extends Module {
     this._enable = hid.enable;
   }
 
-  startService(absolute = true) {
+  startService(mouseMode, msdEnable) {
     return new Promise((resolve, reject) => {
       if (!isDeviceFile(this._hidkeyboard) && !isDeviceFile(this._hidmouse)) {
         logger.info(this._hidEnablePath);
-        executeScriptAtPath(this._hidEnablePath, [absolute])
+        executeScriptAtPath(this._hidEnablePath, [`mouse_mode=${mouseMode}`, `msd=${msdEnable}`])
           .then(() => {
-            if (absolute === true) {
-              this._absoluteMode = true;
-            } else {
-              this._absoluteMode = false;
-            }
-            this._state = ModuleState.RUNNING;
-            logger.info(`${this._name} start success`);
-            const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-            if (config.hid.enable !== true) {
-              config.hid.enable = true;
-              fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
-            }
             resolve();
           })
           .catch((err) => {
@@ -147,7 +135,7 @@ class HID extends Module {
     return {
       status: this._state,
       enable: hid.enable,
-      absolute: hid.absoluteMode,
+      mouseMode: hid.mouseMode,
       mouseJiggler: hid.mouseJiggler,
       jigglerTimeDiff: hid.jigglerTimeDiff
     };

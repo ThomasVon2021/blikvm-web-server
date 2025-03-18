@@ -70,17 +70,15 @@ function apiState(req, res, next) {
 
 async function apiConnect(req, res, next) {
   try {
-    const mouse = new Mouse();
-    mouse.close();
     const keyboard = new Keyboard();
     keyboard.close();
+    const mouse = new Mouse();
+    mouse.close();
 
     const msd = new MSD();
     await msd.connectMSD(req, res, next);
-
-    mouse.open();
     keyboard.open();
-    
+    mouse.open();
   } catch (err) {
     next(err);
   }
@@ -100,16 +98,16 @@ async function apiImages(req, res, next) {
 
 async function apiRemoveMSD(req, res, next) {
 
-  const mouse = new Mouse();
-  mouse.close();
   const keyboard = new Keyboard();
   keyboard.close();
+  const mouse = new Mouse();
+  mouse.close();
+
 
   const msd = new MSD();
   await msd.removeMSD(req, res, next);
-
-  mouse.open();
   keyboard.open();
+  mouse.open();
 }
 
 function apiDeleteImage(req, res, next) {

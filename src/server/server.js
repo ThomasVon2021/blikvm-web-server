@@ -413,9 +413,6 @@ class HttpServer {
         }
       }
     });
-
-    // just for make sure jiggler is running
-    const mouse = new Mouse();
   }
 
   _otherRoute(req, res) {

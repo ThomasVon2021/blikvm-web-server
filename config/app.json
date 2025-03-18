@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "log": {
     "console": {
       "enabled": true,
@@ -94,7 +94,8 @@
     "isoFilePath": "/mnt/msd/user",
     "shell": "./lib/kvmd-msd.sh",
     "stateFilePath": "/mnt/msd/config/msd.json",
-    "tusPort": 10002
+    "tusPort": 10002,
+    "enable": true
   },
   "hid": {
     "hidEnable": "./lib/hid/enable-gadget.sh",
@@ -129,6 +130,7 @@
         "KeyW"
       ]
     },
-    "jigglerTimeDiff": 10
+    "jigglerTimeDiff": 10,
+    "mouseMode": "relative"
   }
 }
