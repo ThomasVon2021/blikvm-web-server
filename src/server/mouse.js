@@ -106,7 +106,9 @@ class Mouse {
         horizontalWheelDelta
       );
       this._isAbsoluteMode = true;
-      this._absMouse.write(data);
+      if(this._absMouse){
+        this._absMouse.write(data);
+      }
     } else {
       data = this._prepareRelativeMouseEvent(
         buttons,
@@ -117,7 +119,9 @@ class Mouse {
         sensitivity
       );
       this._isAbsoluteMode = false;
-      this._relMouse.write(data);
+      if(this._relMouse){
+        this._relMouse.write(data);
+      }
     }
   }
 
