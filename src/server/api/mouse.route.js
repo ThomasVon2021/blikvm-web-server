@@ -60,4 +60,26 @@ function apiChangeJigglerTime(req, res, next) {
   } 
 }
 
-export { apiMouseJiggler,apiChangeJigglerTime };
+function apiV2MouseJiggler(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const {interval} = req.body;
+    const mouse = new Mouse();
+    if(interval === 0) {
+        mouse.stopJiggler();
+        mouse.updateJigglerTimeDiff(interval);
+    }else if(interval > 0) {
+        mouse.updateJigglerTimeDiff(interval);
+        if(!mouse.getJigglerStatus()) {
+            mouse.startJiggler();
+        }
+    }
+    returnObject.msg = `mouse jiggler time changed to ${interval} success`;
+    res.json(returnObject);
+  } catch (error) {
+    next(error);
+  } 
+}
+
+
+export { apiMouseJiggler,apiChangeJigglerTime,  apiV2MouseJiggler};

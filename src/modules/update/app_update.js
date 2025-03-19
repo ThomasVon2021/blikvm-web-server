@@ -81,6 +81,9 @@ class AppConfigUpdate {
     if(data.msd.enable === undefined){
       data.msd.enable = true;
     }
+    if(data.display.secondIP === undefined){
+      data.display.secondIP = '';
+    }
     data.version = 4;
     return data;
   }

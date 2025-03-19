@@ -101,7 +101,8 @@ const defaultConfig = {
       "mode": 1,
       "onBootTime": 3600,
       "cycleInterval": 60,
-      "displayTime": 10
+      "displayTime": 10,
+      "secondIP": ""
     },
     "atx": {
       "controlSockFilePath": "/var/blikvm/atx.sock",
