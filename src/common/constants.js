@@ -23,6 +23,7 @@ import dotenv from 'dotenv';
 import crypto from 'crypto';
 dotenv.config();
 
+export const CONFIG_DIR = 'config';
 export const CONFIG_PATH = process.argv[2] ? process.argv[2] : 'config/app.json';
 console.log(`Config path is: ${CONFIG_PATH}`);
 export const UTF8 = 'utf8';

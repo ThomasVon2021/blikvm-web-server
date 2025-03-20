@@ -295,7 +295,7 @@ class HttpServer {
     }));
 
     app.use('/tus', createProxyMiddleware({
-      target: `http://127.0.0.1:${msd.tusPort}/`,
+      target: `http://127.0.0.1:${msd.tusPort}`,
       changeOrigin: false,
       secure: false,
       on: {

@@ -45,10 +45,6 @@ const copyRecursive = async (src, dest) => {
   try {
     const stat = await fs.stat(src);
 
-    if( src.includes(path.join('config', 'user.json'))){
-      console.log('skipping user.json');
-      return;
-    }
     if (stat.isDirectory()) {
       await createDirectoryIfNotExists(dest);
       const entries = await fs.readdir(src);
@@ -86,11 +82,6 @@ function getHardwareType() {
   return hardwareSysType;
 }
 
-const itemsToCopy = [
-  'config',
-  path.join('build', 'bin', 'server_app')
-];
-
 const copyLibDirectory = async (hardwareSysType) => {
   const libDir = path.join(process.cwd(), 'lib');
   const entries = await fs.readdir(libDir);
@@ -107,24 +98,6 @@ const copyLibDirectory = async (hardwareSysType) => {
   }));
 };
 
-const updateConfigFile = async (hardwareSysType) => {
-  const configPath = path.join(releaseDir, 'config', 'app.json');
-  try {
-    let content = await fs.readFile(configPath, 'utf8');
-
-    if (hardwareSysType === 'h616') {
-      content = content.replace(/\.\/lib\/pi\//g, './lib/h616/');
-    } else if (hardwareSysType === 'pi') {
-      content = content.replace(/\.\/lib\/h616\//g, './lib/pi/');
-    }
-
-    await fs.writeFile(configPath, content, 'utf8');
-    console.log(`Updated ${configPath} for hardware type ${hardwareSysType}`);
-  } catch (error) {
-    console.error(`Error updating config file: ${configPath}`, error);
-  }
-};
-
 const copyFiles = async () => {
   await deleteDirectoryIfExists(releaseDir);
   await createDirectoryIfNotExists(releaseDir);
@@ -138,13 +111,14 @@ const copyFiles = async () => {
 
   await copyLibDirectory(hardwareSysType);
 
+  const itemsToCopy = [
+    path.join('build', 'bin', 'server_app')
+  ];
   await Promise.all(itemsToCopy.map(async (item) => {
     const srcPath = path.join(process.cwd(), item);
     const destPath = path.join(releaseDir, path.basename(item));
     await copyRecursive(srcPath, destPath);
   }));
-
-  await updateConfigFile(hardwareSysType);
 
   console.log('Files and directories copied successfully to release folder.');
 };

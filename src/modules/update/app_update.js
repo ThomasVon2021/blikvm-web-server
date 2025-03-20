@@ -20,8 +20,8 @@
 *****************************************************************************/
 
 import fs from 'fs';
-import {fileExists} from '../../common/tool.js'
-import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
+import {fileExists, dirExists} from '../../common/tool.js'
+import { CONFIG_PATH, UTF8, CONFIG_DIR} from '../../common/constants.js';
 import Logger from '../../log/logger.js';
 import defaultConfig from './app_default_config.js';
 
@@ -108,7 +108,9 @@ class AppConfigUpdate {
   // 升级配置文件
   upgradeFile() {
     try {
-      // const app_config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      if(dirExists(CONFIG_DIR) === false){
+        fs.mkdirSync(CONFIG_DIR, { recursive: true });
+      }      
       if(fileExists(this._filePath) === false){
         fs.writeFileSync(this._filePath, JSON.stringify(this._defaultConfig, null, 2), UTF8);
         logger.info(`write default config to ${this._filePath}`);

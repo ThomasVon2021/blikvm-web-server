@@ -102,7 +102,7 @@
     "hidDisable": "./lib/hid/disable-gadget.sh",
     "enable": true,
     "absoluteMode": true,
-    "mouseJiggler": true,
+    "mouseJiggler": false,
     "pass_through": {
       "enabled": false,
       "mouse_sensitivity": 0.3
