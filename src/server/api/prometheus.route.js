@@ -18,28 +18,47 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-import Video from '../../modules/video/video.js';
-import KVMDMain from '../../modules/kvmd/kvmd_main.js';
-import { createApiObj } from '../../common/api.js';
 
-/**
- * Handles the API request to get the video kvmd-main service state.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @param {Function} next - The next middleware function.
- * @private
- */
-function apiFunc(req, res, next) {
-  try {
-    const ret = createApiObj();
-    const video = new Video();
-    ret.data.video = video.state;
-    const kvmdmain = new KVMDMain();
-    ret.data.kvmdmain = kvmdmain.state;
-    res.json(ret);
-  } catch (err) {
-    next(err);
-  }
+import fs from 'fs';
+import { ApiCode, createApiObj } from '../../common/api.js';
+import { PrometheusMetrics } from '../prometheus.js'
+import Logger from '../../log/logger.js';
+
+const logger = new Logger();
+
+function apiPrometheusEnable(req, res, next) {
+    try {
+        const returnObject = createApiObj();
+        const { enable } = req.body;
+        const PrometheusMetricsObj = new PrometheusMetrics();
+        if( enable === true){
+            PrometheusMetricsObj.enable();
+        }else{
+            PrometheusMetricsObj.disable();
+        }
+        returnObject.msg = `Prometheus ${enable} success`;
+        returnObject.data ={
+            enable: PrometheusMetricsObj.getState()
+        }
+        res.json(returnObject);
+    } catch (error) {
+        next(error);
+    }
 }
 
-export default apiFunc;
+function apiPrometheusState(req, res, next){
+    try {
+        const returnObject = createApiObj();
+        const PrometheusMetricsObj = new PrometheusMetrics();
+        returnObject.data ={
+            enable: PrometheusMetricsObj.getState()
+        }
+        res.json(returnObject);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+export { apiPrometheusEnable, apiPrometheusState }
+

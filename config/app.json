@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "log": {
     "console": {
       "enabled": true,
@@ -132,5 +132,12 @@
     },
     "jigglerTimeDiff": 10,
     "mouseMode": "dual"
+  },
+  "prometheus": {
+    "enabled": false,
+    "username": "admin",
+    "password": "admin",
+    "interval": 15,
+    "enable": true
   }
 }

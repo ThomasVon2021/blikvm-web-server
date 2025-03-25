@@ -18,7 +18,7 @@ function getHardwareTypeForConfig() {
 const hardware = getHardwareTypeForConfig();
 
 const defaultConfig = {
-    "version": 4,
+    "version": 5,
     "log": {
       "console": {
         "enabled": true,
@@ -151,6 +151,12 @@ const defaultConfig = {
           "KeyW"
         ]
       }
+    },
+    "prometheus":{
+      "enabled": false,
+      "username": "admin",
+      "password": "admin",
+      "interval": 15
     }
 };
 

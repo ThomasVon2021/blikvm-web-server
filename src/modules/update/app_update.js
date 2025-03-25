@@ -88,6 +88,19 @@ class AppConfigUpdate {
     return data;
   }
 
+  upgradeV4toV5(data) {
+    if(data.prometheus === undefined){
+      data.prometheus = {
+        enabled: false,
+        username: 'admin',
+        password: 'admin',
+        interval: 15
+      };
+    }
+    data.version = 5;
+    return data;
+  }
+
   // 通用升级函数，检查当前版本并逐步升级
   upgradeData(data) {
     if (data.version === 1) {
@@ -101,6 +114,10 @@ class AppConfigUpdate {
     if (data.version === 3) {
       logger.info('Upgrading from version 3 to version 4...');
       data = this.upgradeV3toV4(data);
+    }
+    if( data.version === 4){
+      logger.info('Upgrading from version 4 to version 5...');
+      data = this.upgradeV4toV5(data);
     }
     return data;
   }

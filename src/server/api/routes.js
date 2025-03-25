@@ -50,6 +50,7 @@ import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan} from './wol.route.js'; 
 import { apiMouseJiggler, apiChangeJigglerTime, apiV2MouseJiggler } from './mouse.route.js';
 import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
+import {apiPrometheusEnable, apiPrometheusState} from './prometheus.route.js';
 
 /**
  * Array of route objects.
@@ -120,7 +121,10 @@ const routes = [
   { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
   { path: '/api/logs', handler: apiGetLogs, method: 'post' },
 
-  { path: '/api/auth/state', handler: apiGetAuthState, method: 'get' }
+  { path: '/api/auth/state', handler: apiGetAuthState, method: 'get' },
+
+  { path: '/api/prometheus', handler: apiPrometheusEnable, method: 'post' },
+  { path: '/api/prometheus', handler: apiPrometheusState, method: 'get' }
   
 ];
 

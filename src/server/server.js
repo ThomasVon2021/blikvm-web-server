@@ -48,6 +48,7 @@ import { NotificationType, Notification } from '../modules/notification.js';
 import ATX from '../modules/kvmd/kvmd_atx.js';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import httpProxy from 'http-proxy';
+import  { PrometheusMetrics, BasicAuthObj } from './prometheus.js';
 
 const logger = new Logger();
 
@@ -315,6 +316,13 @@ class HttpServer {
 
     app.post('/api/login', apiLogin);
     app.get('/api/auth/state', apiGetAuthState);
+
+    const PrometheusMetricsObj = new PrometheusMetrics();
+    app.get('/api/metrics', BasicAuthObj, async (req, res) => {
+      res.set('Content-Type', PrometheusMetricsObj._register.contentType);
+      res.end(await PrometheusMetricsObj.getMetrics());
+    });
+
     if (server.auth === true) {
       app.use(this._httpVerityMiddle);
     }
@@ -443,9 +451,6 @@ class HttpServer {
    */
   _websocketServerConnectionEvent(ws, req) {
     try {
-      // if (!this._wssVerifyClient(ws, req)) {
-      //   return;
-      // }
       const notification = new Notification();
       notification.initWebSocket(ws);
 
@@ -496,33 +501,6 @@ class HttpServer {
       ret.msg = err.message;
       ws.send(JSON.stringify(ret));
       ws.close();
-    }
-  }
-
-  /**
-   * Verifies the client connection by checking the provided key and OTP in the request headers.
-   * If the key or OTP is missing or incorrect, it sends an error message to the client and closes the connection.
-   * @param {WebSocket} ws - The WebSocket connection object.
-   * @param {http.IncomingMessage} req - The HTTP request object.
-   * @returns {boolean} - Returns true if the client is verified, otherwise false.
-   * @private
-   */
-  _wssVerifyClient(ws, req) {
-    const { headers } = req;
-    const user = headers.user;
-    const pwd = headers.pwd;
-    const { userManager } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    const data = JSON.parse(fs.readFileSync(userManager.userFile, UTF8));
-    if (user && user === data.user && pwd && pwd === data.pwd) {
-      return true;
-    } else {
-      const ret = createApiObj();
-      ret.code = ApiCode.INVALID_CREDENTIALS;
-      ret.msg = 'user or pwd is missing or wrong';
-      ws.send(JSON.stringify(ret));
-      ws.close();
-      logger.error('user or pwd is missing or wrong');
-      return false;
     }
   }
 

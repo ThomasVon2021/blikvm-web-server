@@ -132,6 +132,7 @@ function apiGetSystemInfo(req, res, next) {
         }else if(hardwareType === HardwareType.PI4B || hardwareType === HardwareType.CM4){
           returnObject.data.board.type = systemData.raspberry.type;
         }
+        
         res.json(returnObject);
       })
       .catch(error => {
