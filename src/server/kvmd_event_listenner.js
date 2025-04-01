@@ -167,6 +167,8 @@ const getFilteredEventDevices = () => {
 
 class InputEventListener {
 
+  static blockFlag = false;
+
   constructor() {
       this.reader = new EvdevReader();
       this.keyboard = new Keyboard();
@@ -233,6 +235,10 @@ class InputEventListener {
   // mouse code left:1 right:2 middle:4
   handleKeyEvent(data) {
 
+    if (InputEventListener.blockFlag) {
+      return;
+    }
+
     const BUTTON_LEFT = 0b00000001;
     const BUTTON_RIGHT = 0b00000010;
     const BUTTON_MIDDLE = 0b00000100;
@@ -269,6 +275,11 @@ class InputEventListener {
   // code 0:x 1:y wheel: 8 and 11
   // value 
   handleRelEvent(data) {
+
+    if (InputEventListener.blockFlag) {
+      return;
+    }
+
     //console.log("Relative axis event:", data);
     let relativeX = 0;
     let relativeY = 0;
@@ -302,6 +313,23 @@ class InputEventListener {
     logger.error(`Input listenner error:${e}`);
     //this.close();
   }
+
+  static setBlockFlag(flag) {
+    if(InputEventListener.blockFlag !== flag) {
+      InputEventListener.blockFlag = flag;
+      const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+      config.hid.pass_through.blockFlag = flag;
+      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+      logger.info(`InputEventListener blockFlag set to ${flag}`);
+    }else{
+      logger.warn(`InputEventListener blockFlag already set to ${flag}`);
+    }
+  }
+
+  static getBlockFlag() {
+    return InputEventListener.blockFlag;
+  }
+
 }
 
 const watchInputDir = () => {

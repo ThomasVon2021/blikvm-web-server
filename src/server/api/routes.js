@@ -21,9 +21,9 @@
 *****************************************************************************/
 import { apiATXClick, apiATXState } from './atx.route.js';
 import state from './state.route.js';
-import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording, apiResolutionChange, apiSnapshot } from './video.route.js';
+import { apiVideoControl, apiVideoConfig, apiGetVideoState, apiRecording, apiResolutionChange, apiSnapshot, apiEdidInfo,  apiEdidSet } from './video.route.js';
 import KVMDMain from './kvmd_main.route.js';
-import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig } from './hid.route.js';
+import { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig, apiHIDLoopBlock, apiHIDLoopStatus } from './hid.route.js';
 import {
   apiUpload,
   apiCreateMSD,
@@ -47,10 +47,12 @@ import {
 } from './switch.route.js';
 import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
-import { apiWakeOnLan} from './wol.route.js'; 
-import { apiMouseJiggler, apiChangeJigglerTime, apiV2MouseJiggler } from './mouse.route.js';
+import { apiWakeOnLan, apiWakeOnLanList} from './wol.route.js'; 
+import { apiMouseJiggler, apiChangeJigglerTime, apiV2MouseJiggler, apiMouseEvent } from './mouse.route.js';
 import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
 import {apiPrometheusEnable, apiPrometheusState} from './prometheus.route.js';
+import {  apiVPNEnable, apiVPNState } from './vpn.route.js';
+import {apiResetConfig } from './config.route.js'
 
 /**
  * Array of route objects.
@@ -71,8 +73,9 @@ const routes = [
   { path: '/api/video/record', handler: apiRecording, method: 'post' },
   { path: '/api/video/resolution', handler: apiResolutionChange, method: 'post' },
   { path: '/api/video/snapshot', handler: apiSnapshot, method: 'get' },
+  { path: '/api/video/edid', handler: apiEdidInfo, method: 'get' },
+  { path: '/api/video/edid', handler: apiEdidSet, method: 'post' },
 
-  
   { path: '/api/kvmdmain', handler: KVMDMain, method: 'post' },
   { path: '/api/hid', handler: apiEnableHID, method: 'post' },
   { path: '/api/hid/mode', handler: apiChangeMode, method: 'post' },
@@ -80,9 +83,12 @@ const routes = [
   { path: '/api/hid/paste', handler: apiKeyboardPaste, method: 'post' },
   { path: '/api/hid/shortcuts', handler: apiKeyboardShortcuts, method: 'post' },
   { path: '/api/hid/shortcuts/config', handler: apiGetShortcutsConfig, method: 'post' },
+  { path: '/api/mouse/event', handler: apiMouseEvent, method: 'post' },
   { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'get' },
   { path: '/api/mouse/jiggler', handler: apiChangeJigglerTime, method: 'post' },
   { path: '/api/v2/mouse/jiggler', handler: apiV2MouseJiggler, method: 'post' },
+  { path: '/api/hid/loop/block', handler: apiHIDLoopBlock, method: 'post' },
+  { path: '/api/hid/loop', handler: apiHIDLoopStatus, method: 'get' },
   
   { path: '/api/msd/upload', handler: apiUpload, method: 'post' },
   { path: '/api/msd/upload/progress', handler: apiGetUploadProgress, method: 'post' },
@@ -119,12 +125,18 @@ const routes = [
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
   { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
+  { path: '/api/v2/wol', handler: apiWakeOnLanList, method: 'post' },
   { path: '/api/logs', handler: apiGetLogs, method: 'post' },
 
   { path: '/api/auth/state', handler: apiGetAuthState, method: 'get' },
 
   { path: '/api/prometheus', handler: apiPrometheusEnable, method: 'post' },
-  { path: '/api/prometheus', handler: apiPrometheusState, method: 'get' }
+  { path: '/api/prometheus', handler: apiPrometheusState, method: 'get' },
+
+  { path: '/api/vpn', handler: apiVPNEnable, method: 'post' },
+  { path: '/api/vpn', handler: apiVPNState, method: 'get' },
+
+  { path: '/api/security/config/reset', handler: apiResetConfig, method: 'post' }
   
 ];
 

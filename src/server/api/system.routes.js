@@ -55,8 +55,8 @@ function readSerialNumber() {
 
 function apiGetSystemInfo(req, res, next) {
   try {
-    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo(),si.mem(), si.diskLayout(),si.fsSize() ])
-      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo,memData, disks, fsData]) => {
+    Promise.all([si.system(), si.cpu(),si.networkInterfaces(), si.osInfo(), readSerialNumber(), getSystemInfo(),si.mem(), si.diskLayout(),si.fsSize(),si.time() ])
+      .then(([systemData, cpuData, networkData, osData, serialNumber, systemInfo,memData, disks, fsData,siTime]) => {
         const netDataFilter = networkData.filter(netInterface => netInterface.iface !== 'lo')
         .map(netInterface => ({
           iface: netInterface.iface,   
@@ -93,6 +93,8 @@ function apiGetSystemInfo(req, res, next) {
         returnObject.data = {
           cpuLoad: systemInfo.cpuLoad,
           uptime: systemInfo.uptime,
+          timezone: siTime.timezone,
+          timezoneName: siTime.timezoneName,
           temperature: systemInfo.temperature,
           auth:{
             isEnabled: server.auth

@@ -24,8 +24,9 @@ import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import { ApiCode, createApiObj } from '../../common/api.js';
 import Logger from '../../log/logger.js';
 import { ModuleState } from '../../common/enums.js';
-import { getHardwareType } from '../../common/tool.js';
+import { getHardwareType, executeCMD } from '../../common/tool.js';
 import { HardwareType } from '../../common/enums.js';
+import { execSync } from 'child_process';
 
 const logger = new Logger();
 
@@ -244,5 +245,49 @@ async function apiSnapshot(req, res, next) {
   }
 } 
 
+function parseEdidOutput(output) {
+  const lines = output.split('\n');
+  const result = {};
 
-export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiResolutionChange,apiSnapshot };
+  lines.forEach(line => {
+    const [key, value] = line.split(':').map(part => part.trim());
+    if (key && value) {
+      result[key.toLowerCase().replace(/\s+/g, '_')] = value;
+    }
+  });
+
+  return result;
+}
+
+function apiEdidInfo(req, res, next) {
+  try {
+    const ret = createApiObj();
+    const output = execSync('./lib/kvmd-edidconf 2>&1').toString();
+    const parsedOutput = parseEdidOutput(output); 
+    ret.data = parsedOutput; 
+    ret.msg = 'EDID information retrieved successfully';
+    res.json(ret);
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+function apiEdidSet(req, res, next) {
+  try {
+    const ret = createApiObj();
+    const {manufacturer_id, product_id, serial_number, monitor_name } = req.body;
+    const cmd = `./lib/kvmd-edidconf --set-monitor-name=${monitor_name} --set-mfc-id=${manufacturer_id} --set-product-id=${product_id} --set-serial=${serial_number} --apply`;
+    execSync(cmd);
+    const output = execSync('./lib/kvmd-edidconf 2>&1').toString();
+    const parsedOutput = parseEdidOutput(output); 
+    ret.data = parsedOutput; 
+    ret.msg = 'EDID information set successfully';
+    res.json(ret);
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+export { apiVideoControl, apiVideoConfig, apiGetVideoState, wsGetVideoState, apiRecording, apiResolutionChange,apiSnapshot, apiEdidInfo,  apiEdidSet};

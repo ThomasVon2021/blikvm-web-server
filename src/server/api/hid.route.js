@@ -24,6 +24,7 @@ import Keyboard from '../keyboard.js';
 import Mouse from '../mouse.js';
 import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
 import fs from 'fs';
+import {InputEventListener} from '../kvmd_event_listenner.js';
 
 
 function apiEnableHID(req, res, next) {
@@ -156,7 +157,39 @@ function apiGetShortcutsConfig(req, res, next) {
   }
 }
 
+function apiHIDLoopBlock(req, res, next) {
+  try{
+    const { blockFlag } = req.body; 
+    InputEventListener.setBlockFlag(blockFlag);
+    const flag = InputEventListener.getBlockFlag();
+    const returnObject = createApiObj();
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = '';
+    returnObject.data = {
+      blockFlag: flag
+    };
+    res.json(returnObject);
+  }catch(err){
+    next(err);
+  }
+}
+
+function apiHIDLoopStatus(req, res, next) {
+  try{
+    const flag = InputEventListener.getBlockFlag();
+    const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    const returnObject = createApiObj();
+    returnObject.code = ApiCode.OK;
+    returnObject.msg = '';
+    returnObject.data = {
+      enabled: hid.pass_through.enabled,
+      blockFlag: flag
+    };
+    res.json(returnObject);
+  }catch(err){
+    next(err);
+  }
+}
 
 
-
-export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig };
+export { apiEnableHID, apiChangeMode, apiGetStatus, apiKeyboardPaste, apiKeyboardShortcuts, apiGetShortcutsConfig, apiHIDLoopStatus,apiHIDLoopBlock };

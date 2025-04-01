@@ -109,6 +109,10 @@ function startJanus(){
 }
 
 function startHIDLoop() {
+  const { hid } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+  if(hid.pass_through.enabled !== true){
+    return;
+  }
   const eventDevices = getFilteredEventDevices();
   eventDevices.forEach(device => {
     const inputEventListener = new InputEventListener();

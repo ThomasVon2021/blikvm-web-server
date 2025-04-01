@@ -46,4 +46,29 @@ function apiWakeOnLan(req, res, next) {
   }
 }
 
-export { apiWakeOnLan };
+function apiWakeOnLanList(req, res, next) {
+  try {
+    const ret = createApiObj();
+    const macAddresses = req.body.macs; // 获取MAC地址数组
+    const promises = macAddresses.map(macAddress => {
+      const wol = new WakeOnLan(macAddress);
+      return wol.sendMagicPacket();
+    });
+
+    Promise.all(promises)
+      .then(() => {
+        ret.msg = 'Magic packets sent';
+        res.json(ret);
+      })
+      .catch((err) => {
+        ret.msg = err.message;
+        ret.code = ApiCode.INTERNAL_SERVER_ERROR;
+        res.json(ret);
+        next(err);
+      });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export { apiWakeOnLan, apiWakeOnLanList };

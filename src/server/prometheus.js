@@ -32,7 +32,7 @@ class PrometheusMetrics {
     this._enable = prometheus.enabled;
     this._username = prometheus.username;
     this._password = prometheus.password;
-    this._interval = prometheus.interval;
+    this._interval = prometheus.interval * 1000;
 
     this.cpuTemperature = new client.Gauge({
       name: 'cpu_temperature_celsius',
@@ -75,7 +75,7 @@ class PrometheusMetrics {
 
     setInterval(() => {
       this._updateMetrics();
-    }, 15000);
+    }, this._interval);
 
   }
 
@@ -85,7 +85,7 @@ class PrometheusMetrics {
         this._updateMetrics();
       }, this._interval);
       const configObj = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      configObj.prometheus.enable = true;
+      configObj.prometheus.enabled = true;
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(configObj, null, 2), UTF8);
       this._enable = true;
     }
@@ -96,7 +96,7 @@ class PrometheusMetrics {
       clearInterval(this._intervalId);
       this._intervalId = null;
       const configObj = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-      configObj.prometheus.enable = true;
+      configObj.prometheus.enabled = true;
       fs.writeFileSync(CONFIG_PATH, JSON.stringify(configObj, null, 2), UTF8);
       this._enabled = false;
     }
@@ -105,7 +105,7 @@ class PrometheusMetrics {
   setInterval(interval){
     if (this._interval !== interval) {
       clearInterval(this._intervalId);
-      this._interval = interval;
+      this._interval = interval * 1000;
       this._intervalId = setInterval(() => {
         this._updateMetrics();
       }, this._interval);

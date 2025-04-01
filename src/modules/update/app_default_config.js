@@ -126,6 +126,7 @@ const defaultConfig = {
       "jigglerTimeDiff": 60,
       "pass_through": {
         "enabled": false,
+        "block": false,
         "mouse_sensitivity": 0.3
       },
       "shortcuts": {

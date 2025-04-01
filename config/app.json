@@ -32,7 +32,7 @@
     "auth": false,
     "authExpiration": 12,
     "ipWhite": {
-      "enable": false,
+      "enabled": false,
       "list": []
     }
   },
@@ -42,7 +42,7 @@
     "bin": "./lib/pi/ustreamer.bin",
     "fps": 30,
     "quality": 80,
-    "kbps": 1000,
+    "kbps": 2000,
     "gop": 30,
     "resolution": "1920x1080",
     "recordPath": "/mnt/tmp/record",
@@ -82,7 +82,8 @@
     "mode": 1,
     "onBootTime": 3600,
     "cycleInterval": 60,
-    "displayTime": 10
+    "displayTime": 10,
+    "secondIP": ""
   },
   "atx": {
     "controlSockFilePath": "/var/blikvm/atx.sock",
@@ -91,21 +92,23 @@
     "power_off_delay": 5000
   },
   "msd": {
+    "enable": true,
     "isoFilePath": "/mnt/msd/user",
     "shell": "./lib/kvmd-msd.sh",
     "stateFilePath": "/mnt/msd/config/msd.json",
-    "tusPort": 10002,
-    "enable": true
+    "tusPort": 10002
   },
   "hid": {
     "hidEnable": "./lib/hid/enable-gadget.sh",
     "hidDisable": "./lib/hid/disable-gadget.sh",
     "enable": true,
-    "absoluteMode": true,
+    "mouseMode": "dual",
     "mouseJiggler": false,
+    "jigglerTimeDiff": 60,
     "pass_through": {
-      "enabled": false,
-      "mouse_sensitivity": 0.3
+      "enabled": true,
+      "mouse_sensitivity": 0.3,
+      "blockFlag": true
     },
     "shortcuts": {
       "Ctrl+Alt+Del": [
@@ -129,15 +132,12 @@
         "ControlLeft",
         "KeyW"
       ]
-    },
-    "jigglerTimeDiff": 10,
-    "mouseMode": "dual"
+    }
   },
   "prometheus": {
     "enabled": false,
     "username": "admin",
     "password": "admin",
-    "interval": 15,
-    "enable": true
+    "interval": 15
   }
 }

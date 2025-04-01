@@ -97,6 +97,9 @@ class AppConfigUpdate {
         interval: 15
       };
     }
+    if( data.hid.pass_through.block === undefined){
+      data.hid.pass_through.block = false;
+    }
     data.version = 5;
     return data;
   }
@@ -154,6 +157,20 @@ class AppConfigUpdate {
 
   getDefaultConfig() {
     return this._defaultConfig;
+  }
+
+  setDefaultConfig(retainCredentials) {
+    if (retainCredentials ) {
+      const localData = JSON.parse(fs.readFileSync(this._filePath, UTF8));
+      const defaultConfig = JSON.parse(JSON.stringify(this._defaultConfig));
+      defaultConfig.server.sshUser = localData.server.sshUser;
+      defaultConfig.server.sshPassword = localData.server.sshPassword;
+      defaultConfig.prometheus.username = localData.prometheus.username;
+      defaultConfig.prometheus.password = localData.prometheus.password;
+      fs.writeFileSync(this._filePath, JSON.stringify(defaultConfig, null, 2), UTF8);
+    }else{
+      fs.writeFileSync(this._filePath, JSON.stringify(this._defaultConfig, null, 2), UTF8);
+    }
   }
 }
 

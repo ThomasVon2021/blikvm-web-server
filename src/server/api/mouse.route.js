@@ -81,5 +81,18 @@ function apiV2MouseJiggler(req, res, next) {
   } 
 }
 
+function apiMouseEvent(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const data = req.body;
+    const mouse = new Mouse();
+    mouse.handleEvent(data);
+    returnObject.msg = 'mouse event success';
+    res.json(returnObject);
+  } catch (error) {
+    next(error);
+  } 
+} 
 
-export { apiMouseJiggler,apiChangeJigglerTime,  apiV2MouseJiggler};
+
+export { apiMouseJiggler,apiChangeJigglerTime,  apiV2MouseJiggler, apiMouseEvent};
