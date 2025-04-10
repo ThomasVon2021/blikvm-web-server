@@ -29,7 +29,7 @@ const logger = new Logger();
 function apiVPNEnable(req, res, next) {
     try{
         const returnObject = createApiObj();
-        const { vpn, enable } = req.body;
+        const { vpn, active } = req.body;
         if(vpn !== 'tailscaled' && vpn !== 'zerotier-one' && vpn !== 'wg-quick@wg0' )
         {
             returnObject.code = ApiCode.INVALID_INPUT_PARAM;
@@ -37,10 +37,10 @@ function apiVPNEnable(req, res, next) {
             res.json(returnObject);
             return;
         }
-        if(enable === true){
+        if(active === true){
             executeCMD(`systemctl enable --now ${vpn}`)
             .then(() => {
-                returnObject.msg = `${vpn} start success`;
+                returnObject.msg = `${vpn} started successfully`;
                 res.json(returnObject);
             })
             .catch((err) => {
@@ -52,7 +52,7 @@ function apiVPNEnable(req, res, next) {
         }else{
             executeCMD(`systemctl disable --now ${vpn}`)
             .then(() => {
-                returnObject.msg = `${vpn} stop success`;
+                returnObject.msg = `${vpn} stopped successful`;
                 res.json(returnObject);
             })
             .catch((err) => {
@@ -70,15 +70,38 @@ function apiVPNEnable(req, res, next) {
 function apiVPNState(req, res, next) {
     try {
         const returnObject = createApiObj();
-        const vpns = ['tailscaled', 'zerotier-one', 'wg-quick@wg0'];
-        const promises = vpns.map(vpn => executeCMD(`systemctl is-active ${vpn}`)
-            .then(stdout => ({ vpn, state: stdout.trim() }))
-            .catch(() => ({ vpn, state: 'inactive' }))); // 只返回状态，不包含错误信息
+        const vpnToInterfaceMap = {
+            'tailscaled': 'tailscale0',
+            'zerotier-one': 'zt0',
+            'wg-quick@wg0': 'wg0'
+        };
+        const vpns = Object.keys(vpnToInterfaceMap);
+
+        const promises = vpns.map(vpn => 
+            executeCMD(`systemctl is-active ${vpn}`)
+                .then(stdout => {
+                    const state = stdout.trim();
+                    if (state === 'active') {
+                        // 如果 VPN 活跃，获取对应的网卡名称
+                        const interfaceName = vpnToInterfaceMap[vpn];
+                        return executeCMD(`ip addr show ${interfaceName}`)
+                            .then(ipOutput => {
+                                const ipMatch = ipOutput.match(/inet (\d+\.\d+\.\d+\.\d+)/); // 提取 IPv4 地址
+                                const ip = ipMatch ? ipMatch[1] : null;
+                                return { vpn, state, ip }; // 返回包含 IP 的对象
+                            });
+                    } else {
+                        console.log(`VPN ${vpn} is inactive, no IP address available.`);
+                        return { vpn, state, ip: null }; // 非活跃状态，IP 为 null
+                    }
+                })
+                .catch(() => ({ vpn, state: 'inactive', ip: null })) // 捕获错误并返回默认值
+        );
 
         Promise.all(promises)
             .then(results => {
-                returnObject.data = results.reduce((acc, { vpn, state }) => {
-                    acc[vpn] = state;
+                returnObject.data = results.reduce((acc, { vpn, state, ip }) => {
+                    acc[vpn] = { state, ip };
                     return acc;
                 }, {});
                 res.json(returnObject);
