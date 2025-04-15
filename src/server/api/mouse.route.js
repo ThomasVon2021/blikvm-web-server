@@ -52,7 +52,7 @@ function apiChangeJigglerTime(req, res, next) {
     const returnObject = createApiObj();
     const {interval} = req.body;
     const mouse = new Mouse();
-    mouse.updateJigglerTimeDiff(interval);
+    mouse.updateJigglerInterval(interval);
     returnObject.msg = `mouse jiggler time changed to ${interval} success`;
     res.json(returnObject);
   } catch (error) {
@@ -67,9 +67,9 @@ function apiV2MouseJiggler(req, res, next) {
     const mouse = new Mouse();
     if(interval === 0) {
         mouse.stopJiggler();
-        mouse.updateJigglerTimeDiff(interval);
+        mouse.updateJigglerInterval(interval);
     }else if(interval > 0) {
-        mouse.updateJigglerTimeDiff(interval);
+        mouse.updateJigglerInterval(interval);
         if(!mouse.getJigglerStatus()) {
             mouse.startJiggler();
         }

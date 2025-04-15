@@ -105,6 +105,18 @@ class AppConfigUpdate {
         file: "./config/switch.json"
       };
     }
+    if (data.hid.jigglerTimeDiff !== undefined) {
+      data.hid.jigglerInterval = data.hid.jigglerTimeDiff;
+      delete data.hid.jigglerTimeDiff;
+    }
+    if (data.hid.jigglerInterval === undefined) {
+        data.hid.jigglerInterval = 60;
+    }
+    if (data.fan === undefined) {
+      data.fan = {
+        tempThreshold: 65
+      };
+    }
     data.version = 5;
     return data;
   }

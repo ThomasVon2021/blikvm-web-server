@@ -80,7 +80,6 @@
     "enable": true,
     "mouseMode": "dual",
     "mouseJiggler": false,
-    "jigglerTimeDiff": 60,
     "pass_through": {
       "enabled": true,
       "mouse_sensitivity": 0.3,
@@ -108,7 +107,8 @@
         "ControlLeft",
         "KeyW"
       ]
-    }
+    },
+    "jigglerInterval": 60
   },
   "prometheus": {
     "enabled": false,
@@ -118,5 +118,8 @@
   },
   "switchManager": {
     "file": "./config/switch.json"
+  },
+  "fan": {
+    "tempThreshold": 65
   }
 }

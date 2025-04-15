@@ -292,10 +292,10 @@ class Mouse {
     logger.info('stop mouse jiggler success');
   }
 
-  updateJigglerTimeDiff(timeDiff) {
-    this._jigglerTimeDiff = timeDiff*1000; //ms==>s
+  updateJigglerInterval(interval) {
+    this._jigglerTimeDiff = interval*1000; //ms==>s
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    config.hid.jigglerTimeDiff = timeDiff ;
+    config.hid.jigglerInterval = interval ;
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
   }
 

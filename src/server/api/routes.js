@@ -50,6 +50,7 @@ import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
 import {apiPrometheusEnable, apiPrometheusState} from './prometheus.route.js';
 import {  apiVPNEnable, apiVPNState } from './vpn.route.js';
 import {apiResetConfig } from './config.route.js'
+import {apiSetTempThreshold } from './fan.route.js';
 
 /**
  * Array of route objects.
@@ -133,7 +134,9 @@ const routes = [
   { path: '/api/vpn', handler: apiVPNEnable, method: 'post' },
   { path: '/api/vpn', handler: apiVPNState, method: 'get' },
 
-  { path: '/api/security/config/reset', handler: apiResetConfig, method: 'post' }
+  { path: '/api/security/config/reset', handler: apiResetConfig, method: 'post' },
+
+  { path: '/api/fan', handler: apiSetTempThreshold, method: 'post' }
   
 ];
 

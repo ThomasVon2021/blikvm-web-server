@@ -101,7 +101,7 @@ const defaultConfig = {
       "enable": true,
       "mouseMode": "dual",
       "mouseJiggler": false,
-      "jigglerTimeDiff": 60,
+      "jigglerInterval": 60,
       "pass_through": {
         "enabled": false,
         "blockFlag": false,
@@ -136,6 +136,9 @@ const defaultConfig = {
       "username": "admin",
       "password": "admin",
       "interval": 15
+    },
+    "fan":{
+      "tempThreshold": 65
     }
 };
 
