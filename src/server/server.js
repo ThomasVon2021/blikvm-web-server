@@ -43,7 +43,7 @@ import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
 import { wsGetVideoState } from './api/video.route.js';
 import startTusServer from './tusServer.js';
-import CreateSshServer from './sshServer.js';
+import {createSshServer, activeSSHConnections} from './sshServer.js';
 import { NotificationType, Notification } from '../modules/notification.js';
 import ATX from '../modules/kvmd/kvmd_atx.js';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -373,7 +373,7 @@ class HttpServer {
     this._wss.on('connection', this._websocketServerConnectionEvent.bind(this));
 
     this._wsTerminal.on('connection', (ws) => {
-      CreateSshServer(ws);
+      createSshServer(ws);
     });
 
     this._server.on('upgrade', (request, socket, head) => {
@@ -474,6 +474,7 @@ class HttpServer {
           ret.data.videoStatus = await wsGetVideoState();
           ret.data.atxStatus = atx.getATXState();
           ret.data.clientsConnected = this._wss.clients.size;
+          ret.data.activeSSHConnections = activeSSHConnections;
           ws.send(JSON.stringify(ret));
         }
       }, 2000);

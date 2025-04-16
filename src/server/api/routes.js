@@ -70,7 +70,7 @@ const routes = [
   { path: '/api/video/state', handler: apiGetVideoState, method: 'post' },
   { path: '/api/video/record', handler: apiRecording, method: 'post' },
   { path: '/api/video/resolution', handler: apiResolutionChange, method: 'post' },
-  { path: '/api/video/snapshot', handler: apiSnapshot, method: 'get' },
+  { path: '/api/video/screenshot', handler: apiSnapshot, method: 'get' },
   { path: '/api/video/edid', handler: apiEdidInfo, method: 'get' },
   { path: '/api/video/edid', handler: apiEdidSet, method: 'post' },
 

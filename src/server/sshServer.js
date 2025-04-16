@@ -26,6 +26,8 @@ import fs from 'fs';
 import {NotificationType, Notification } from '../modules/notification.js';
 
 const logger = new Logger();
+let activeSSHConnections = 0;
+
 
 const createSshServer = (ws) => {
   const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
@@ -37,8 +39,10 @@ const createSshServer = (ws) => {
   };
 
   const ssh = new SSHClient();
+  let connectionClosed = false;
 
   ssh.on("ready", () => {
+    activeSSHConnections++; 
     ws.send("*** SSH CONNECTION ESTABLISHED ***\r\n");
     logger.info("SSH connection established.");
 
@@ -69,7 +73,11 @@ const createSshServer = (ws) => {
       });
     });
   }).on("close", () => {
-    logger.info("SSH connection closed.");
+    if (!connectionClosed) {
+      activeSSHConnections--; // 减少连接计数
+      connectionClosed = true; // 标记连接已关闭
+      logger.info(`SSH connection closed. Active connections: ${activeSSHConnections}`);
+    }
     ws.close();
   }).on("error", (err) => {
     logger.error(`\r\n*** SSH CONNECTION ERROR: ${err.message} ***\r\n`);
@@ -77,10 +85,14 @@ const createSshServer = (ws) => {
     notification.addMessage(NotificationType.ERROR, `SSH CONNECTION ERROR: ${err.message}`);
     ws.close();
   }).on("end", () => {
-    logger.info("SSH connection end.");
+    if (!connectionClosed) {
+      activeSSHConnections--; // 减少连接计数
+      connectionClosed = true; // 标记连接已关闭
+      logger.info(`SSH connection end. Active connections: ${activeSSHConnections}`);
+    }
     ws.close();
   })
   .connect(serverInfo);
 };
 
-export default createSshServer;
+export  { createSshServer, activeSSHConnections };
