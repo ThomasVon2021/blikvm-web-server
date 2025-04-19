@@ -75,12 +75,11 @@ const defaultConfig = {
       "janusBin": `./lib/${hardware}/janus`
     },
     "display": {
-      "isActive": true,
-      "mode": 1,
+      "mode": "boot",
       "onBootTime": 3600,
       "cycleInterval": 60,
       "displayTime": 10,
-      "secondIP": ""
+      "secondaryIP": ""
     },
     "atx": {
       "controlSockFilePath": "/var/blikvm/atx.sock",

@@ -53,8 +53,7 @@
     "janusBin": "./lib/pi/janus"
   },
   "display": {
-    "isActive": true,
-    "mode": 1,
+    "mode": "boot",
     "onBootTime": 3600,
     "cycleInterval": 60,
     "displayTime": 10,

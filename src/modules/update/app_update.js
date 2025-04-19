@@ -117,6 +117,25 @@ class AppConfigUpdate {
         tempThreshold: 65
       };
     }
+    if(data.display !== undefined){
+      if(data.display.isActive === false){
+        data.display.mode = 'off';
+      }
+      delete data.display.isActive;
+      if(data.display.secondIP === undefined){
+        data.display.secondaryIP = data.display.secondIP;
+        delete data.display.secondIP;
+      }
+      if(data.display.mode === 0){
+        data.display.mode = 'always';
+      }else if(data.display.mode === 1){
+        data.display.mode = 'boot';
+      }else if(data.display.mode === 2){
+        data.display.mode = 'interval';
+      }else{
+        data.display.mode = 'boot';
+      }
+    }
     data.version = 5;
     return data;
   }

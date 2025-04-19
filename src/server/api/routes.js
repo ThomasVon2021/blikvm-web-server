@@ -51,6 +51,7 @@ import {apiPrometheusEnable, apiPrometheusState} from './prometheus.route.js';
 import {  apiVPNEnable, apiVPNState } from './vpn.route.js';
 import {apiResetConfig } from './config.route.js'
 import {apiSetTempThreshold } from './fan.route.js';
+import {apiSetDispaly, apiGetDisplay } from './display.route.js';
 
 /**
  * Array of route objects.
@@ -136,7 +137,11 @@ const routes = [
 
   { path: '/api/security/config/reset', handler: apiResetConfig, method: 'post' },
 
-  { path: '/api/fan', handler: apiSetTempThreshold, method: 'post' }
+  { path: '/api/fan', handler: apiSetTempThreshold, method: 'post' },
+
+  { path: '/api/display', handler: apiSetDispaly, method: 'post' },
+  { path: '/api/display', handler: apiGetDisplay, method: 'get' }
+
   
 ];
 
