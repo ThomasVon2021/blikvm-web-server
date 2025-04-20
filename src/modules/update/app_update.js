@@ -136,6 +136,9 @@ class AppConfigUpdate {
         data.display.mode = 'boot';
       }
     }
+    if(data.hid.keymaps === undefined){
+      data.hid.keymaps = './lib/keymaps';
+    }
     data.version = 5;
     return data;
   }

@@ -97,6 +97,7 @@ const defaultConfig = {
     "hid": {
       "hidEnable": "./lib/hid/enable-gadget.sh",
       "hidDisable": "./lib/hid/disable-gadget.sh",
+      "keymaps": "./lib/keymaps",
       "enable": true,
       "mouseMode": "dual",
       "mouseJiggler": false,

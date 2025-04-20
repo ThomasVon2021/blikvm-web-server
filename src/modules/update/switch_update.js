@@ -69,7 +69,7 @@ class SwitchConfigUpdate {
                 "subtitle": "multiport 8-channel ATX KVM switch",
                 "channelCount": 8,
                 "deviceFile": "/dev/ttyUSB0",
-                "activeChannel": 8,
+                "activeChannel": "None",
                 "channels": [
                 {
                     "name": 1,
@@ -104,6 +104,122 @@ class SwitchConfigUpdate {
                     "override": ""
                 }
                 ]
+            },
+            {
+              "id": 3,
+              "title": "Tesmart HSW0801",
+              "subtitle": "Tesmart 8-channel KVM switch",
+              "channelCount": 8,
+              "deviceFile": "/dev/ttyUSB0",
+              "activeChannel": "None",
+              "channels": [
+                {
+                  "name": 1,
+                  "override": ""
+                },
+                {
+                  "name": 2,
+                  "override": ""
+                },
+                {
+                  "name": 3,
+                  "override": ""
+                },
+                {
+                  "name": 4,
+                  "override": ""
+                },
+                {
+                  "name": 5,
+                  "override": ""
+                },
+                {
+                  "name": 6,
+                  "override": ""
+                },
+                {
+                  "name": 7,
+                  "override": ""
+                },
+                {
+                  "name": 8,
+                  "override": ""
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "title": "Tesmart HSW1601",
+              "subtitle": "Tesmart 16-channel KVM switch",
+              "channelCount": 16,
+              "deviceFile": "/dev/ttyUSB0",
+              "activeChannel": "None",
+              "channels": [
+                {
+                  "name": 1,
+                  "override": ""
+                },
+                {
+                  "name": 2,
+                  "override": ""
+                },
+                {
+                  "name": 3,
+                  "override": ""
+                },
+                {
+                  "name": 4,
+                  "override": ""
+                },
+                {
+                  "name": 5,
+                  "override": ""
+                },
+                {
+                  "name": 6,
+                  "override": ""
+                },
+                {
+                  "name": 7,
+                  "override": ""
+                },
+                {
+                  "name": 8,
+                  "override": ""
+                },
+                {
+                  "name": 9,
+                  "override": ""
+                },
+                {
+                  "name": 10,
+                  "override": ""
+                },
+                {
+                  "name": 11,
+                  "override": ""
+                },
+                {
+                  "name": 12,
+                  "override": ""
+                },
+                {
+                  "name": 13,
+                  "override": ""
+                },
+                {
+                  "name": 14,
+                  "override": ""
+                },
+                {
+                  "name": 15,
+                  "override": ""
+                },
+                {
+                  "name": 16,
+                  "override": ""
+                }
+              ]
             }
             ]
         }
