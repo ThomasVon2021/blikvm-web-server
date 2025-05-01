@@ -44,7 +44,7 @@ import {
 } from './switch.route.js';
 import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
-import { apiWakeOnLan, apiWakeOnLanList} from './wol.route.js'; 
+import { apiWakeOnLan, apiSendWakeOnLanList, apiGetWakeOnLanList, apiAddWakeOnLan, apiDeleteWakeOnLan} from './wol.route.js'; 
 import { apiMouseJiggler, apiChangeJigglerTime, apiV2MouseJiggler, apiMouseEvent } from './mouse.route.js';
 import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
 import {apiPrometheusEnable, apiPrometheusState} from './prometheus.route.js';
@@ -52,6 +52,7 @@ import {  apiVPNEnable, apiVPNState } from './vpn.route.js';
 import {apiResetConfig } from './config.route.js'
 import {apiSetTempThreshold } from './fan.route.js';
 import {apiSetDispaly, apiGetDisplay } from './display.route.js';
+import {apiChangeWebServerPort} from './network.route.js';
 
 /**
  * Array of route objects.
@@ -123,8 +124,7 @@ const routes = [
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
   { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
-  { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
-  { path: '/api/v2/wol', handler: apiWakeOnLanList, method: 'post' },
+
   { path: '/api/logs', handler: apiGetLogs, method: 'post' },
 
   { path: '/api/auth/state', handler: apiGetAuthState, method: 'get' },
@@ -140,7 +140,15 @@ const routes = [
   { path: '/api/fan', handler: apiSetTempThreshold, method: 'post' },
 
   { path: '/api/display', handler: apiSetDispaly, method: 'post' },
-  { path: '/api/display', handler: apiGetDisplay, method: 'get' }
+  { path: '/api/display', handler: apiGetDisplay, method: 'get' },
+
+  { path: '/api/network/port', handler: apiChangeWebServerPort, method: 'post' },
+
+  { path: '/api/wol', handler: apiWakeOnLan, method: 'post' },
+  { path: '/api/wol/send', handler: apiSendWakeOnLanList, method: 'post' },
+  { path: '/api/wol', handler: apiGetWakeOnLanList, method: 'get' },
+  { path: '/api/wol/', handler: apiDeleteWakeOnLan, method: 'delete' },
+  { path: '/api/v2/wol', handler: apiAddWakeOnLan, method: 'post' },
 
   
 ];
