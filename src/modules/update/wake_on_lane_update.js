@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -19,14 +18,55 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-import dotenv from 'dotenv';
-import crypto from 'crypto';
-dotenv.config();
 
-export const CONFIG_DIR = 'config';
-export const CONFIG_PATH = process.argv[2] ? process.argv[2] : 'config/app.json';
-export const SWITCH_PATH = process.argv[3] ? process.argv[3] : 'config/switch.json';
-export const WOL_PATH = process.argv[4] ? process.argv[4] : 'config/wake_on_lan.json';
-console.log(`Config path is: ${CONFIG_PATH} and switch path is: ${SWITCH_PATH}`);
-export const UTF8 = 'utf8';
-export const JWT_SECRET = crypto.randomBytes(32).toString('hex');
+import fs from 'fs';
+import {fileExists} from '../../common/tool.js'
+import { UTF8, WOL_PATH } from '../../common/constants.js';
+import Logger from '../../log/logger.js';
+
+const logger = new Logger();
+
+class WOLConfigUpdate {
+
+  constructor() {
+    this._filePath = WOL_PATH;
+    this._defaultConfig = {
+      "version": 1,
+      "items": [
+      ]
+    };
+  }
+
+  // 通用升级函数，检查当前版本并逐步升级
+  upgradeData(data) {
+    return data;
+  }
+
+  // 升级配置文件
+  upgradeFile() {
+    try {
+      if(fileExists(this._filePath) === false){
+        fs.writeFileSync(this._filePath, JSON.stringify(this._defaultConfig, null, 2), UTF8);
+        return;
+      }
+
+      const localData = JSON.parse(fs.readFileSync(this._filePath, UTF8));
+      if (!localData.version) {
+        logger.warn('No wake on lane config version found, use latest default config');
+        fs.writeFileSync(this._filePath, JSON.stringify(this._defaultConfig, null, 2), UTF8);
+        return;
+      }
+
+      const upgradedData = this.upgradeData(localData);
+
+      fs.writeFileSync(this._filePath, JSON.stringify(upgradedData, null, 2), UTF8);
+
+      logger.info('wake_on_lane.json file successfully update!');
+
+    } catch (error) {
+      logger.error(`${error}`);
+    }
+  }
+}
+
+export default WOLConfigUpdate;

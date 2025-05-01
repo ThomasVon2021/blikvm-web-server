@@ -1,4 +1,3 @@
-
 /*****************************************************************************
 #                                                                            #
 #    blikvm                                                                  #
@@ -19,14 +18,28 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.  #
 #                                                                            #
 *****************************************************************************/
-import dotenv from 'dotenv';
-import crypto from 'crypto';
-dotenv.config();
+import fs from 'fs';
 
-export const CONFIG_DIR = 'config';
-export const CONFIG_PATH = process.argv[2] ? process.argv[2] : 'config/app.json';
-export const SWITCH_PATH = process.argv[3] ? process.argv[3] : 'config/switch.json';
-export const WOL_PATH = process.argv[4] ? process.argv[4] : 'config/wake_on_lan.json';
-console.log(`Config path is: ${CONFIG_PATH} and switch path is: ${SWITCH_PATH}`);
-export const UTF8 = 'utf8';
-export const JWT_SECRET = crypto.randomBytes(32).toString('hex');
+import { createApiObj, ApiCode } from '../../common/api.js';
+import { CONFIG_PATH, UTF8 } from '../../common/constants.js';
+
+
+function apiChangeWebServerPort(req, res, next) {
+  try {
+    const returnObject = createApiObj();
+    const { https_port, http_port } = req.body;
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+
+    config.server.https_port = https_port;
+    config.server.http_port = http_port;
+
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+    returnObject.msg = 'Web server port changed, restart the server to apply changes';
+    returnObject.code = ApiCode.OK;
+    res.json(returnObject);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export { apiChangeWebServerPort };

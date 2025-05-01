@@ -34,6 +34,7 @@ import {NotificationType, Notification } from './modules/notification.js';
 import UserConfigUpdate from './modules/update/user_update.js';
 import AppConfigUpdate from './modules/update/app_update.js';
 import SwitchConfigUpdate from './modules/update/switch_update.js';
+import WOLConfigUpdate from './modules/update/wake_on_lane_update.js';
 import {InputEventListener, getFilteredEventDevices} from './server/kvmd_event_listenner.js';
 import Mouse from './server/mouse.js';
 
@@ -56,6 +57,10 @@ userConfigUpdate.upgradeFile();
 // update switch.json
 const switchConfigUpdate = new SwitchConfigUpdate();
 switchConfigUpdate.upgradeFile();
+
+// udpate wake_on_lane.json
+const wolConfigUpdate = new WOLConfigUpdate();
+wolConfigUpdate.upgradeFile();
 
 const notification = new Notification();
 const logger = new Logger();
