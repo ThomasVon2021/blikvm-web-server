@@ -53,6 +53,7 @@ import {apiResetConfig } from './config.route.js'
 import {apiSetTempThreshold } from './fan.route.js';
 import {apiSetDispaly, apiGetDisplay } from './display.route.js';
 import {apiChangeWebServerPort} from './network.route.js';
+import { apiGetHealthCheck, apiSetHealthCheck } from './health.route.js';
 
 /**
  * Array of route objects.
@@ -150,7 +151,8 @@ const routes = [
   { path: '/api/wol/', handler: apiDeleteWakeOnLan, method: 'delete' },
   { path: '/api/v2/wol', handler: apiAddWakeOnLan, method: 'post' },
 
-  
+  { path: '/api/healthcheck', handler: apiSetHealthCheck, method: 'post' },
+  { path: '/api/healthcheck', handler: apiGetHealthCheck, method: 'get' },
 ];
 
 export default routes;

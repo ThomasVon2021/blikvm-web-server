@@ -18,7 +18,7 @@ function getHardwareTypeForConfig() {
 const hardware = getHardwareTypeForConfig();
 
 const defaultConfig = {
-    "version": 5,
+    "version": 6,
     "log": {
       "console": {
         "enabled": true,
@@ -139,6 +139,12 @@ const defaultConfig = {
     },
     "fan":{
       "tempThreshold": 65
+    },
+    "healthCheck": {
+      "RAM": 0.7,
+      "storage": 0.7,
+      "latency": 80,
+      "temperature": 70,
     }
 };
 
