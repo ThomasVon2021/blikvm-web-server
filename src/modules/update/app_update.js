@@ -143,23 +143,40 @@ class AppConfigUpdate {
     return data;
   }
 
+  upgradeV5toV6(data){
+    if(data.healthCheck === undefined ){
+      data.healthCheck = {
+        RAM: 0.7,
+        storage: 0.7,
+        latency: 80,
+        temperature: 70
+      };
+    }
+    data.version = 6;
+    return data;
+  }
+
   // 通用升级函数，检查当前版本并逐步升级
   upgradeData(data) {
     if (data.version === 1) {
-      logger.info('Upgrading from version 1 to version 2...');
+      logger.info('Update from version 1 to version 2...');
       data = this.upgradeV1toV2(data);
     }
     if (data.version === 2) {
-      logger.info('Upgrading from version 2 to version 3...');
+      logger.info('Update from version 2 to version 3...');
       data = this.upgradeV2toV3(data);
     }
     if (data.version === 3) {
-      logger.info('Upgrading from version 3 to version 4...');
+      logger.info('Update from version 3 to version 4...');
       data = this.upgradeV3toV4(data);
     }
     if( data.version === 4){
-      logger.info('Upgrading from version 4 to version 5...');
+      logger.info('Update from version 4 to version 5...');
       data = this.upgradeV4toV5(data);
+    }
+    if( data.version === 5 ){
+      logger.info('Update from version 5 to version 6...');
+      data = this.upgradeV5toV6(data);
     }
     return data;
   }
