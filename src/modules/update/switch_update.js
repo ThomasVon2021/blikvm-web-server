@@ -34,8 +34,8 @@ class SwitchConfigUpdate {
     this._defaultConfig = {
         "version": 1,
         "kvmSwitch": {
-            "isActive": true,
-            "activeSwitchId": 2,
+            "isActive": false,
+            "activeSwitchId": "None",
             "items": [
             {
                 "id": 1,

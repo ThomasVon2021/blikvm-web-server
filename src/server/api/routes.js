@@ -54,6 +54,7 @@ import {apiSetTempThreshold } from './fan.route.js';
 import {apiSetDispaly, apiGetDisplay } from './display.route.js';
 import {apiChangeWebServerPort} from './network.route.js';
 import { apiGetHealthCheck, apiSetHealthCheck } from './health.route.js';
+import {apiDownloadFile} from './download.route.js';
 
 /**
  * Array of route objects.
@@ -153,6 +154,9 @@ const routes = [
 
   { path: '/api/healthcheck', handler: apiSetHealthCheck, method: 'post' },
   { path: '/api/healthcheck', handler: apiGetHealthCheck, method: 'get' },
+
+  { path: '/api/virtual-media/:filename', handler: apiDownloadFile, method: 'get' },
+  
 ];
 
 export default routes;

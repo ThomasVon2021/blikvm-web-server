@@ -59,7 +59,7 @@ class Mouse {
       this._relMouse = new MouseBase('/dev/hidg1');
     }
     this._jigglerActive = hid.mouseJiggler;
-    this._jigglerTimeDiff = hid.jigglerTimeDiff*1000; //ms==>s
+    this._jigglerTimeDiff = hid.jigglerInterval*1000; //ms==>s
     this._lastUserInteraction = Date.now(); 
     this._jigglerLoop();
   }
