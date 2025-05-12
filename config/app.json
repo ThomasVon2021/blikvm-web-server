@@ -77,7 +77,7 @@
     "hidDisable": "./lib/hid/disable-gadget.sh",
     "keymaps": "./lib/keymaps",
     "enable": true,
-    "mouseMode": "dual",
+    "mouseMode": "absolute",
     "mouseJiggler": false,
     "pass_through": {
       "enabled": true,

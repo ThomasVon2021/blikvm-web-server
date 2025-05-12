@@ -37,9 +37,16 @@ function apiEnableHID(req, res, next) {
     const hid = new HID();
     const mouse = new Mouse();
     const keyboard = new Keyboard();
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    let msdEnable;
+    if(config.msd.enable === true){
+      msdEnable = 'enable';
+    }else{
+      msdEnable = 'disable';
+    }
     if (action === 'enable') {
       hid
-        .startService()
+        .startService(config.hid.mouseMode,msdEnable)
         .then(() => {
           mouse.open();
           keyboard.open();

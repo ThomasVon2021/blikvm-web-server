@@ -55,6 +55,7 @@ import {apiSetDispaly, apiGetDisplay } from './display.route.js';
 import {apiChangeWebServerPort} from './network.route.js';
 import { apiGetHealthCheck, apiSetHealthCheck } from './health.route.js';
 import {apiDownloadFile} from './download.route.js';
+import {apiGetSerailDevice, apiSetSerailDevice} from './serial.route.js';
 
 /**
  * Array of route objects.
@@ -156,6 +157,9 @@ const routes = [
   { path: '/api/healthcheck', handler: apiGetHealthCheck, method: 'get' },
 
   { path: '/api/virtual-media/:filename', handler: apiDownloadFile, method: 'get' },
+
+  { path: '/api/serial', handler: apiSetSerailDevice, method: 'post' },
+  { path: '/api/serial', handler: apiGetSerailDevice, method: 'get' },
   
 ];
 

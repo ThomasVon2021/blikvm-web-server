@@ -59,6 +59,12 @@ class HID extends Module {
         logger.info(this._hidEnablePath);
         executeScriptAtPath(this._hidEnablePath, [`mouse_mode=${mouseMode}`, `msd=${msdEnable}`])
           .then(() => {
+            this._state = ModuleState.RUNNING;
+            const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+            if (config.hid.enable !== true) {
+              config.hid.enable = true;
+              fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+            }
             resolve();
           })
           .catch((err) => {

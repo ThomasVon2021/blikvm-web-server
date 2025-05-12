@@ -24,6 +24,7 @@ import fs from 'fs';
 import { CONFIG_PATH, UTF8 } from '../common/constants.js';
 import { constants } from 'fs';
 import Queue from '../common/queue.js';
+import { isDeviceFile } from '../common/tool.js';
 
 const logger = new Logger();
 
@@ -70,6 +71,9 @@ class HIDDevice{
             if (this._fd !== null) {
                 logger.warn(`File ${this._devicePath} already opened fd ${this._fd}`);
                 resolve(this._fd);
+                return;
+            }
+            if( isDeviceFile(this._devicePath) === false) {
                 return;
             }
             logger.info(`Opening file ${this._devicePath}`);

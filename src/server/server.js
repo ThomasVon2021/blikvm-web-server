@@ -43,12 +43,13 @@ import jwt from 'jsonwebtoken';
 import HID from '../modules/kvmd/kvmd_hid.js';
 import { wsGetVideoState } from './api/video.route.js';
 import startTusServer from './tusServer.js';
-import {createSshServer, activeSSHConnections} from './sshServer.js';
+import { createSshServer, activeSSHConnections } from './sshServer.js';
 import { NotificationType, Notification } from '../modules/notification.js';
 import ATX from '../modules/kvmd/kvmd_atx.js';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import httpProxy from 'http-proxy';
-import  { PrometheusMetrics, BasicAuthObj } from './prometheus.js';
+import { PrometheusMetrics, BasicAuthObj } from './prometheus.js';
+import { createSerialServer } from './serialServer.js';
 
 const logger = new Logger();
 
@@ -273,7 +274,7 @@ class HttpServer {
     this._httpServerPort = server.http_port;
     G_AuthState = server.auth;
     const app = express();
-  
+
     if (server.ipWhite.enable === true) {
       const IP_WHITELIST = server.ipWhite.list;
       app.use(this._ipWhitelistMiddleware(IP_WHITELIST));
@@ -372,10 +373,19 @@ class HttpServer {
       noServer: true
     });
 
+    this._wsSerial = new WebSocketServer({
+      noServer: true
+    });
+
     this._wss.on('connection', this._websocketServerConnectionEvent.bind(this));
 
     this._wsTerminal.on('connection', (ws) => {
       createSshServer(ws);
+    });
+
+    this._wsSerial.on('connection', (ws, req) => {
+      console.log("serial connection");
+      createSerialServer(ws);
     });
 
     this._server.on('upgrade', (request, socket, head) => {
@@ -402,12 +412,17 @@ class HttpServer {
             });
           } else if (pathname === '/janus') {
             this._proxy.ws(request, socket, head);
-          } else {
+          } else if (pathname === '/serial') {
+            this._wsSerial.handleUpgrade(request, socket, head, (ws) => {
+              this._wsSerial.emit('connection', ws, request);
+            });
+          }
+          else {
             socket.destroy();
           }
 
         });
-      }else{
+      } else {
         if (pathname === '/wss') {
           this._wss.handleUpgrade(request, socket, head, (ws) => {
             this._wss.emit('connection', ws, request);
@@ -418,6 +433,11 @@ class HttpServer {
           });
         } else if (pathname === '/janus') {
           this._proxy.ws(request, socket, head);
+        }
+        else if (pathname === '/serial') {
+          this._wsSerial.handleUpgrade(request, socket, head, (ws) => {
+            this._wsSerial.emit('connection', ws, request);
+          });
         } else {
           socket.destroy();
         }
@@ -531,13 +551,13 @@ class HttpServer {
     }
     const requestType = req.method;
     const requestUrl = req.url;
-    if(G_AuthState === true ){
+    if (G_AuthState === true) {
       const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.split(' ')[1];
       const decoded = jwt.verify(token, JWT_SECRET);
       const username = decoded.username;
       logger.info(`http api request ${requestType} ${requestUrl} by ${username}`);
-    }else{
+    } else {
       logger.info(`http api request ${requestType} ${requestUrl}`);
     }
 
