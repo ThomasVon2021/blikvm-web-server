@@ -64,15 +64,19 @@ const defaultConfig = {
       "bin": `./lib/${hardware}/ustreamer.bin`,
       "fps": 30,
       "quality": 80,
-      "kbps": 5000,
+      "kbps": 2000,
       "gop": 30,
       "resolution": "1920x1080",
       "recordPath": "/mnt/tmp/record",
       "recordBin": `./lib/${hardware}/ustreamer-dump`
     },
+    "janus": {
+      "bin": `./lib/${hardware}/janus`,
+      "configsFolder": `./lib/${hardware}/janus_configs`,
+      "pluginsFolder": `./lib/${hardware}/janus_plugins`
+    },
     "kvmd": {
-      "bin": `./lib/${hardware}/kvmd-main`,
-      "janusBin": `./lib/${hardware}/janus`
+      "bin": `./lib/${hardware}/kvmd-main`
     },
     "display": {
       "mode": "boot",
@@ -148,4 +152,4 @@ const defaultConfig = {
     }
 };
 
-export default defaultConfig;
+export { defaultConfig, getHardwareTypeForConfig};

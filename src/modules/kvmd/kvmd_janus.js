@@ -37,9 +37,10 @@ class Janus extends ModuleApp {
   }
 
   _init() {
-    const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    this._bin = kvmd.janusBin;
+    const { janus } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    this._bin = janus.bin;
     this._name = 'janus';
+    this._param = [`--configs-folder=${janus.configsFolder}`, `--plugins-folder=${janus.pluginsFolder}`];
   }
 }
 

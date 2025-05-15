@@ -23,9 +23,11 @@ import fs from 'fs';
 import {fileExists, dirExists} from '../../common/tool.js'
 import { CONFIG_PATH, UTF8, CONFIG_DIR} from '../../common/constants.js';
 import Logger from '../../log/logger.js';
-import defaultConfig from './app_default_config.js';
+import {defaultConfig , getHardwareTypeForConfig}from './app_default_config.js';
 
 const logger = new Logger();
+
+const hardware = getHardwareTypeForConfig();
 
 class AppConfigUpdate {
 
@@ -150,6 +152,13 @@ class AppConfigUpdate {
         storage: 0.7,
         latency: 80,
         temperature: 70
+      };
+    }
+    if(data.janus === undefined){
+      data.janus = {
+        bin: `./lib/${hardware}/janus`,
+        configsFolder: `./lib/${hardware}/janus_configs`,
+        pluginsFolder: `./lib/${hardware}/janus_plugins`
       };
     }
     data.version = 6;

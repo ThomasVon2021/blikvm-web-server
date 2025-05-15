@@ -1,7 +1,7 @@
-memsink: {
-  object = "demo::ustreamer::h264"
+video: {
+  sink = "demo::ustreamer::h264"
 }
-audio: {
+acap: {
     device = "hw:1,0"
     tc358743 = "/dev/video0"
 }

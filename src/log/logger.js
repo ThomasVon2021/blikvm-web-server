@@ -27,7 +27,7 @@
 import log4js from 'log4js';
 import fs from 'fs';
 import { CONFIG_PATH } from '../common/constants.js';
-import defaultConfig from '../modules/update/app_default_config.js';
+import {defaultConfig} from '../modules/update/app_default_config.js';
 
 /**
  * Represents a logger that logs messages to multiple loggers.

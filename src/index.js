@@ -110,12 +110,8 @@ function startHid() {
 }
 
 function startJanus(){
-  const hardwareType = getHardwareType();
-  if(hardwareType === HardwareType.CM4 ||  hardwareType === HardwareType.PI4B ){
-    
-    const janus = new Janus();
-    janus.startService();
-  }
+  const janus = new Janus();
+  janus.startService();
 }
 
 function startHIDLoop() {

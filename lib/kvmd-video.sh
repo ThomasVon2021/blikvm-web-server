@@ -108,7 +108,7 @@ elif [[ "$board_type" == "$v4_h616" ]]; then
   done
   if [ -n "$jpeg_supported_device" ]; then
       echo "find support JPEG video divice: $jpeg_supported_device"
-      $ustreamer_bin --format=MJPEG --device=$jpeg_supported_device --resolution=$resolution --host=0.0.0.0 --port=$port --drop-same-frames=30 --desired-fps=$fps --quality=$quality &
+      $ustreamer_bin --format=MJPEG --encoder=LIBX264-VIDEO --device=$jpeg_supported_device --resolution=$resolution --host=0.0.0.0 --port=$port --drop-same-frames=30 --desired-fps=$fps --h264-bitrate=$kbps --h264-gop=$gop --h264-sink=demo::ustreamer::h264 &
       ustreamer_pid=$!
   else
       echo "not find JPEG video device, use video1"
