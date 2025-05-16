@@ -214,7 +214,7 @@ class MSD {
       this._makeImageProgress = 0;
 
       const { msd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-      const cmd = `bash ${msd.shell} -c make -s ${size} -n ${name} -t ${type} -f ${images}`;
+      const cmd = `bash ${msd.shell} -c make -s ${size} -n ${name} -t ${type} -f "${images}"`;
       logger.info(`Create MSD: ${cmd}`);
       this._executeCmdCP(cmd, (progress) => {
         logger.info(`make msd image progress: ${progress}`);

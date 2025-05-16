@@ -36,12 +36,31 @@ function createTusServer() {
         respectForwardedHeaders: true,
         datastore: new FileStore({ directory: msd.isoFilePath }),
         namingFunction(req, metadata) {
-            return `${metadata.filename}`;
+            //console.log('namingFunction:', metadata.filename);
+            // return `${metadata.filename}`;
+            const safeId = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+            return safeId;
         },
     });
 
     server.on(EVENTS.POST_FINISH, (req, res, upload) => {
         const metadataFilePath = path.join(msd.isoFilePath, `${upload.id}.json`);
+        const info = JSON.parse(fs.readFileSync(metadataFilePath, UTF8));
+        const originalFilename = info.metadata.filename;
+
+        // 获取上传文件的路径和目标路径
+        const uploadedFilePath = path.join(msd.isoFilePath, upload.id);
+        const renamedFilePath = path.join(msd.isoFilePath, originalFilename);
+
+        // 重命名文件
+        fs.rename(uploadedFilePath, renamedFilePath, (err) => {
+            if (err) {
+                logger.error(`Failed to rename file: ${err.message}`);
+            } else {
+                logger.info(`File renamed from ${upload.id} to ${originalFilename}`);
+            }
+        });
+
         fs.unlink(metadataFilePath, (err) => {
             if (err) logger.error(`Failed to delete metadata file: ${err.message}`);
         });
