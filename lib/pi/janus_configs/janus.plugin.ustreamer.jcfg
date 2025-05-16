@@ -2,6 +2,6 @@ video: {
   sink = "demo::ustreamer::h264"
 }
 acap: {
-    device = "hw:1,0"
+    device = "hw:CARD=tc358743"
     tc358743 = "/dev/video0"
 }
