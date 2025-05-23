@@ -172,10 +172,18 @@ async function wsGetVideoState() {
   try {
     const video = new Video();
     if (video.state !== ModuleState.RUNNING) {
-      return null;
+      const ret_stop = {
+        isActive: false,
+        width: 0,
+        height: 0,
+        capturedFps: 0,
+        queuedFps: 0
+      }
+      return ret_stop;
     }
     const response = await video.getVideoState();
     const ret = {
+      isActive: true,
       width: response.result.source.resolution.width,
       height: response.result.source.resolution.height,
       capturedFps: response.result.source.captured_fps,

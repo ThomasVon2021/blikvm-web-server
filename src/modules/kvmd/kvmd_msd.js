@@ -336,10 +336,10 @@ class MSD {
     return new Promise((resolve, reject) => {
       fs.unlink(dir, (err) => {
         if (err) {
-          console.error('Error deleting file:', err);
+          logger.error(`Error deleting file:${err.message}`);
           reject(err);
         } else {
-          console.log(`${dir} deleted successfully`);
+          logger.info(`${dir} deleted successfully`);
           resolve(true);
         }
       });

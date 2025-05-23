@@ -6,3 +6,4 @@ doc/func
 config/firmware.json
 build/
 dist/
+lib/ventoy-1.0.99/*

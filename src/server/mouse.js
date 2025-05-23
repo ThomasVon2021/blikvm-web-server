@@ -58,8 +58,7 @@ class Mouse {
     }else if( this._mouseMode === 'relative') {
       this._relMouse = new MouseBase('/dev/hidg1');
     }
-    this._jigglerActive = hid.mouseJiggler;
-    this._jigglerTimeDiff = hid.jigglerInterval*1000; //ms==>s
+    this._jigglerInterval = hid.jigglerInterval*1000; // s==>ms
     this._lastUserInteraction = Date.now(); 
     this._jigglerLoop();
   }
@@ -87,7 +86,7 @@ class Mouse {
    * @param {MouseEvent} event - The mouse event object.
    */
   handleEvent(event) {
-
+    //console.log('mouse event:', event);
     this._lastUserInteraction = Date.now();
     const {
       buttons,
@@ -226,28 +225,26 @@ class Mouse {
     this._relative_sens = value;
   }
 
-  startJiggler() {
-    this._jigglerActive = true;
+  startJiggler(interval) {
+    this._jigglerInterval = interval*1000; //s==>ms
     this._jigglerLoop();
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    config.hid.mouseJiggler = true;
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
+    // const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+    // config.hid.jigglerInterval = interval ;
+    // fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
   }
 
 
 
   _jigglerLoop() {
-    if (!this._jigglerActive) return;
-
-    if (this._jigglerTimeDiff <= 0) {
-      logger.error('Invalid jigglerTimeDiff value. It must be greater than 0.');
+    if (this._jigglerInterval <= 0) {
+      logger.info('Invalid jigglerTimeDiff value. It must be greater than 0.');
       return;
     }
 
     const currentTime = Date.now();
     const timeSinceLastInteraction = currentTime - this._lastUserInteraction;
-    if (timeSinceLastInteraction >= this._jigglerTimeDiff) {
-      logger.info(`No user interaction detected for ${this._jigglerTimeDiff/1000} seconds, activating mouse jiggler.`);
+    if (timeSinceLastInteraction >= this._jigglerInterval) {
+      logger.info(`No user interaction detected for ${this._jigglerInterval/1000} seconds, activating mouse jiggler.`);
 
       if (this._mouseMode === 'relative' ) {
         this._performRelativeJiggle();
@@ -258,7 +255,7 @@ class Mouse {
       this._lastUserInteraction = Date.now(); 
     }
 
-    setTimeout(() => this._jigglerLoop(), this._jigglerTimeDiff);
+    setTimeout(() => this._jigglerLoop(), this._jigglerInterval);
   }
 
   _performAbsoluteJiggle() {
@@ -285,15 +282,14 @@ class Mouse {
   }
 
   stopJiggler() {
-    this._jigglerActive = false;
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
-    config.hid.mouseJiggler = false;
+    config.hid.jigglerInterval = 0;
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
     logger.info('stop mouse jiggler success');
   }
 
   updateJigglerInterval(interval) {
-    this._jigglerTimeDiff = interval*1000; //ms==>s
+    this._jigglerInterval = interval*1000; //ms==>s
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     config.hid.jigglerInterval = interval ;
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);

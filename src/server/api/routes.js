@@ -45,7 +45,7 @@ import {
 import { apiReboot, apiGetDevice, apiGetSystemInfo, apiGetLogs } from './system.routes.js';
 import { apiOcr } from './ocr.route.js';
 import { apiWakeOnLan, apiSendWakeOnLanList, apiGetWakeOnLanList, apiAddWakeOnLan, apiDeleteWakeOnLan} from './wol.route.js'; 
-import { apiMouseJiggler, apiChangeJigglerTime, apiV2MouseJiggler, apiMouseEvent } from './mouse.route.js';
+import { apiMouseJiggler, apiMouseEvent } from './mouse.route.js';
 import {apiTwoFa, apiTwoFaVerify, apiGetTwoFaInfo} from './twoFa.js';
 import {apiPrometheusEnable, apiPrometheusState} from './prometheus.route.js';
 import {  apiVPNEnable, apiVPNState } from './vpn.route.js';
@@ -89,9 +89,7 @@ const routes = [
   { path: '/api/hid/shortcuts', handler: apiKeyboardShortcuts, method: 'post' },
   { path: '/api/hid/shortcuts/config', handler: apiGetShortcutsConfig, method: 'post' },
   { path: '/api/mouse/event', handler: apiMouseEvent, method: 'post' },
-  { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'get' },
-  { path: '/api/mouse/jiggler', handler: apiChangeJigglerTime, method: 'post' },
-  { path: '/api/v2/mouse/jiggler', handler: apiV2MouseJiggler, method: 'post' },
+  { path: '/api/mouse/jiggler', handler: apiMouseJiggler, method: 'post' },
   { path: '/api/hid/loop/block', handler: apiHIDLoopBlock, method: 'post' },
   { path: '/api/hid/loop', handler: apiHIDLoopStatus, method: 'get' },
   
@@ -125,7 +123,7 @@ const routes = [
 
   { path: '/api/reboot', handler: apiReboot, method: 'post' },
   { path: '/api/device', handler: apiGetDevice, method: 'post' },
-  { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'post' },
+  { path: '/api/systeminfo', handler: apiGetSystemInfo, method: 'get' },
   { path: '/api/ocr', handler: apiOcr, method: 'post' },
 
   { path: '/api/logs', handler: apiGetLogs, method: 'post' },

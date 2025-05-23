@@ -90,6 +90,17 @@ function apiGetSystemInfo(req, res, next) {
         .filter(fs => fs.fs.startsWith('/dev/mmcblk0'))
         .reduce((total, partition) => total + partition.available, 0);
         const { server } = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
+
+        const hdType  = getHardwareType();
+        let deviceVersion = '';
+        if( hdType === HardwareType.MangoPi){
+          deviceVersion = "BliKVM v4 Allwinner";
+        }else if(hdType === HardwareType.PI4B ){
+          deviceVersion = "BliKVM v3 HAT";
+        }else if( hdType === HardwareType.CM4 ){
+          deviceVersion = "BliKVM CM4";
+        }
+
         returnObject.data = {
           cpuLoad: systemInfo.cpuLoad,
           uptime: systemInfo.uptime,
@@ -100,6 +111,8 @@ function apiGetSystemInfo(req, res, next) {
             isEnabled: server.auth
           },
           board: {
+            deviceType: 'KVM-over-IP',
+            deviceVersion: deviceVersion || 'Unknown',
             manufacturer: systemData.manufacturer || 'Unknown',
             model: systemData.model || 'Unknown',
             version: systemData.version || 'Unknown',

@@ -40,9 +40,9 @@
     "port": 10004,
     "shell": "./lib/kvmd-video.sh",
     "bin": "./lib/pi/ustreamer.bin",
-    "fps": 30,
-    "quality": 80,
-    "kbps": 10000,
+    "fps": 20,
+    "quality": 100,
+    "kbps": 5000,
     "gop": 30,
     "resolution": "1920x1080",
     "recordPath": "/mnt/tmp/record",
@@ -77,7 +77,7 @@
     "keymaps": "./lib/keymaps",
     "enable": true,
     "mouseMode": "absolute",
-    "mouseJiggler": false,
+    "jigglerInterval": 0,
     "pass_through": {
       "enabled": true,
       "mouse_sensitivity": 0.3,
@@ -105,8 +105,7 @@
         "ControlLeft",
         "KeyW"
       ]
-    },
-    "jigglerInterval": 60
+    }
   },
   "prometheus": {
     "enabled": false,
