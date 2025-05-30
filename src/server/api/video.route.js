@@ -171,7 +171,7 @@ function apiGetVideoState(req, res, next) {
 async function wsGetVideoState() {
   try {
     const video = new Video();
-    if (video.state !== ModuleState.RUNNING) {
+    if (video.getstate() !== ModuleState.RUNNING) {
       const ret_stop = {
         isActive: false,
         width: 0,
@@ -260,12 +260,22 @@ function parseEdidOutput(output) {
   lines.forEach(line => {
     const [key, value] = line.split(':').map(part => part.trim());
     if (key && value) {
-      result[key.toLowerCase().replace(/\s+/g, '_')] = value;
+      const normalizedKey = key.toLowerCase().replace(/\s+/g, '_');
+      let finalValue = value;
+
+      // 只保留括号里的内容，例如将 "0x8888 (34952)" 转为 "34952"
+      const match = value.match(/\((\d+)\)/);
+      if ( (normalizedKey === 'product_id' || normalizedKey === 'serial_number' )  && match) {
+        finalValue = match[1]; // 提取括号内的数字字符串
+      }
+
+      result[normalizedKey] = finalValue;
     }
   });
 
   return result;
 }
+
 
 function apiEdidInfo(req, res, next) {
   try {

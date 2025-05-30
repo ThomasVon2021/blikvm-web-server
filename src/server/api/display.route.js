@@ -28,13 +28,13 @@ function apiSetDispaly(req, res, next) {
   try {
     const returnObject = createApiObj();
 
-    const { mode, onBootTime, cycleInterval, displayTime, secondIP } = req.body;
+    const { mode, onBootTime, cycleInterval, displayTime, secondaryIP } = req.body;
     const config = JSON.parse(fs.readFileSync(CONFIG_PATH, UTF8));
     config.display.mode = mode;
     config.display.onBootTime = onBootTime;
     config.display.cycleInterval = cycleInterval;
     config.display.displayTime = displayTime;
-    config.display.secondIP = secondIP;
+    config.display.secondaryIP = secondaryIP;
 
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), UTF8);
     returnObject.msg = 'Display config changed';

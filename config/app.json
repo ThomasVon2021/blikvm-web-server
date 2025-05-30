@@ -52,11 +52,11 @@
     "bin": "./lib/pi/kvmd-main"
   },
   "display": {
-    "mode": "boot",
+    "mode": "interval",
     "onBootTime": 3600,
-    "cycleInterval": 60,
-    "displayTime": 10,
-    "secondIP": ""
+    "cycleInterval": 2800,
+    "displayTime": 290,
+    "secondaryIP": "wg0"
   },
   "atx": {
     "controlSockFilePath": "/var/blikvm/atx.sock",
@@ -76,8 +76,8 @@
     "hidDisable": "./lib/hid/disable-gadget.sh",
     "keymaps": "./lib/keymaps",
     "enable": true,
-    "mouseMode": "absolute",
-    "jigglerInterval": 0,
+    "mouseMode": "dual",
+    "jigglerInterval": 40,
     "pass_through": {
       "enabled": true,
       "mouse_sensitivity": 0.3,
@@ -120,7 +120,7 @@
     "tempThreshold": 65
   },
   "healthCheck": {
-    "RAM": 0.6,
+    "RAM": 0.5,
     "storage": 0.7,
     "latency": 80,
     "temperature": 70
