@@ -42,7 +42,7 @@
     "bin": "./lib/pi/ustreamer.bin",
     "fps": 20,
     "quality": 100,
-    "kbps": 5000,
+    "kbps": 2000,
     "gop": 30,
     "resolution": "1920x1080",
     "recordPath": "/mnt/tmp/record",
