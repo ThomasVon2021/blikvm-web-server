@@ -61,11 +61,13 @@ class ModuleApp extends Module {
       this._app = spawn(this._bin, this._param);
 
       this._app.stdout.on('data', (data) => {
-        logger.trace(`${this._name} API stdout: ${data}`);
+        // logger.trace(`${this._name} API stdout: ${data}`);
+       console.log(data.toString());  // 将数据写入控制台
       });
 
       this._app.stderr.on('data', (data) => {
-        logger.trace(`${this._name} API stderr: ${data}`);
+        // logger.trace(`${this._name} API stderr: ${data}`);
+        console.log(data.toString());  // 将错误数据写入控制台（通常是红色的）
       });
 
       this._app.on('error', (err) => {

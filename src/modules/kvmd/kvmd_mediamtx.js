@@ -40,7 +40,7 @@ class Mediamtx extends ModuleApp {
     const { kvmd } = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     this._bin = kvmd.MediamtxBin;
     this._param = [kvmd.MediamtxCfg];
-    this._name = 'janus';
+    this._name = 'MediamtxCfg';
   }
 }
 
