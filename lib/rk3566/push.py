@@ -5,6 +5,8 @@ from gi.repository import Gst, GLib
 import subprocess
 import os
 
+import re
+
 # 初始化GStreamer
 Gst.init(None)
 
@@ -90,9 +92,9 @@ rtpsession_elements = {
 
 for session_name, element in rtpsession_elements.items():
     if element:
-        print(f"Found {session_name} element")
+        print(f"Found {session_name} element", flush=True)
     else:
-        print(f"{session_name} element not found")
+        print(f"{session_name} element not found", flush=True)
 
 def get_bitrate(struct):
     realtime_bitrate = 0
@@ -114,11 +116,11 @@ def print_realtime_bitrate(rtpsession, session_name):
         stats = rtpsession.get_property("stats")
         if stats:
             realtime_bitrate = get_bitrate(stats)
-            print(f"Bitrate for {session_name}: {realtime_bitrate}")
+            print(f"Bitrate for {session_name}: {realtime_bitrate}", flush=True)
         else:
-            print(f"Failed to retrieve stats property for {session_name}")
+            print(f"Failed to retrieve stats property for {session_name}", flush=True)
     except Exception as e:
-        print(f"Error retrieving stats property for {session_name}: {e}")
+        print(f"Error retrieving stats property for {session_name}: {e}", flush=True)
 
 try:
     while True:
@@ -129,4 +131,4 @@ try:
 except KeyboardInterrupt:
     # 结束时清理
     pipeline.set_state(Gst.State.NULL)
-    print("程序已结束")
+    print("程序已结束", flush=True)

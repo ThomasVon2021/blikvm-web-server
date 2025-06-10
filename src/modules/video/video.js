@@ -102,23 +102,24 @@ class Video extends ModuleApp {
 
     } else if (this._streamerType == StreamerType.Gstreamer) {
       this._bin = video.gstreamer.bin;
+      // port = video.gstreamer.port;
       if (this._hardwareType === HardwareType.OrangePiCM4) {
         if (video.gstreamer.decode === "H264") {
-          this._param = [`-e`, `v4l2src ! video/x-raw,width=1920,height=1080,framerate=60/1,format=NV12 ! queue ! mpph264enc qp-init=50 gop=60 bps-max=3000000 ! h264parse ! rtph265pay name=pay_pt ! rtspclientsink latency=100 name=sink  location=rtsp://127.0.0.1:8554/test alsasrc device=hw:1 ! audio/x-raw,rate=48000,channels=2 ! queue ! opusenc bitrate=320000 ! rtpopuspay ! sink.`];
+          this._param = [`./lib/rk3566/test.py`];
         } else {
-          this._param = [`-e`, `v4l2src ! video/x-raw,width=1920,height=1080,framerate=60/1,format=NV12 ! queue ! mpph265enc qp-init=50 gop=60 bps-max=3000000 ! h265parse ! rtph265pay name=pay_pt ! rtspclientsink latency=100 name=sink  location=rtsp://127.0.0.1:8554/test alsasrc device=hw:1 ! audio/x-raw,rate=48000,channels=2 ! queue ! opusenc bitrate=320000 ! rtpopuspay ! sink.`];
+          this._param = [`./lib/rk3566/test.py`];
         }
       }
     } else {
-      this._bin = video.gstreamer.bin;
-      if (this._hardwareType === HardwareType.OrangePiCM4) {
-        if (video.gstreamer.decode === "H264") {
-          this._param = [`-e`, `v4l2src ! video/x-raw,width=1920,height=1080,framerate=60/1,format=NV12 ! queue ! mpph264enc qp-init=50 gop=60 bps-max=3000000 ! h264parse ! rtph265pay name=pay_pt ! rtspclientsink latency=100 name=sink  location=rtsp://127.0.0.1:8554/test alsasrc device=hw:1 ! audio/x-raw,rate=48000,channels=2 ! queue ! opusenc bitrate=320000 ! rtpopuspay ! sink.`];
-        } else {
-          this._param = [`-e`, `v4l2src ! video/x-raw,width=1920,height=1080,framerate=60/1,format=NV12 ! queue ! mpph265enc qp-init=50 gop=60 bps-max=3000000 ! h265parse ! rtph265pay name=pay_pt ! rtspclientsink latency=100 name=sink  location=rtsp://127.0.0.1:8554/test alsasrc device=hw:1 ! audio/x-raw,rate=48000,channels=2 ! queue ! opusenc bitrate=320000 ! rtpopuspay ! sink.`];
-        }
-      }
-      console.log('Unknown streamer type. No action performed.');
+      // this._bin = video.gstreamer.bin;
+      // if (this._hardwareType === HardwareType.OrangePiCM4) {
+      //   if (video.gstreamer.decode === "H264") {
+      //     this._param = [`v4l2src ! video/x-raw,width=1920,height=1080,framerate=60/1,format=NV12 ! queue ! mpph264enc qp-init=50 gop=60 bps-max=3000000 ! h264parse ! rtph265pay name=pay_pt ! rtspclientsink latency=100 name=sink  location=rtsp://127.0.0.1:8554/test alsasrc device=hw:1 ! audio/x-raw,rate=48000,channels=2 ! queue ! opusenc bitrate=320000 ! rtpopuspay ! sink.`];
+      //   } else {
+      //     this._param = [`v4l2src ! video/x-raw,width=1920,height=1080,framerate=60/1,format=NV12 ! mpph265enc qp-init=50 gop=60 bps-max=3000000 ! h265parse ! rtspclientsink latency=100  location=rtsp://127.0.0.1:8554/test ! alsasrc device=hw:1 ! audio/x-raw,rate=48000,channels=2 ! opusenc bitrate=320000 ! rtpopuspay ! sink.`];
+      //   }
+      // }
+      // console.log('Unknown streamer type. No action performed.');
     }
     if (!this._bin) {
       console.error("Error: No binary found for streamer.");

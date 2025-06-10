@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "device": "./config/device.json",
   "log": {
     "console": {
@@ -24,7 +24,7 @@
       "key": "./lib/https/key.pem",
       "cert": "./lib/https/cert.pem"
     },
-    "rootPath": "/mnt/blikvm/web_src/web_server",
+    "rootPath": "/mnt/tmp/yueliang/blikvm-web-server",
     "configPath": "/usr/bin/blikvm/package.json",
     "sshUser": "blikvm",
     "sshPassword": "blikvm",
@@ -43,11 +43,11 @@
       "recordBin": "./lib/pi/ustreamer-dump"
     },
     "gstreamer": {
-      "port":10004,
+      "port": 10004,
       "kbps": 5000,
       "gop": 30,
-      "bin": "/usr/bin/gst-launch-1.0",
-      "decodeMode":"H265"
+      "bin": "python3",
+      "decodeMode": "H265"
     }
   },
   "kvmd": {
